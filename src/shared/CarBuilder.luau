@@ -130,7 +130,7 @@ local function buildFromTemplate(template: Model, stats, opts)
 		CustomPhysicalProperties = PhysicalProperties.new(0.1, 0, 0, 100, 1),
 	})
 
-	local wheelR = P.r * S
+	local wheelR = 0 -- measured from the real tyres below
 	local hubs, extras = {}, {}
 	for _, d in src:GetDescendants() do
 		if d:IsA("BasePart") then
@@ -165,7 +165,9 @@ local function buildFromTemplate(template: Model, stats, opts)
 				-- keep wheels round: scale Y/Z equally
 				local s = (f.Y + f.Z) / 2
 				scaleBy(Vector3.new(f.X, s, s))
-				wheelR = math.max(wheelR, math.max(d.Size.Y, d.Size.Z) / 2)
+				-- smallest hub wins: a stray bigger piece must not inflate the tyre size
+				local r = math.max(d.Size.Y, d.Size.Z) / 2
+				wheelR = wheelR > 0 and math.min(wheelR, r) or r
 			else
 				scaleBy(f)
 			end
@@ -201,6 +203,9 @@ local function buildFromTemplate(template: Model, stats, opts)
 				w.Parent = d
 			end
 		end
+	end
+	if wheelR <= 0 then
+		wheelR = P.r * S
 	end
 	for _, e in extras do
 		local hub = hubs[e[2]]
@@ -262,11 +267,31 @@ function CarBuilder.hasModel(stats): boolean
 	return findTemplate(stats) ~= nil
 end
 
+-- The drive script's suspension rides each wheel this far below its modelled spot at
+-- rest; bake that into the weld so every player (not just the driver) sees the tyres
+-- on the road. Keep in sync with DriveController (travel and the 0.55 rest factor).
+CarBuilder.RestDrop = function(wheelR: number): number
+	return math.max(wheelR * 0.9, 0.8) * 0.55
+end
+local function settleWheels(model: Model)
+	local drop = CarBuilder.RestDrop(model:GetAttribute("WheelRadius") or 1)
+	for _, w in model:GetChildren() do
+		local weld = w:FindFirstChild("Axle")
+		local base = w:GetAttribute("BaseC0")
+		if weld and base then
+			local settled = CFrame.new(0, -drop, 0) * base
+			weld.C0 = settled
+			w:SetAttribute("BaseC0", settled)
+		end
+	end
+	return model
+end
+
 function CarBuilder.build(stats, paint: Color3, opts)
 	opts = opts or {}
 	local template = findTemplate(stats)
 	if template then
-		return buildFromTemplate(template, stats, opts)
+		return settleWheels(buildFromTemplate(template, stats, opts))
 	end
 	local P = PROFILES[stats.body] or PROFILES.sedan
 	local L, W, H = stats.length * S, stats.width * S, stats.height * S
@@ -523,7 +548,7 @@ function CarBuilder.build(stats, paint: Color3, opts)
 	model:SetAttribute("Height", H)
 	model:SetAttribute("WheelRadius", R)
 	model:SetAttribute("Rarity", stats.rarity)
-	return model
+	return settleWheels(model)
 end
 
 -- Unanchor every part so physics takes over.

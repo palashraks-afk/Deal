@@ -91,7 +91,8 @@ local function step(dt: number)
 		local wheel = car:FindFirstChild(name)
 		local base = wheel and wheel:GetAttribute("BaseC0")
 		if base then
-			local origin = cf * (base.Position + Vector3.new(0, travel * 0.5, 0))
+			-- base is the settled (resting) wheel spot; the ray starts from the modelled spot + half travel
+			local origin = cf * (base.Position + Vector3.new(0, travel * 0.55 + travel * 0.5, 0))
 			local len = wheelR + travel * 1.5
 			local hit = workspace:Raycast(origin, -up * len, params)
 			local drop = travel * 1.5 -- wheel hangs fully down in the air
@@ -171,7 +172,8 @@ local function step(dt: number)
 		local base = wheel and wheel:GetAttribute("BaseC0")
 		if weld and base then
 			local steerAngle = (name == "WheelFL" or name == "WheelFR") and -steer * 0.45 or 0
-			weld.C0 = CFrame.new(0, -(wheelDrop[name] or 0), 0) * base * CFrame.Angles(0, steerAngle, 0) * CFrame.Angles(-wheelSpin, 0, 0)
+			-- base already has the resting drop baked in (CarBuilder.RestDrop = travel * 0.55)
+			weld.C0 = CFrame.new(0, -((wheelDrop[name] or travel * 0.55) - travel * 0.55), 0) * base * CFrame.Angles(0, steerAngle, 0) * CFrame.Angles(-wheelSpin, 0, 0)
 		end
 	end
 end
