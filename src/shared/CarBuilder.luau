@@ -148,7 +148,7 @@ local function buildFromTemplate(template: Model, stats, opts)
 			-- (CollisionFidelity = Box is set on the templates in Studio; it can't be set at runtime)
 			if wheelKey then
 				d.Name = "Wheel" .. wheelKey
-				d.CanCollide = opts.drivable == true
+				d.CanCollide = false -- the drive script's raycast suspension holds the car up
 				d.CustomPhysicalProperties = PhysicalProperties.new(0.7, 0, 0, 100, 1)
 				d.Parent = model
 				local weld = Instance.new("Weld")
@@ -433,7 +433,7 @@ function CarBuilder.build(stats, paint: Color3, opts)
 		local tyre = part(model, nil, "Wheel" .. name, Vector3.new(wheelW, R * 2, R * 2), cf, {
 			Shape = Enum.PartType.Cylinder,
 			Color = Color3.fromRGB(24, 24, 26),
-			CanCollide = opts.drivable == true,
+			CanCollide = false, -- raycast suspension holds the car up
 			CustomPhysicalProperties = tyreProps,
 		})
 		-- Weld (not WeldConstraint) so the client can spin/steer it via C0.

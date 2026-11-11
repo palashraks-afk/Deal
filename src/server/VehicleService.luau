@@ -96,10 +96,24 @@ local function park(info)
 		root.AssemblyLinearVelocity = Vector3.zero
 		root.AssemblyAngularVelocity = Vector3.zero
 		-- stand it upright if it rolled
+		-- and put the wheels back on the road (without a driver there's no suspension)
 		local look = root.CFrame.LookVector
 		local flat = Vector3.new(look.X, 0, look.Z)
-		if flat.Magnitude > 0.1 and root.CFrame.UpVector.Y < 0.8 then
-			placeOnGround(model, CFrame.lookAt(Vector3.new(root.Position.X, 0.2, root.Position.Z), Vector3.new(root.Position.X, 0.2, root.Position.Z) + flat))
+		if flat.Magnitude > 0.1 then
+			local params = RaycastParams.new()
+			params.FilterType = Enum.RaycastFilterType.Exclude
+			params.FilterDescendantsInstances = { model }
+			local hit = workspace:Raycast(root.Position + Vector3.new(0, 4, 0), Vector3.new(0, -30, 0), params)
+			local y = hit and hit.Position.Y or 0.2
+			local p = Vector3.new(root.Position.X, y, root.Position.Z)
+			placeOnGround(model, CFrame.lookAt(p, p + flat))
+		end
+		for _, w in model:GetChildren() do
+			local weld = w:FindFirstChild("Axle")
+			local base = w:GetAttribute("BaseC0")
+			if weld and base then
+				weld.C0 = base
+			end
 		end
 		CarBuilder.anchor(model, true)
 	end

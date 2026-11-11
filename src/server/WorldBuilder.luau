@@ -167,27 +167,48 @@ local function road(parent, center: Vector3, sizeX: number, sizeZ: number, skipR
 		end
 		return last
 	end
-	local r = make("Part", {
-		Name = "Road",
-		Size = Vector3.new(sizeX, 0.2, sizeZ),
-		Position = center + Vector3.new(0, 0.1, 0),
-		Material = Enum.Material.Asphalt,
-		Color = Color3.fromRGB(44, 44, 48),
-	}, parent)
-	mapColor(r, Color3.fromRGB(46, 48, 54), 3)
 	local alongX = sizeX > sizeZ
 	local len = alongX and sizeX or sizeZ
-	-- dashed centre line
-	for d = -len / 2 + 6, len / 2 - 6, 18 do
+	local width = alongX and sizeZ or sizeX
+	-- east-west roads sit a hair lower than north-south ones, so where they cross
+	-- one surface cleanly covers the other (no flickering, no lines through junctions)
+	local top = alongX and 0.2 or 0.26
+	local r = make("Part", {
+		Name = "Road",
+		Size = Vector3.new(sizeX, top, sizeZ),
+		Position = Vector3.new(center.X, center.Y + top / 2, center.Z),
+		Material = Enum.Material.Asphalt,
+		Color = Color3.fromRGB(40, 41, 45),
+	}, parent)
+	mapColor(r, Color3.fromRGB(46, 48, 54), 3)
+	local function line(across: number, along: number, length: number, thick: number, color: Color3)
 		make("Part", {
 			Name = "Line",
-			Size = alongX and Vector3.new(8, 0.05, 0.5) or Vector3.new(0.5, 0.05, 8),
-			Position = center + (alongX and Vector3.new(d, 0.23, 0) or Vector3.new(0, 0.23, d)),
+			Size = alongX and Vector3.new(length, 0.04, thick) or Vector3.new(thick, 0.04, length),
+			Position = Vector3.new(center.X, center.Y + top + 0.02, center.Z) + (alongX and Vector3.new(along, 0, across) or Vector3.new(across, 0, along)),
 			Material = Enum.Material.SmoothPlastic,
-			Color = Color3.fromRGB(230, 200, 60),
+			Color = color,
 			CanCollide = false,
 			CanQuery = false,
+			CastShadow = false,
 		}, parent)
+	end
+	local WHITE, YELLOW = Color3.fromRGB(235, 235, 230), Color3.fromRGB(240, 196, 40)
+	-- solid white edge lines
+	for _, s in { -1, 1 } do
+		line(s * (width / 2 - 1.6), 0, len - 2, 0.5, WHITE)
+	end
+	-- double yellow centre line
+	for _, s in { -1, 1 } do
+		line(s * 0.45, 0, len - 2, 0.35, YELLOW)
+	end
+	-- dashed white lane dividers on wide roads (two lanes each way)
+	if width >= 40 then
+		for _, s in { -1, 1 } do
+			for d = -len / 2 + 8, len / 2 - 8, 26 do
+				line(s * width / 4, d, 10, 0.4, WHITE)
+			end
+		end
 	end
 	return r
 end
@@ -313,13 +334,25 @@ local function tower(parent, pos: Vector3, w: number, d: number, h: number)
 	local style = TOWER_STYLES[rng:NextInteger(1, #TOWER_STYLES)]
 	local m = make("Model", { Name = "Tower" }, parent)
 	local core = make("Part", { Name = "Core", Size = Vector3.new(w, h, d), Position = pos + Vector3.new(0, h / 2, 0), Material = style[2], Color = style[3], Reflectance = style[2] == Enum.Material.Glass and 0.15 or 0 }, m)
-	if style[1] then
-		variant(core, style[1])
-	else
-		-- dark tower with lit window bands
-		for y = 8, h - 6, 10 do
-			local lit = rng:NextNumber() < 0.4
-			make("Part", { Size = Vector3.new(w + 0.3, 3.5, d + 0.3), Position = pos + Vector3.new(0, y, 0), Material = lit and Enum.Material.Neon or Enum.Material.Glass, Color = lit and Color3.fromRGB(255, 214, 150) or Color3.fromRGB(30, 44, 60), Transparency = lit and 0.4 or 0, CanCollide = false }, m)
+	local _ = style[1]
+	-- real facade detail instead of stretched texture images: a dark glass window band
+	-- on every floor, a stone floor slab between floors, and vertical mullions
+	local glassCol = style[2] == Enum.Material.Brick and Color3.fromRGB(34, 44, 56) or Color3.fromRGB(56, 86, 112)
+	local slabCol = style[2] == Enum.Material.Glass and Color3.fromRGB(200, 204, 210) or Color3.fromRGB(176, 170, 156)
+	for y = 10, h - 5, 9 do
+		local lit = rng:NextNumber() < 0.18
+		make("Part", { Size = Vector3.new(w + 0.3, 5, d + 0.3), Position = pos + Vector3.new(0, y, 0), Material = lit and Enum.Material.Neon or Enum.Material.Glass, Color = lit and Color3.fromRGB(255, 220, 160) or glassCol, Transparency = lit and 0.55 or 0, Reflectance = lit and 0 or 0.25, CanCollide = false, CastShadow = false }, m)
+		make("Part", { Size = Vector3.new(w + 0.7, 0.7, d + 0.7), Position = pos + Vector3.new(0, y + 3.2, 0), Material = Enum.Material.Concrete, Color = slabCol, CanCollide = false }, m)
+	end
+	for _, ax in { "x", "z" } do
+		local span = ax == "x" and w or d
+		local n = math.max(2, math.floor(span / 10))
+		for i = 1, n - 1 do
+			local o = -span / 2 + span * i / n
+			for _, s in { -1, 1 } do
+				local p = ax == "x" and Vector3.new(o, h / 2 + 3, s * (d / 2 + 0.3)) or Vector3.new(s * (w / 2 + 0.3), h / 2 + 3, o)
+				make("Part", { Size = Vector3.new(0.6, h - 6, 0.6), Position = pos + p, Material = Enum.Material.Metal, Color = Color3.fromRGB(60, 62, 68), CanCollide = false, CastShadow = false }, m)
+			end
 		end
 	end
 	make("Part", { Size = Vector3.new(w + 1, 1.4, d + 1), Position = pos + Vector3.new(0, h + 0.7, 0), Material = Enum.Material.Concrete, Color = Color3.fromRGB(70, 70, 74) }, m)
@@ -759,6 +792,173 @@ local function buildMainRoads(map)
 	end
 end
 
+---------------------------------------------------------------- BOULEVARD STREETS
+-- Both sides of Dealz Boulevard used to be empty. Now: a sidewalk, a row of street
+-- shops (corner marts, repair shops, diners, laundromats...), chain-link lots and
+-- a second row of brick apartments with fire escapes behind them.
+local BLOCKERS = {
+	{ -460, -340, -215, -85 }, -- gun store
+	{ 290, 510, -390, -70 }, -- plaza
+	{ 1650, 1750, 360, 440 }, -- gas station
+	{ -690, -610, -1400, 1400 }, -- west avenue
+	{ 610, 690, -1400, 1400 }, -- east avenue
+	{ -2000, -1940, -1400, 1400 }, -- ring road
+	{ 1740, 1820, -1400, 30 }, -- dock road
+}
+local function free(x0, x1, z0, z1): boolean
+	for _, r in BLOCKERS do
+		if x1 > r[1] and x0 < r[2] and z1 > r[3] and z0 < r[4] then
+			return false
+		end
+	end
+	for _, r in RESERVED do
+		if x1 > r[1] - 12 and x0 < r[2] + 12 and z1 > r[3] - 12 and z0 < r[4] + 12 then
+			return false
+		end
+	end
+	return true
+end
+
+local SHOP_NAMES = { "CORNER MART", "AUTO REPAIR", "DINER", "LAUNDRY", "BARBER", "PAWN SHOP", "TIRES", "PIZZA", "PHONE FIX", "CHECKS CASHED", "TACOS", "GYM", "DELI", "PARTS", "NAILS", "WINGS" }
+local BRICKS = { Color3.fromRGB(140, 70, 52), Color3.fromRGB(110, 60, 48), Color3.fromRGB(168, 120, 90), Color3.fromRGB(90, 86, 84), Color3.fromRGB(196, 186, 168), Color3.fromRGB(120, 112, 100) }
+local ACCENTS = { Color3.fromRGB(200, 40, 40), Color3.fromRGB(40, 110, 200), Color3.fromRGB(30, 140, 80), Color3.fromRGB(230, 160, 30), Color3.fromRGB(120, 50, 160), Color3.fromRGB(20, 20, 24) }
+
+local function signText(part: BasePart, face: Enum.NormalId, text: string, color: Color3, canvas: Vector2)
+	local g = make("SurfaceGui", { Face = face, SizingMode = Enum.SurfaceGuiSizingMode.FixedSize, CanvasSize = canvas, LightInfluence = 0.2 }, part)
+	make("TextLabel", { Size = UDim2.new(1, -20, 1, -10), Position = UDim2.fromOffset(10, 5), BackgroundTransparency = 1, Text = text, TextScaled = true, Font = Enum.Font.GothamBlack, TextColor3 = color }, g)
+end
+
+-- cf faces the street: local -Z is the shop front
+local function streetShop(parent, cf: CFrame, w: number, d: number)
+	local m = make("Model", { Name = "Shop" }, parent)
+	local floors = rng:NextInteger(1, 2)
+	local h = floors * 13
+	local brick = BRICKS[rng:NextInteger(1, #BRICKS)]
+	local accent = ACCENTS[rng:NextInteger(1, #ACCENTS)]
+	local at = function(x, y, z)
+		return cf * CFrame.new(x, y, z)
+	end
+	make("Part", { Name = "Body", Size = Vector3.new(w, h, d), CFrame = at(0, h / 2, 0), Material = Enum.Material.Brick, Color = brick }, m)
+	-- parapet + roof cap + rooftop AC units
+	make("Part", { Size = Vector3.new(w + 0.6, 1.6, d + 0.6), CFrame = at(0, h + 0.8, 0), Material = Enum.Material.Concrete, Color = Color3.fromRGB(70, 70, 74) }, m)
+	for i = 1, rng:NextInteger(1, 3) do
+		make("Part", { Size = Vector3.new(5, 3, 4), CFrame = at(rng:NextNumber(-w / 3, w / 3), h + 3, rng:NextNumber(-d / 4, d / 4)), Material = Enum.Material.Metal, Color = Color3.fromRGB(170, 172, 176) }, m)
+	end
+	-- storefront: dark frame, big glass, door, awning, lit sign
+	make("Part", { Size = Vector3.new(w - 4, 9, 0.4), CFrame = at(0, 5.5, -d / 2 - 0.2), Material = Enum.Material.Metal, Color = Color3.fromRGB(28, 28, 32) }, m)
+	make("Part", { Size = Vector3.new(w - 6, 7, 0.3), CFrame = at(0, 5.5, -d / 2 - 0.45), Material = Enum.Material.Glass, Color = Color3.fromRGB(150, 180, 200), Transparency = 0.35, Reflectance = 0.2 }, m)
+	make("Part", { Size = Vector3.new(4, 7.5, 0.5), CFrame = at(w / 2 - 6, 4.75, -d / 2 - 0.5), Material = Enum.Material.Metal, Color = Color3.fromRGB(40, 40, 44) }, m)
+	make("Part", { Size = Vector3.new(w - 2, 0.5, 5), CFrame = at(0, 10.6, -d / 2 - 2.4) * CFrame.Angles(math.rad(-14), 0, 0), Material = Enum.Material.Fabric, Color = accent }, m)
+	local sign = make("Part", { Name = "Sign", Size = Vector3.new(math.min(w - 4, 30), 3.2, 0.5), CFrame = at(0, 12.6, -d / 2 - 0.4), Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(16, 16, 20) }, m)
+	signText(sign, Enum.NormalId.Front, SHOP_NAMES[rng:NextInteger(1, #SHOP_NAMES)], Color3.fromRGB(255, 240, 200), Vector2.new(sign.Size.X * 18, 58))
+	make("PointLight", { Range = 16, Brightness = 1.2, Color = Color3.fromRGB(255, 220, 170) }, sign)
+	-- upper floor windows
+	if floors == 2 then
+		for x = -w / 2 + 5, w / 2 - 5, 7 do
+			make("Part", { Size = Vector3.new(4, 5, 0.3), CFrame = at(x, 19.5, -d / 2 - 0.15), Material = Enum.Material.Glass, Color = rng:NextNumber() < 0.3 and Color3.fromRGB(255, 214, 150) or Color3.fromRGB(40, 54, 70), Transparency = 0.1 }, m)
+		end
+	end
+	-- a mural on the side wall now and then
+	if rng:NextNumber() < 0.35 then
+		local side = rng:NextNumber() < 0.5 and -1 or 1
+		for i = 0, 3 do
+			make("Part", { Size = Vector3.new(0.2, rng:NextNumber(3, 8), rng:NextNumber(4, d * 0.4)), CFrame = at(side * (w / 2 + 0.1), rng:NextNumber(3, h - 3), rng:NextNumber(-d / 3, d / 3)), Material = Enum.Material.SmoothPlastic, Color = ACCENTS[rng:NextInteger(1, #ACCENTS)], CanCollide = false }, m)
+		end
+	end
+	-- dumpster round the back
+	make("Part", { Size = Vector3.new(6, 4, 3.5), CFrame = at(rng:NextNumber(-w / 3, w / 3), 2, d / 2 + 3), Material = Enum.Material.CorrodedMetal, Color = Color3.fromRGB(40, 90, 50) }, m)
+	return m
+end
+
+local function fencedLot(parent, cf: CFrame, w: number, d: number)
+	local m = make("Model", { Name = "Lot" }, parent)
+	make("Part", { Size = Vector3.new(w, 0.3, d), CFrame = cf * CFrame.new(0, 0.15, 0), Material = Enum.Material.Asphalt, Color = Color3.fromRGB(58, 58, 60) }, m)
+	-- chain-link on three sides (open to the street), posts every 10 studs
+	local function fence(len, fcf)
+		make("Part", { Size = Vector3.new(len, 8, 0.15), CFrame = fcf * CFrame.new(0, 4, 0), Material = Enum.Material.DiamondPlate, Color = Color3.fromRGB(150, 152, 156), Transparency = 0.55 }, m)
+		for x = -len / 2, len / 2, 10 do
+			make("Part", { Size = Vector3.new(0.4, 8.6, 0.4), CFrame = fcf * CFrame.new(x, 4.3, 0), Material = Enum.Material.Metal, Color = Color3.fromRGB(120, 122, 126) }, m)
+		end
+	end
+	fence(w, cf * CFrame.new(0, 0, d / 2))
+	fence(d, cf * CFrame.new(-w / 2, 0, 0) * CFrame.Angles(0, math.pi / 2, 0))
+	fence(d, cf * CFrame.new(w / 2, 0, 0) * CFrame.Angles(0, math.pi / 2, 0))
+	for x = -w / 2 + 6, w / 2 - 6, 12 do
+		make("Part", { Size = Vector3.new(0.4, 0.05, 14), CFrame = cf * CFrame.new(x, 0.33, d / 2 - 9), Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(230, 230, 225), CanCollide = false }, m)
+	end
+	return m
+end
+
+local function apartment(parent, cf: CFrame, w: number, d: number)
+	local m = make("Model", { Name = "Apartment" }, parent)
+	local floors = rng:NextInteger(3, 6)
+	local h = floors * 11 + 2
+	make("Part", { Name = "Body", Size = Vector3.new(w, h, d), CFrame = cf * CFrame.new(0, h / 2, 0), Material = Enum.Material.Brick, Color = BRICKS[rng:NextInteger(1, 4)] }, m)
+	make("Part", { Size = Vector3.new(w + 0.8, 1.4, d + 0.8), CFrame = cf * CFrame.new(0, h + 0.7, 0), Material = Enum.Material.Concrete, Color = Color3.fromRGB(80, 78, 76) }, m)
+	-- window grid on the street face, plus stone sills between floors
+	for f = 0, floors - 1 do
+		local y = 6 + f * 11
+		make("Part", { Size = Vector3.new(w + 0.4, 0.8, 0.6), CFrame = cf * CFrame.new(0, y - 3.5, -d / 2 - 0.1), Material = Enum.Material.Concrete, Color = Color3.fromRGB(190, 184, 170) }, m)
+		for x = -w / 2 + 5, w / 2 - 5, 8 do
+			local lit = rng:NextNumber() < 0.25
+			make("Part", { Size = Vector3.new(4, 6, 0.3), CFrame = cf * CFrame.new(x, y, -d / 2 - 0.15), Material = lit and Enum.Material.Neon or Enum.Material.Glass, Color = lit and Color3.fromRGB(255, 210, 140) or Color3.fromRGB(36, 48, 62), Transparency = lit and 0.35 or 0 }, m)
+		end
+	end
+	-- zig-zag fire escape on one side of the face
+	local fx = rng:NextNumber() < 0.5 and -w / 4 or w / 4
+	for f = 1, floors - 1 do
+		local y = f * 11 + 1
+		make("Part", { Size = Vector3.new(12, 0.3, 4), CFrame = cf * CFrame.new(fx, y, -d / 2 - 2), Material = Enum.Material.DiamondPlate, Color = Color3.fromRGB(34, 34, 36) }, m)
+		make("Part", { Size = Vector3.new(12, 2.4, 0.15), CFrame = cf * CFrame.new(fx, y + 1.3, -d / 2 - 4), Material = Enum.Material.Metal, Color = Color3.fromRGB(34, 34, 36), Transparency = 0.3 }, m)
+		make("WedgePart", { Size = Vector3.new(1.6, 9, 9), CFrame = cf * CFrame.new(fx + (f % 2 == 0 and -4 or 4), y - 4.5, -d / 2 - 2) * CFrame.Angles(0, math.pi / 2, 0), Material = Enum.Material.Metal, Color = Color3.fromRGB(34, 34, 36), Transparency = 0.2 }, m)
+	end
+	return m
+end
+
+local function buildBoulevardStreets(map)
+	local f = make("Folder", { Name = "BoulevardStreets" }, map)
+	local BOUL = (ROAD_W + 10) / 2 -- half width of the boulevard
+	for _, s in { -1, 1 } do
+		-- sidewalk along the whole boulevard (split for the 2048 limit)
+		for _, half in { -1, 1 } do
+			local walk = make("Part", { Name = "Sidewalk", Size = Vector3.new(HALF_X - 10, 0.5, 12), Position = Vector3.new(half * HALF_X / 2, 0.25, s * (BOUL + 6)), Material = Enum.Material.Pavement, Color = Color3.fromRGB(170, 168, 162) }, f)
+			mapColor(walk, Color3.fromRGB(150, 152, 160), 2)
+		end
+		table.insert(WorldBuilder.PedestrianPaths, { Vector3.new(-1900, 1, s * (BOUL + 6)), Vector3.new(1900, 1, s * (BOUL + 6)) })
+		-- front row: shops and lots, facing the boulevard
+		local x = -1930
+		while x < 1930 do
+			local w = rng:NextInteger(36, 56)
+			local d = rng:NextInteger(30, 40)
+			local cz = s * (BOUL + 12 + 6 + d / 2)
+			if free(x, x + w, cz - d / 2, cz + d / 2) then
+				local cf = CFrame.new(x + w / 2, 0, cz) * CFrame.Angles(0, s == -1 and math.pi or 0, 0)
+				if rng:NextNumber() < 0.2 then
+					fencedLot(f, cf, w, d)
+				else
+					streetShop(f, cf, w, d)
+				end
+				-- street tree / hydrant on the kerb
+				if rng:NextNumber() < 0.5 then
+					tree(f, Vector3.new(x + w / 2, 0.5, s * (BOUL + 9)))
+				end
+			end
+			x += w + rng:NextInteger(8, 22) -- alleys between buildings
+		end
+		-- back row: brick apartments
+		x = -1920
+		while x < 1920 do
+			local w = rng:NextInteger(40, 64)
+			local d = rng:NextInteger(30, 44)
+			local cz = s * (BOUL + 90 + d / 2)
+			if free(x, x + w, cz - d / 2, cz + d / 2) and rng:NextNumber() < 0.8 then
+				apartment(f, CFrame.new(x + w / 2, 0, cz) * CFrame.Angles(0, s == -1 and math.pi or 0, 0), w, d)
+			end
+			x += w + rng:NextInteger(14, 30)
+		end
+	end
+end
+
 ---------------------------------------------------------------- plots
 local function buildPlots(map)
 	local plots = make("Folder", { Name = "Plots" }, map)
@@ -808,6 +1008,7 @@ function WorldBuilder.build()
 	buildHills(map)
 	buildBeach(map)
 	buildDesert(map)
+	buildBoulevardStreets(map)
 	buildPlots(map)
 	pcall(function()
 		map.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
