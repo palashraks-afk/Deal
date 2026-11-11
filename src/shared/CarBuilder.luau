@@ -98,8 +98,17 @@ local function buildFromTemplate(template: Model, stats, opts)
 	local L, W, H = stats.length * S, stats.width * S, stats.height * S
 	local src = template:Clone()
 	local bbCf, size = src:GetBoundingBox()
-	-- stretch to the real car's length/width/height
-	local f = Vector3.new(W / size.X, H / size.Y, L / size.Z)
+	local f
+	if template:GetAttribute("Uniform") then
+		-- hand-made imported models already have the right proportions: scale evenly to
+		-- the real car's length and never stretch them
+		local u = L / size.Z
+		f = Vector3.new(u, u, u)
+		W, H = size.X * u, size.Y * u
+	else
+		-- AI meshes: stretch to the real car's length/width/height
+		f = Vector3.new(W / size.X, H / size.Y, L / size.Z)
+	end
 	local origin = Vector3.new(bbCf.Position.X, bbCf.Position.Y - size.Y / 2, bbCf.Position.Z)
 
 	local model = Instance.new("Model")
@@ -122,23 +131,43 @@ local function buildFromTemplate(template: Model, stats, opts)
 	})
 
 	local wheelR = P.r * S
+	local hubs, extras = {}, {}
 	for _, d in src:GetDescendants() do
-		if d:IsA("MeshPart") then
+		if d:IsA("BasePart") then
 			local lname = string.lower(d.Name)
 			local wheelKey
-			for _, k in WHEEL_KEYS do
-				if string.find(lname, k[1], 1, true) then
-					wheelKey = k[2]
+			-- extra pieces of a wheel (rim, brake disc...) follow that wheel's hub
+			local extraOf = d:GetAttribute("WheelOf")
+			if not extraOf then
+				for _, k in WHEEL_KEYS do
+					if string.find(lname, k[1], 1, true) then
+						wheelKey = k[2]
+					end
 				end
 			end
 			local rel = (d.Position - origin) * f
+			local function scaleBy(v: Vector3)
+				-- parts sized in local axes: map the world scale onto the part's own axes
+				local r = d.CFrame.Rotation
+				local ax = Vector3.new(
+					math.abs(r.XVector.X) * v.X + math.abs(r.XVector.Y) * v.Y + math.abs(r.XVector.Z) * v.Z,
+					math.abs(r.YVector.X) * v.X + math.abs(r.YVector.Y) * v.Y + math.abs(r.YVector.Z) * v.Z,
+					math.abs(r.ZVector.X) * v.X + math.abs(r.ZVector.Y) * v.Y + math.abs(r.ZVector.Z) * v.Z
+				)
+				d.Size = d.Size * ax
+				local sm = d:FindFirstChildOfClass("SpecialMesh")
+				if sm then
+					sm.Scale = sm.Scale * ax
+					sm.Offset = sm.Offset * ax
+				end
+			end
 			if wheelKey then
 				-- keep wheels round: scale Y/Z equally
 				local s = (f.Y + f.Z) / 2
-				d.Size = Vector3.new(d.Size.X * f.X, d.Size.Y * s, d.Size.Z * s)
-				wheelR = math.max(d.Size.Y, d.Size.Z) / 2
+				scaleBy(Vector3.new(f.X, s, s))
+				wheelR = math.max(wheelR, math.max(d.Size.Y, d.Size.Z) / 2)
 			else
-				d.Size = d.Size * f
+				scaleBy(f)
 			end
 			d.CFrame = CFrame.new(rel) * d.CFrame.Rotation
 			d.Anchored = true
@@ -146,9 +175,9 @@ local function buildFromTemplate(template: Model, stats, opts)
 			d.CanQuery = true
 			d.Massless = true
 			-- (CollisionFidelity = Box is set on the templates in Studio; it can't be set at runtime)
+			d.CanCollide = false
 			if wheelKey then
 				d.Name = "Wheel" .. wheelKey
-				d.CanCollide = false -- the drive script's raycast suspension holds the car up
 				d.CustomPhysicalProperties = PhysicalProperties.new(0.7, 0, 0, 100, 1)
 				d.Parent = model
 				local weld = Instance.new("Weld")
@@ -158,9 +187,13 @@ local function buildFromTemplate(template: Model, stats, opts)
 				weld.C0 = root.CFrame:Inverse() * d.CFrame
 				weld.Parent = d
 				d:SetAttribute("BaseC0", weld.C0)
+				hubs[wheelKey] = d
+			elseif extraOf then
+				d.Name = "WheelPart"
+				d.Parent = model
+				table.insert(extras, { d, extraOf })
 			else
 				d.Name = "Body"
-				d.CanCollide = false
 				d.Parent = model
 				local w = Instance.new("WeldConstraint")
 				w.Part0 = root
@@ -168,6 +201,13 @@ local function buildFromTemplate(template: Model, stats, opts)
 				w.Parent = d
 			end
 		end
+	end
+	for _, e in extras do
+		local hub = hubs[e[2]]
+		local w = Instance.new("WeldConstraint")
+		w.Part0 = hub or root
+		w.Part1 = e[1]
+		w.Parent = e[1]
 	end
 	src:Destroy()
 

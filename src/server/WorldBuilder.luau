@@ -1040,7 +1040,7 @@ function WorldBuilder.build()
 	-- base ground in tiles (parts can't be bigger than 2048 studs)
 	-- terrain look: natural tones, grass blades, gentle water
 	local terrain = workspace.Terrain
-	terrain.Decoration = true
+	-- (grass blades: Terrain.Decoration is set on in the place file; scripts can't set it)
 	terrain.WaterColor = Color3.fromRGB(40, 110, 140)
 	terrain.WaterTransparency = 0.6
 	terrain.WaterWaveSize = 0.15

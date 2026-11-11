@@ -122,7 +122,8 @@ function Minimap.start()
 				blip(other.Character.PrimaryPart.Position, Color3.fromRGB(255, 70, 70), 8, 18)
 			end
 		end
-		for _, plot in map.Plots:GetChildren() do
+		local plots = map:FindFirstChild("Plots") -- may not have streamed in yet
+		for _, plot in plots and plots:GetChildren() or {} do
 			local floor = plot:FindFirstChild("Floor")
 			if floor then
 				local mine = plot:GetAttribute("OwnerUserId") == player.UserId
