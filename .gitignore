@@ -1,0 +1,5 @@
+﻿*.rbxl
+*.rbxlx
+*.lock
+__pycache__/
+build/

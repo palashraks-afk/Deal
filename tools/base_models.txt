@@ -1,0 +1,601 @@
+# Real base models for DrivinDealz.
+# Header line:  @RealBrand=GameBrand
+# Model line:   GameModel|RealModel|body|length_m|width_m|height_m|hp|value_usd
+# value_usd = rough new price, or collector value for classics / limited cars.
+# body: hatch sedan coupe wagon suv truck van muscle sports super hyper classic offroad
+
+@Toyota=Toyoda
+Corrola|Corolla|sedan|4.63|1.78|1.43|169|23000
+Camrie|Camry|sedan|4.88|1.84|1.44|225|28000
+Prios|Prius|hatch|4.60|1.78|1.42|194|28000
+Yarris|Yaris|hatch|3.94|1.70|1.50|106|17000
+RAV-5|RAV4|suv|4.60|1.86|1.69|203|30000
+Highlandr|Highlander|suv|4.95|1.93|1.73|265|40000
+5Runner|4Runner|offroad|4.83|1.93|1.82|278|42000
+Land Cruzer|Land Cruiser|offroad|4.98|1.98|1.94|326|57000
+Takoma|Tacoma|truck|5.39|1.91|1.79|278|33000
+Tundro|Tundra|truck|5.93|2.03|1.98|389|42000
+Sienne|Sienna|van|5.18|1.99|1.77|245|39000
+Sequoya|Sequoia|suv|5.29|2.02|1.89|437|62000
+GR-68|GR86|sports|4.27|1.78|1.31|228|30000
+Supro A90|Supra A90|sports|4.38|1.85|1.29|382|47000
+Supro Mk4|Supra Mk4|sports|4.52|1.81|1.28|320|120000
+AE-68 Trueno|AE86 Sprinter Trueno|classic|4.20|1.63|1.34|128|45000
+GR Corrola|GR Corolla|hatch|4.41|1.85|1.48|300|38000
+GR Yarris|GR Yaris|hatch|3.99|1.81|1.46|268|55000
+2000-TG|2000GT|classic|4.18|1.60|1.16|150|1100000
+Celika GT-5|Celica GT-Four|classic|4.42|1.75|1.31|239|35000
+MR-3|MR2|sports|4.17|1.70|1.24|200|25000
+
+@Lexus=Lexon
+IZ 350|IS 350|sedan|4.71|1.84|1.43|311|45000
+EZ 350|ES 350|sedan|4.98|1.86|1.45|302|42000
+LZ 500|LS 500|sedan|5.24|1.90|1.45|416|80000
+RZ 350|RX 350|suv|4.89|1.92|1.70|275|50000
+LQ 600|LX 600|suv|5.10|1.99|1.89|409|92000
+RQ F|RC F|coupe|4.71|1.85|1.39|472|68000
+LQ 500|LC 500|coupe|4.77|1.92|1.35|471|98000
+LFX|LFA|super|4.51|1.90|1.22|553|900000
+
+@Honda=Hondo
+Civik|Civic|sedan|4.67|1.80|1.42|158|24000
+Civik Type-Q|Civic Type R|hatch|4.59|1.89|1.41|315|45000
+Acord|Accord|sedan|4.97|1.86|1.45|192|28000
+Fitt|Fit|hatch|4.06|1.70|1.53|130|17000
+CR-W|CR-V|suv|4.70|1.87|1.68|190|31000
+HR-W|HR-V|suv|4.57|1.84|1.62|158|25000
+Pilott|Pilot|suv|5.08|2.00|1.80|285|40000
+Odyssee|Odyssey|van|5.21|1.99|1.74|280|39000
+Ridgline|Ridgeline|truck|5.42|2.00|1.80|280|40000
+Elemint|Element|suv|4.30|1.82|1.79|166|20000
+S-2000Q|S2000|sports|4.12|1.75|1.27|237|40000
+NSZ '91|NSX (1st gen)|super|4.40|1.81|1.17|270|130000
+NSZ|NSX (2nd gen)|super|4.49|1.94|1.21|573|160000
+Integro Type-Q|Integra Type R (DC2)|classic|4.38|1.70|1.33|195|60000
+Prelood|Prelude|coupe|4.52|1.75|1.31|200|30000
+
+@Acura=Acurra
+TLZ|TLX|sedan|4.94|1.91|1.43|272|45000
+MDZ|MDX|suv|5.04|1.97|1.71|290|50000
+Integro|Integra|sedan|4.72|1.83|1.41|200|33000
+
+@Nissan=Nissun
+Altema|Altima|sedan|4.90|1.85|1.44|188|26000
+Sentro|Sentra|sedan|4.64|1.82|1.45|149|21000
+Verza|Versa|sedan|4.50|1.74|1.47|122|17000
+Leef|Leaf|hatch|4.48|1.79|1.56|147|29000
+Roague|Rogue|suv|4.65|1.84|1.69|201|29000
+Pathfindr|Pathfinder|suv|5.00|1.98|1.80|284|37000
+Fronteer|Frontier|truck|5.33|1.88|1.83|310|31000
+Titon|Titan|truck|5.79|2.02|1.95|400|43000
+Patrole|Patrol|offroad|5.17|1.99|1.94|400|70000
+GT-Q R35|GT-R R35|super|4.71|1.90|1.37|565|115000
+GT-Q Nizmo|GT-R Nismo|super|4.69|1.90|1.37|600|220000
+Skylyne GT-Q R34|Skyline GT-R R34|sports|4.60|1.79|1.36|276|250000
+Skylyne GT-Q R32|Skyline GT-R R32|classic|4.55|1.76|1.34|276|60000
+Skylyne Hakosuka|Skyline 2000GT-R (KPGC10)|classic|4.40|1.66|1.37|160|350000
+370-X|370Z|sports|4.25|1.85|1.32|332|32000
+Zed|Z (RZ34)|sports|4.38|1.85|1.32|400|42000
+240-ZX S13|240SX (S13)|classic|4.52|1.69|1.29|155|25000
+Silvea S15|Silvia S15|sports|4.45|1.70|1.29|247|45000
+Fairlady 240-X|Fairlady 240Z|classic|4.14|1.63|1.29|151|70000
+
+@Infiniti=Infinito
+Q55|Q50|sedan|4.80|1.82|1.45|300|44000
+Q66|Q60|coupe|4.69|1.85|1.39|400|55000
+QX88|QX80|suv|5.34|2.03|1.95|450|85000
+
+@Mazda=Mazza
+Mazza3|Mazda3|hatch|4.46|1.80|1.44|191|24000
+Mazza6|Mazda6|sedan|4.87|1.84|1.45|250|27000
+CX-6|CX-5|suv|4.58|1.84|1.68|256|29000
+CX-99|CX-90|suv|5.12|1.99|1.75|340|40000
+MX-6 Miyata|MX-5 Miata|sports|3.92|1.73|1.24|181|30000
+RQ-7 FD|RX-7 FD|sports|4.29|1.76|1.23|255|70000
+RQ-8|RX-8|sports|4.47|1.77|1.34|232|15000
+Kosmo Sport|Cosmo Sport|classic|4.14|1.59|1.17|128|300000
+
+@Subaru=Subara
+Impreeza|Impreza|hatch|4.48|1.78|1.48|152|23000
+WRZ|WRX|sedan|4.67|1.83|1.47|271|33000
+WRZ STY|WRX STI|sedan|4.60|1.80|1.47|310|45000
+Outbak|Outback|wagon|4.87|1.86|1.68|260|32000
+Forrester|Forester|suv|4.64|1.83|1.73|180|29000
+Crostrek|Crosstrek|suv|4.49|1.80|1.62|182|26000
+BRX|BRZ|sports|4.27|1.78|1.31|228|31000
+22-V STY|Impreza 22B STi|classic|4.37|1.77|1.43|276|300000
+
+@Mitsubishi=Mitsubushi
+Lanser Evo 9|Lancer Evolution IX|sedan|4.49|1.77|1.45|286|50000
+Lanser Evo 10|Lancer Evolution X|sedan|4.51|1.81|1.48|291|40000
+3000-TG VQ-4|3000GT VR-4|sports|4.60|1.84|1.28|320|35000
+Outlandr|Outlander|suv|4.71|1.86|1.75|181|28000
+Pajerro|Pajero|offroad|4.90|1.87|1.90|247|35000
+Eclypse GSZ|Eclipse GSX|sports|4.39|1.74|1.31|210|25000
+Mirrage|Mirage|hatch|3.80|1.67|1.51|78|16000
+
+@Suzuki=Suzaki
+Swyft|Swift|hatch|3.84|1.74|1.50|82|16000
+Jimmy|Jimny|offroad|3.48|1.65|1.73|101|25000
+Capuccino|Cappuccino|sports|3.30|1.40|1.19|63|12000
+
+@Hyundai=Hyundia
+Elantro|Elantra|sedan|4.68|1.83|1.42|147|22000
+Elantro M|Elantra N|sedan|4.68|1.83|1.42|276|34000
+Sonatta|Sonata|sedan|4.90|1.86|1.45|191|27000
+Tuscon|Tucson|suv|4.63|1.87|1.67|187|29000
+Santa Fey|Santa Fe|suv|4.83|1.90|1.72|277|35000
+Palisaid|Palisade|suv|5.00|1.98|1.75|291|38000
+Konna|Kona|suv|4.35|1.82|1.59|147|25000
+Ionik 5|Ioniq 5|suv|4.64|1.89|1.61|320|45000
+Ionik 5 M|Ioniq 5 N|suv|4.72|1.94|1.59|641|67000
+Velostar M|Veloster N|hatch|4.24|1.80|1.40|275|33000
+
+@Kia=Kio
+Reo|Rio|hatch|4.07|1.72|1.45|120|17000
+Fortay|Forte|sedan|4.64|1.80|1.44|147|21000
+K6|K5|sedan|4.91|1.86|1.45|290|30000
+Sporttage|Sportage|suv|4.66|1.87|1.66|187|28000
+Sorrento|Sorento|suv|4.81|1.90|1.70|281|33000
+Teluride|Telluride|suv|5.00|1.99|1.75|291|38000
+Sowl|Soul|hatch|4.20|1.80|1.61|147|21000
+Carnivale|Carnival|van|5.16|2.00|1.78|290|36000
+Stingr GT|Stinger GT|sedan|4.83|1.87|1.40|368|52000
+EV-7 GT|EV6 GT|suv|4.70|1.89|1.55|576|62000
+
+@Genesis=Genesys
+G-77|G70|sedan|4.69|1.85|1.40|365|45000
+G-99|G90|sedan|5.28|1.93|1.49|409|90000
+GV-88|GV80|suv|4.95|1.98|1.71|375|60000
+
+@Ford=Fjord
+Fiestta ST|Fiesta ST|hatch|4.07|1.73|1.47|197|22000
+Fokus RS|Focus RS|hatch|4.39|1.82|1.47|350|40000
+Fuzion|Fusion|sedan|4.87|1.85|1.48|175|23000
+Crown Victorya Interceptor|Crown Victoria Police Interceptor|sedan|5.39|1.99|1.47|250|15000
+Mustank GT|Mustang GT|muscle|4.81|1.92|1.39|480|45000
+Mustank Shelbee GT-500|Mustang Shelby GT500|muscle|4.82|1.92|1.38|760|80000
+Mustank '67 Fastbak|Mustang 1967 Fastback|classic|4.70|1.80|1.30|320|150000
+Mustank Mach-F|Mustang Mach-E|suv|4.71|1.88|1.62|480|50000
+F-151|F-150|truck|5.89|2.03|1.96|400|45000
+F-151 Raptur|F-150 Raptor|truck|5.91|2.20|2.00|450|78000
+F-151 Litening|F-150 Lightning|truck|5.91|2.03|1.99|580|60000
+Supr Duty F-251|Super Duty F-250|truck|6.75|2.03|2.05|430|55000
+Rangr|Ranger|truck|5.37|1.92|1.88|270|34000
+Rangr Raptur|Ranger Raptor|truck|5.38|2.03|1.93|405|57000
+Maverik|Maverick|truck|5.07|1.85|1.75|250|26000
+Bronko|Bronco|offroad|4.81|1.93|1.85|330|45000
+Bronko Raptur|Bronco Raptor|offroad|4.97|2.19|1.95|418|90000
+Explorr|Explorer|suv|5.05|2.00|1.78|300|40000
+Expedishun|Expedition|suv|5.33|2.03|1.94|400|60000
+Escaype|Escape|suv|4.59|1.88|1.68|180|30000
+Tranzit|Transit|van|5.98|2.07|2.53|310|48000
+FGT|GT (2017)|super|4.76|2.00|1.11|660|1000000
+FGT-40|GT40 Mk I|classic|4.03|1.78|1.03|380|9000000
+Modell T|Model T|classic|3.40|1.68|2.13|20|25000
+Sierro RS Cosworthy|Sierra RS Cosworth|classic|4.46|1.73|1.38|204|80000
+
+@Chevrolet=Chevlon
+Sparq|Spark|hatch|3.64|1.60|1.52|98|15000
+Boltt|Bolt|hatch|4.15|1.77|1.61|200|27000
+Malibou|Malibu|sedan|4.93|1.85|1.46|160|25000
+Camarro SS|Camaro SS|muscle|4.78|1.90|1.35|455|43000
+Camarro ZL-2|Camaro ZL1|muscle|4.83|1.90|1.35|650|70000
+Corvete C8 Stingrai|Corvette C8 Stingray|super|4.63|1.93|1.24|495|68000
+Corvete C8 Z-07|Corvette C8 Z06|super|4.69|2.02|1.23|670|112000
+Corvete ZQ1|Corvette ZR1 (2025)|super|4.69|2.02|1.23|1064|175000
+Corvete '63 Split-Window|Corvette C2 Sting Ray 1963|classic|4.45|1.77|1.26|360|150000
+Chevell SS '70|Chevelle SS 454 1970|classic|5.08|1.94|1.33|450|90000
+Impalla '64|Impala 1964|classic|5.36|2.03|1.40|300|50000
+Bel Aire '57|Bel Air 1957|classic|5.11|1.86|1.50|283|70000
+El Camyno '70|El Camino 1970|classic|5.20|1.94|1.37|360|45000
+Silverodo|Silverado|truck|5.88|2.06|1.92|420|45000
+Silverodo ZQ2|Silverado ZR2|truck|5.88|2.09|2.03|420|72000
+Colorodo|Colorado|truck|5.41|1.90|1.79|310|32000
+Tahoo|Tahoe|suv|5.35|2.06|1.93|355|58000
+Suburbun|Suburban|suv|5.73|2.06|1.92|355|61000
+Equinoks|Equinox|suv|4.65|1.90|1.66|175|28000
+Blazr EV|Blazer EV|suv|4.86|1.98|1.65|288|48000
+Expres|Express|van|5.69|2.01|2.12|401|42000
+
+@GMC=GNC
+Sierro|Sierra 1500|truck|5.89|2.06|1.94|420|50000
+Canyun AT5X|Canyon AT4X|truck|5.39|2.03|1.98|310|57000
+Yukonn Denalee|Yukon Denali|suv|5.34|2.06|1.94|420|75000
+Humvee EV|Hummer EV|truck|5.51|2.20|2.02|1000|100000
+Humvee H-1|Hummer H1|offroad|4.69|2.20|1.90|300|90000
+
+@Cadillac=Cadillack
+CT6-W Blackwyng|CT5-V Blackwing|sedan|4.92|1.88|1.45|668|92000
+Escalayde|Escalade|suv|5.38|2.06|1.94|420|82000
+Escalayde-W|Escalade-V|suv|5.38|2.06|1.94|682|150000
+Lyrik|Lyriq|suv|5.00|1.98|1.62|340|60000
+Celestik|Celestiq|sedan|5.50|2.06|1.42|600|340000
+Eldorodo '59|Eldorado Biarritz 1959|classic|5.72|2.03|1.38|345|150000
+
+@Buick=Buik
+Encor|Encore|suv|4.35|1.82|1.63|155|24000
+Enclayve|Enclave|suv|5.19|2.00|1.78|328|45000
+GNZ '87|GNX 1987|classic|5.13|1.82|1.38|276|200000
+
+@Lincoln=Lincon
+Aviatorr|Aviator|suv|5.06|2.02|1.76|400|56000
+Navigatorr|Navigator|suv|5.33|2.12|1.94|440|90000
+Continentall '61|Continental 1961|classic|5.39|1.99|1.37|300|60000
+
+@Dodge=Dodje
+Grand Caravann|Grand Caravan|van|5.15|2.00|1.73|283|27000
+Challengr Q/T|Challenger R/T|muscle|5.03|1.92|1.45|375|40000
+Chargr SRT Hellkat|Charger SRT Hellcat|muscle|5.10|1.90|1.46|717|78000
+Challengr SRT Deamon 170|Challenger SRT Demon 170|muscle|5.03|1.92|1.45|1025|200000
+Durrango SRT|Durango SRT Hellcat|suv|5.11|1.92|1.80|710|85000
+Vyper ACQ|Viper ACR|super|4.46|1.94|1.25|645|250000
+Chargr '70|Charger R/T 1970|classic|5.28|1.94|1.35|425|150000
+Chargr Daytonna '69|Charger Daytona 1969|classic|5.84|1.95|1.35|425|900000
+
+@Jeep=Jeepo
+Compas|Compass|suv|4.40|1.82|1.63|200|28000
+Wranglr|Wrangler|offroad|4.79|1.89|1.87|285|35000
+Wranglr Rubikon 392|Wrangler Rubicon 392|offroad|4.88|1.94|1.90|470|90000
+Grand Cherokey|Grand Cherokee|suv|4.91|1.97|1.79|293|40000
+Grand Cherokey Trakhawk|Grand Cherokee Trackhawk|suv|4.85|1.94|1.73|707|90000
+Gladiatorr|Gladiator|truck|5.59|1.89|1.91|285|40000
+Cherokey XJ|Cherokee XJ|classic|4.24|1.79|1.62|190|15000
+Wyllys MB|Willys MB|classic|3.36|1.57|1.77|60|40000
+
+@Ram=Rham
+1500|1500|truck|5.81|2.08|1.97|395|42000
+1500 TQX|1500 TRX|truck|5.92|2.24|2.06|702|98000
+2500 HDD|2500 HD|truck|6.38|2.08|2.03|410|50000
+ProMastr|ProMaster|van|5.99|2.07|2.53|276|45000
+
+@Chrysler=Chryzler
+300Q|300C|sedan|5.04|1.90|1.48|485|55000
+Pacifika|Pacifica|van|5.17|2.02|1.78|287|40000
+
+@Pontiac=Pontiak
+GTU '66|GTO 1966|classic|5.17|1.89|1.36|360|80000
+Firebyrd Trans Ammo '77|Firebird Trans Am 1977|classic|4.99|1.87|1.27|200|60000
+Fyero GT|Fiero GT|sports|4.15|1.75|1.19|140|15000
+
+@Plymouth=Plymoth
+Road Runnr '69|Road Runner 1969|classic|5.18|1.94|1.38|335|70000
+Barracooda Hemi '70|Hemi 'Cuda 1970|classic|4.75|1.89|1.30|425|250000
+Superbyrd '70|Superbird 1970|classic|5.63|1.94|1.34|425|400000
+
+@Shelby=Shelbee
+Kobra 427|Cobra 427|classic|3.96|1.73|1.24|425|2000000
+GT-350 '65|GT350 1965|classic|4.61|1.73|1.30|306|400000
+
+@DeLorean=DeLorian
+DMQ-12|DMC-12|classic|4.27|1.99|1.14|130|60000
+
+@Tesla=Teslo
+Modell 3|Model 3|sedan|4.72|1.85|1.44|283|40000
+Modell 3 Performanse|Model 3 Performance|sedan|4.72|1.85|1.44|510|55000
+Modell S Plad|Model S Plaid|sedan|5.02|1.99|1.43|1020|90000
+Modell X|Model X|suv|5.06|2.00|1.68|670|80000
+Modell Y|Model Y|suv|4.75|1.92|1.62|384|45000
+Cybertrukk|Cybertruck|truck|5.68|2.03|1.79|845|100000
+Roadstr '08|Roadster (2008)|sports|3.95|1.85|1.13|288|100000
+
+@Rivian=Rivien
+R1Q|R1T|truck|5.51|2.02|1.82|835|75000
+R1Z|R1S|suv|5.10|2.08|1.82|835|78000
+
+@Lucid=Lucyd
+Aire|Air|sedan|4.98|1.94|1.41|480|70000
+Aire Saffire|Air Sapphire|sedan|4.98|1.94|1.41|1234|250000
+Gravitty|Gravity|suv|5.03|1.99|1.66|828|95000
+
+@BMW=BMV
+3 Seriez 330|330i|sedan|4.71|1.83|1.44|255|45000
+5 Seriez|5 Series|sedan|5.06|1.90|1.52|255|58000
+7 Seriez|7 Series|sedan|5.39|1.95|1.54|375|97000
+M-2|M2|coupe|4.58|1.89|1.40|473|64000
+M-3 Competishun|M3 Competition|sedan|4.79|1.90|1.43|503|80000
+M-3 E-30|M3 E30|classic|4.35|1.68|1.37|192|120000
+M-3 E-46|M3 E46|coupe|4.49|1.78|1.37|333|50000
+M-4 CSQ|M4 CSL|coupe|4.80|1.89|1.39|543|140000
+M-5 CZ|M5 CS|sedan|4.98|1.90|1.47|627|142000
+M-5 E-39|M5 E39|classic|4.78|1.80|1.44|394|60000
+X-3|X3|suv|4.76|1.92|1.66|248|48000
+X-5 M|X5 M|suv|4.94|2.02|1.75|617|120000
+X-7|X7|suv|5.18|2.00|1.81|375|82000
+XQ|XM|suv|5.11|2.01|1.76|738|160000
+i-4 M-50|i4 M50|sedan|4.79|1.85|1.45|536|70000
+i-8|i8|sports|4.69|1.94|1.29|369|140000
+Z-4|Z4 M40i|sports|4.32|1.86|1.30|382|66000
+M-1 '78|M1 (1978)|classic|4.36|1.82|1.14|273|800000
+2002 Turbbo|2002 Turbo|classic|4.22|1.62|1.41|168|100000
+
+@Mini=Mino
+Kooper S|Cooper S|hatch|3.88|1.73|1.43|201|32000
+Jon Kooper Works|John Cooper Works|hatch|3.88|1.73|1.43|228|40000
+Mino Klassic|Classic Mini|classic|3.05|1.41|1.35|63|25000
+
+@Mercedes-Benz=Mercedez-Benn
+K-Class K300|C-Class C300|sedan|4.75|1.82|1.44|255|47000
+F-Class|E-Class|sedan|4.95|1.88|1.47|255|62000
+Z-Class Z580|S-Class S580|sedan|5.29|1.95|1.50|496|130000
+Maybak Z680|Maybach S680|sedan|5.47|1.92|1.51|621|230000
+AMG K63 Z|AMG C63 S|sedan|4.84|1.90|1.46|671|85000
+AMG F63 Z|AMG E63 S|sedan|5.00|1.91|1.46|603|112000
+EQZ|EQS|sedan|5.22|1.93|1.51|516|105000
+GLF|GLE|suv|4.92|2.02|1.77|255|62000
+GLZ|GLS|suv|5.21|1.96|1.82|375|87000
+H-Class H550|G-Class G550|offroad|4.82|1.93|1.97|416|145000
+AMG H63|AMG G63|offroad|4.87|1.98|1.97|577|180000
+AMG H63 6x6|AMG G63 6x6|offroad|5.87|2.11|2.21|536|1000000
+Sprynter|Sprinter|van|5.93|2.02|2.62|211|50000
+AMG GT 63|AMG GT 63|coupe|4.73|1.98|1.35|577|175000
+AMG GT Blak Series|AMG GT Black Series|super|4.55|2.00|1.29|720|330000
+ZLS AMG|SLS AMG|super|4.64|1.94|1.26|563|250000
+ZLR McLaron|SLR McLaren|super|4.66|1.91|1.26|617|450000
+190F Evo 2|190E 2.5-16 Evo II|classic|4.49|1.71|1.36|232|250000
+300-ZL Gullwyng '54|300SL Gullwing 1954|classic|4.52|1.79|1.30|215|1800000
+KLK GTQ|CLK GTR|hyper|4.86|1.95|1.16|604|10000000
+AMG Won|AMG One|hyper|4.76|2.01|1.26|1049|2700000
+
+@Audi=Audy
+A-3|A3|sedan|4.50|1.82|1.43|201|37000
+A-4|A4|sedan|4.76|1.85|1.43|261|42000
+A-6|A6|sedan|4.94|1.89|1.46|261|58000
+A-8|A8|sedan|5.19|1.95|1.47|335|90000
+S-44|S4|sedan|4.76|1.85|1.43|349|52000
+RQ3|RS3|sedan|4.54|1.85|1.41|401|63000
+RQ6 Avant|RS6 Avant|wagon|5.00|1.95|1.46|621|125000
+RQ7|RS7|sedan|5.01|1.95|1.42|621|128000
+f-tron GT|e-tron GT|sedan|4.99|1.96|1.41|637|107000
+Q-5|Q5|suv|4.68|1.89|1.66|261|46000
+Q-7|Q7|suv|5.07|1.97|1.74|335|60000
+RQ Q-8|RS Q8|suv|5.01|2.00|1.69|591|125000
+TT-Q RS|TT RS|sports|4.19|1.83|1.34|394|72000
+R-88 V-10|R8 V10|super|4.43|1.94|1.24|602|160000
+Sport Kwattro '84|Sport Quattro 1984|classic|4.16|1.78|1.34|302|500000
+Ur-Kwattro|Ur-Quattro|classic|4.40|1.72|1.35|197|60000
+
+@Volkswagen=Volkswagon
+Gollf|Golf|hatch|4.28|1.79|1.46|158|26000
+Gollf GTY|Golf GTI|hatch|4.29|1.79|1.44|241|32000
+Gollf Q|Golf R|hatch|4.29|1.79|1.44|315|46000
+Jeta|Jetta|sedan|4.70|1.80|1.46|158|22000
+Pasatt|Passat|sedan|4.87|1.83|1.49|174|27000
+Tiguen|Tiguan|suv|4.51|1.86|1.67|184|29000
+Atlass|Atlas|suv|5.10|1.99|1.78|269|38000
+ID. Buz|ID. Buzz|van|4.95|1.99|1.94|282|60000
+Sirocco|Scirocco|coupe|4.26|1.81|1.40|207|28000
+Beatle '67|Beetle 1967|classic|4.08|1.54|1.50|53|25000
+Type 2 Buss|Type 2 Bus|classic|4.51|1.72|1.94|50|70000
+Corado VQ6|Corrado VR6|classic|4.05|1.67|1.32|178|30000
+
+@Porsche=Porsha
+9-11 Carrera|911 Carrera|sports|4.52|1.85|1.30|379|115000
+9-11 Turbbo Z|911 Turbo S|super|4.54|1.90|1.30|640|230000
+9-11 GT-3 QS|911 GT3 RS|super|4.57|1.90|1.32|518|240000
+9-11 GT-2 QS|911 GT2 RS|super|4.55|1.88|1.30|690|320000
+9-11 Dakkar|911 Dakar|sports|4.53|1.86|1.34|473|225000
+Boxstr|Boxster|sports|4.38|1.80|1.28|300|70000
+Kayman GT-4 QS|Cayman GT4 RS|sports|4.46|1.82|1.27|493|150000
+Taykan Turbbo Z|Taycan Turbo S|sedan|4.96|1.97|1.38|938|210000
+Panamerra|Panamera|sedan|5.05|1.94|1.42|348|100000
+Kayenne|Cayenne|suv|4.93|1.98|1.70|348|82000
+Kayenne Turbbo GT|Cayenne Turbo GT|suv|4.94|2.00|1.64|650|197000
+Makan|Macan|suv|4.73|1.92|1.62|261|62000
+930 Turbbo '75|930 Turbo 1975|classic|4.29|1.77|1.31|256|200000
+964 QS|964 Carrera RS|classic|4.25|1.65|1.27|256|300000
+993 Turbbo|993 Turbo|classic|4.25|1.80|1.29|402|250000
+356 Speedstr|356 Speedster|classic|3.95|1.67|1.31|70|300000
+550 Spyda|550 Spyder|classic|3.60|1.55|0.98|110|5000000
+959 Gruppe-V|959|super|4.26|1.84|1.28|444|2000000
+Carera GT|Carrera GT|hyper|4.61|1.92|1.17|603|1500000
+918 Spyda|918 Spyder|hyper|4.64|1.94|1.17|887|1800000
+917Q|917K|hyper|4.12|1.98|0.92|620|14000000
+
+@Ferrari=Ferrano
+Rommo|Roma|coupe|4.66|1.97|1.30|612|245000
+Portofyno|Portofino|sports|4.59|1.94|1.32|612|230000
+Purosango|Purosangue|suv|4.97|2.03|1.59|715|400000
+269 GTV|296 GTB|super|4.57|1.96|1.19|818|320000
+F-8 Tribuuto|F8 Tributo|super|4.61|1.98|1.21|710|280000
+458 Itallia|458 Italia|super|4.53|1.94|1.21|562|220000
+488 Pistta|488 Pista|super|4.61|1.98|1.21|711|450000
+821 Superfastt|812 Superfast|super|4.66|1.97|1.28|789|365000
+F-12 Berlinetto|F12berlinetta|super|4.62|1.94|1.27|731|300000
+12-Cylindri|12Cilindri|super|4.73|2.18|1.29|819|425000
+SF91 Stradala|SF90 Stradale|hyper|4.71|1.97|1.19|986|520000
+Testarosso|Testarossa|classic|4.49|1.98|1.13|385|150000
+Dyno 246|Dino 246 GT|classic|4.23|1.70|1.14|192|450000
+288 GTU|288 GTO|classic|4.29|1.91|1.12|395|3000000
+F-44|F40|hyper|4.36|1.97|1.12|471|3000000
+F-55|F50|hyper|4.48|1.99|1.12|513|5000000
+Enzzo|Enzo|hyper|4.70|2.04|1.15|651|4000000
+LaFerrano|LaFerrari|hyper|4.70|1.99|1.12|950|4000000
+Daytonna ZP3|Daytona SP3|hyper|4.69|2.05|1.14|829|2500000
+250 GTU|250 GTO|classic|4.33|1.60|1.21|296|50000000
+
+@Lamborghini=Lamborgini
+Gallardoh|Gallardo|super|4.30|1.90|1.17|513|100000
+Huracon EVO|Huracan EVO|super|4.52|1.93|1.17|631|260000
+Huracon ZTO|Huracan STO|super|4.55|1.95|1.22|631|330000
+Temerarrio|Temerario|super|4.71|1.99|1.20|907|340000
+Dyablo|Diablo|super|4.46|2.04|1.11|485|300000
+Murcielogo|Murcielago|super|4.61|2.06|1.14|631|350000
+Uruz|Urus|suv|5.11|2.02|1.64|657|240000
+LM-200|LM002|offroad|4.79|2.00|1.85|444|400000
+Aventadorr ZVJ|Aventador SVJ|hyper|4.94|2.10|1.14|759|600000
+Revueltto|Revuelto|hyper|4.95|2.27|1.16|1001|610000
+Countash LP-400|Countach LP400|classic|4.14|1.89|1.07|370|1500000
+Countash LPY 800|Countach LPI 800-4|hyper|4.87|2.10|1.14|803|2600000
+Miurra|Miura P400 SV|classic|4.36|1.76|1.06|345|2500000
+Syan|Sian FKP 37|hyper|4.98|2.10|1.13|808|3600000
+Venenno|Veneno|hyper|5.02|2.08|1.17|740|8000000
+
+@McLaren=McLaron
+507S|570S|sports|4.53|2.10|1.20|562|190000
+MGT|GT|super|4.68|2.05|1.21|612|200000
+Arturra|Artura|super|4.54|1.98|1.19|671|240000
+702S|720S|super|4.54|2.06|1.20|710|300000
+705S|750S|super|4.57|1.93|1.20|740|330000
+756LT|765LT|super|4.60|1.93|1.19|755|360000
+Sennah|Senna|hyper|4.74|1.96|1.23|789|1200000
+P-11|P1|hyper|4.59|1.95|1.19|903|1500000
+Elvah|Elva|hyper|4.61|1.94|1.09|804|1700000
+W-11|W1|hyper|5.10|2.19|1.18|1258|2100000
+Speedtale|Speedtail|hyper|5.14|2.00|1.12|1035|2500000
+F-11|F1|hyper|4.29|1.82|1.14|618|20000000
+
+@Aston Martin=Aston Marten
+Vantedge|Vantage|sports|4.50|1.98|1.27|656|190000
+DB-21|DB12|coupe|4.73|1.98|1.30|671|250000
+DBZ|DBS|super|4.71|1.97|1.28|715|330000
+DBQ707|DBX707|suv|5.04|2.00|1.68|697|240000
+DB-5 '63|DB5 1963|classic|4.57|1.68|1.34|282|1000000
+Valhala|Valhalla|hyper|4.73|2.00|1.14|998|800000
+Won-77|One-77|hyper|4.60|2.00|1.22|750|2000000
+Vulkan|Vulcan|hyper|4.81|2.06|1.18|820|2800000
+Valkyree|Valkyrie|hyper|4.66|1.92|1.06|1139|3500000
+
+@Bentley=Bentlee
+Continentall GT|Continental GT|coupe|4.85|1.97|1.39|650|300000
+Flyin Spur|Flying Spur|sedan|5.32|1.99|1.48|626|230000
+Bentaiga|Bentayga|suv|5.13|2.00|1.74|542|200000
+Mulliner Bakalar|Mulliner Bacalar|sports|4.80|1.95|1.36|650|1900000
+Battur|Batur|hyper|4.95|1.97|1.39|740|2000000
+
+@Rolls-Royce=Rolls-Roice
+Ghosst|Ghost|sedan|5.55|1.98|1.57|563|350000
+Fantom|Phantom|sedan|5.76|2.02|1.65|563|470000
+Culinan|Cullinan|suv|5.34|2.00|1.84|563|360000
+Wrayth|Wraith|coupe|5.29|1.95|1.51|624|330000
+Spectr|Spectre|coupe|5.48|2.08|1.56|577|420000
+Bote Tail|Boat Tail|hyper|5.80|2.10|1.50|563|28000000
+
+@Jaguar=Jaguarr
+Y-Pace|I-Pace|suv|4.68|2.01|1.57|394|72000
+G-Pace ZVR|F-Pace SVR|suv|4.75|2.07|1.66|550|90000
+G-Type Q|F-Type R|sports|4.47|1.92|1.31|575|105000
+F-Type '61|E-Type Series 1 1961|classic|4.45|1.66|1.22|265|300000
+XQ220|XJ220|hyper|4.93|2.22|1.15|542|600000
+Q-X75|C-X75|hyper|4.65|2.02|1.15|850|1500000
+XQSS|XKSS|classic|3.96|1.66|1.15|262|13000000
+
+@Land Rover=Land Roamer
+Discoveree|Discovery|suv|4.96|2.07|1.89|355|60000
+Defendr 110|Defender 110|offroad|5.02|2.00|1.97|395|70000
+Defendr OKTA|Defender OCTA|offroad|4.94|2.07|2.00|626|155000
+Range Roamer|Range Rover|suv|5.05|2.05|1.87|395|110000
+Range Roamer Sport ZV|Range Rover Sport SV|suv|4.95|2.05|1.82|626|180000
+Series Won '48|Series I 1948|classic|3.35|1.55|1.88|50|70000
+
+@Lotus=Lotos
+Eliss|Elise|sports|3.82|1.72|1.12|217|50000
+Exyge|Exige|sports|4.08|1.80|1.13|430|90000
+Emyra|Emira|sports|4.41|1.90|1.23|400|100000
+Eletrre|Eletre|suv|5.10|2.14|1.63|905|150000
+Esprite Turbbo|Esprit Turbo|classic|4.20|1.86|1.11|264|70000
+Evyja|Evija|hyper|4.46|2.00|1.12|1972|2100000
+
+@Bugatti=Bugotti
+Veyronn|Veyron 16.4|hyper|4.46|2.00|1.21|987|1800000
+EB-111|EB110|hyper|4.40|1.94|1.11|553|2500000
+Chyron|Chiron|hyper|4.54|2.04|1.21|1479|3300000
+Chyron Supr Sport 300+|Chiron Super Sport 300+|hyper|4.66|2.04|1.21|1578|4000000
+Tourbilon|Tourbillon|hyper|4.67|2.05|1.19|1775|4100000
+Bolyde|Bolide|hyper|4.75|2.07|0.99|1578|4300000
+Dyvo|Divo|hyper|4.64|2.02|1.21|1479|5800000
+Centodiechi|Centodieci|hyper|4.80|2.04|1.21|1578|9000000
+La Voiturre Noir|La Voiture Noire|hyper|4.54|2.04|1.21|1479|18700000
+Type 57ZC Atlantik|Type 57SC Atlantic|classic|3.70|1.75|1.40|200|40000000
+
+@Pagani=Pagana
+Zondda C-12|Zonda C12|hyper|4.40|2.06|1.16|389|6000000
+Zondda R|Zonda R|hyper|4.89|2.01|1.10|739|7000000
+Huayrra|Huayra|hyper|4.61|2.04|1.17|720|3000000
+Utopya|Utopia|hyper|4.60|2.05|1.17|852|3200000
+
+@Koenigsegg=Koenigsegk
+Gemerra|Gemera|hyper|4.98|2.00|1.29|1700|1700000
+Regerra|Regera|hyper|4.56|2.05|1.11|1500|2500000
+Jessko|Jesko|hyper|4.61|2.03|1.21|1600|3000000
+CC-805|CC850|hyper|4.32|2.03|1.13|1385|3650000
+Agerra QS|Agera RS|hyper|4.29|2.05|1.12|1341|4000000
+Won:1|One:1|hyper|4.50|2.06|1.15|1341|6000000
+
+@Rimac=Rimak
+Neverra|Nevera|hyper|4.75|1.99|1.21|1914|2400000
+
+@Maserati=Maseratti
+Ghibly|Ghibli|sedan|4.97|1.95|1.46|345|80000
+Quatroporte|Quattroporte|sedan|5.26|1.95|1.48|424|110000
+Levantte|Levante|suv|5.00|1.98|1.69|345|90000
+GranTurizmo|GranTurismo|coupe|4.96|1.96|1.35|542|180000
+MQ20|MC20|super|4.67|1.97|1.22|621|240000
+MQ12|MC12|hyper|5.14|2.10|1.21|621|5000000
+
+@Alfa Romeo=Alfa Rameo
+Tonalle|Tonale|suv|4.53|1.84|1.60|285|45000
+Stelvyo|Stelvio|suv|4.69|1.90|1.68|280|50000
+Giullia Quadrifolio|Giulia Quadrifoglio|sedan|4.64|1.87|1.43|505|80000
+4Q|4C|sports|3.99|1.86|1.18|237|70000
+8Q Competiziona|8C Competizione|super|4.38|1.89|1.34|444|400000
+33 Stradalle '67|33 Stradale 1967|classic|3.97|1.71|0.99|230|20000000
+
+@Fiat=Fiatt
+Cinkuecento|500|hatch|3.57|1.63|1.49|101|20000
+Cinkuecento Abarthh|500 Abarth|hatch|3.66|1.63|1.49|160|26000
+124 Spyda|124 Spider|sports|4.05|1.74|1.23|160|28000
+Multiplah|Multipla|van|4.00|1.87|1.67|103|8000
+Cinkuecento '57|Nuova 500 1957|classic|2.97|1.32|1.32|13|20000
+
+@Lancia=Lanchia
+Delto Integralle|Delta HF Integrale|classic|3.90|1.77|1.37|215|90000
+Stratoz|Stratos HF|classic|3.71|1.75|1.11|190|600000
+037 Stradalle|037 Stradale|classic|3.89|1.85|1.24|205|1000000
+
+@Peugeot=Peugot
+280|208|hatch|4.06|1.75|1.43|130|22000
+3080|3008|suv|4.54|1.84|1.62|180|35000
+580 PZE|508 PSE|sedan|4.75|1.86|1.40|355|70000
+250 GTY|205 GTI|classic|3.71|1.57|1.35|128|25000
+
+@Renault=Renolt
+Twyngo|Twingo|hatch|3.62|1.65|1.55|72|14000
+Klio RS|Clio RS|hatch|4.06|1.73|1.43|197|25000
+Megan RS|Megane RS|hatch|4.36|1.88|1.44|296|40000
+Alpyne A-110|Alpine A110|sports|4.18|1.80|1.25|296|70000
+5 Turbbo|5 Turbo|classic|3.66|1.75|1.32|160|120000
+
+@Citroen=Citrone
+Q5 Aircros|C5 Aircross|suv|4.50|1.86|1.67|180|32000
+2QV|2CV|classic|3.83|1.48|1.60|29|15000
+DZ '55|DS 1955|classic|4.80|1.79|1.47|75|50000
+
+@Volvo=Volvoe
+XQ40|XC40|suv|4.43|1.86|1.65|247|40000
+XQ90|XC90|suv|4.95|1.96|1.78|312|60000
+FX90|EX90|suv|5.04|1.96|1.75|496|80000
+Z60|S60|sedan|4.76|1.85|1.43|247|45000
+W60 Polestarr|V60 Polestar|wagon|4.76|1.85|1.43|455|70000
+240 Waggon|240 Wagon|classic|4.79|1.71|1.46|114|10000
+P-1800|P1800|classic|4.35|1.70|1.28|108|60000
+
+@Polestar=Polestarr
+Too|2|sedan|4.61|1.86|1.48|476|55000
+Won|1|coupe|4.59|1.96|1.35|609|155000
+
+@Hennessey=Hennesy
+Venum GT|Venom GT|hyper|4.66|1.95|1.13|1244|1200000
+Venum F-5|Venom F5|hyper|4.72|1.92|1.13|1817|2100000
+
+@SSC=SCC
+Tuatarra|Tuatara|hyper|4.68|2.00|1.07|1750|2000000
+
+@Gordon Murray=Gordan Murrey
+T-55|T.50|hyper|4.35|1.85|1.17|654|3500000
+
+@Saab=Saeb
+900 Turbbo|900 Turbo|classic|4.69|1.69|1.42|175|20000
+
+@Smart=Smartt
+FourTwo|ForTwo|hatch|2.69|1.66|1.55|89|15000
