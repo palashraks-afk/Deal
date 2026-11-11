@@ -116,12 +116,12 @@ function Waypoint.start()
 				dir = Vector2.new(0, 1)
 			end
 			dir = dir.Unit
-			local edge = vp / 2 - Vector2.new(80, 60)
+			local edge = vp / 2 - Vector2.new(190, 90) -- stay clear of the side menus
 			local t = math.min(math.abs(edge.X / dir.X), math.abs(edge.Y / dir.Y))
 			local p = vp / 2 + dir * t
 			x, y = p.X, p.Y
 		else
-			x = math.clamp(x, 70, vp.X - 70)
+			x = math.clamp(x, 190, vp.X - 190)
 			y = math.clamp(y, 40, vp.Y - 40)
 		end
 		marker.Position = UDim2.fromOffset(x, y)

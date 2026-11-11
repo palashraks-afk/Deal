@@ -106,6 +106,20 @@ local function updateSign(plot, player: Player?)
 			g.Label.Text = text
 		end
 	end
+	local tag = plot.model:FindFirstChild("TagAnchor")
+	local bb = tag and tag:FindFirstChild("OwnerTag")
+	if bb then
+		local frame = bb:FindFirstChildOfClass("Frame")
+		if player then
+			local e = DataService.effects(player)
+			local _, rank = Upgrades.rank(e and e.baseCount or 0)
+			frame.Owner.Text = string.upper(player.DisplayName) .. "'S DEALZ"
+			frame.Rank.Text = ("%s • %d upgrades • %s"):format(rank, e and e.baseCount or 0, plot.area or "")
+		else
+			frame.Owner.Text = "EMPTY LOT"
+			frame.Rank.Text = (plot.area or "") .. " • waiting for an owner"
+		end
+	end
 end
 
 ---------------------------------------------------------------- display models
@@ -177,7 +191,8 @@ function Tycoon.refreshPlot(player: Player)
 	for _, pad in plot.model.Pads:GetChildren() do
 		local slot = pad:GetAttribute("Slot")
 		local open = slotOpen(e, slot)
-		pad.Transparency = open and 0 or 1
+		-- locked pads stay faintly visible so you can see what upgrades will unlock
+		pad.Transparency = open and 0 or 0.8
 		pad.CanCollide = open
 		local s = p.showroom[slot]
 		if open and s then
@@ -266,7 +281,7 @@ local function refreshStations(player: Player)
 		folder.Name = "Buttons"
 		local avail = Upgrades.available(track, p.upgrades)
 		for i, u in avail do
-			local cf = plot.cframe * PlotBuilder.stationCFrame(track) * CFrame.new((i - 2) * 9.5, 1, -1)
+			local cf = plot.cframe * PlotBuilder.stationCFrame(track) * CFrame.new((i - 2) * 11, 1, -1)
 			local afford = p.cash >= u.cost
 			local b = Instance.new("Part")
 			b.Name = "Button"
@@ -280,9 +295,10 @@ local function refreshStations(player: Player)
 			b:SetAttribute("Index", u.index)
 			b:SetAttribute("Cost", u.cost)
 			local gui = Instance.new("BillboardGui")
-			gui.Size = UDim2.fromOffset(150, 56)
+			-- sized in studs (10 wide) so neighbouring buttons' labels never overlap
+			gui.Size = UDim2.fromScale(10, 3.6)
 			gui.StudsOffset = Vector3.new(0, 4.5, 0)
-			gui.MaxDistance = 70
+			gui.MaxDistance = 90
 			gui.Adornee = b
 			local name = Instance.new("TextLabel")
 			name.Size = UDim2.fromScale(1, 0.55)

@@ -130,13 +130,13 @@ function Combat.start()
 		Sounds.play("Reload", tool and tool:FindFirstChild("Handle"), 0.6)
 	end
 
-	-- where the crosshair is, as a screen point
+	-- Where the crosshair is, in VIEWPORT pixels (full window, top bar included).
+	-- The ray uses this directly; the GUI draws it shifted up by the top-bar inset.
 	local function crossPoint(): Vector2
 		if Combat.Aiming then
 			return camera.ViewportSize / 2
 		end
-		local m = UserInputService:GetMouseLocation()
-		return Vector2.new(m.X, m.Y - GuiService:GetGuiInset().Y)
+		return UserInputService:GetMouseLocation()
 	end
 
 	-- the world point under the crosshair (ignoring yourself)
@@ -293,7 +293,7 @@ function Combat.start()
 			return
 		end
 		local scale = UIKit.scale()
-		local sp = crossPoint()
+		local sp = crossPoint() - Vector2.new(0, GuiService:GetGuiInset().Y)
 		local px, py = sp.X / scale, sp.Y / scale
 		cross.Position = UDim2.fromOffset(px, py)
 		local spreadPx = (Combat.Aiming and 5 or 10) + recoil * 6
@@ -337,9 +337,14 @@ function Combat.start()
 		if firing and gun.auto then
 			shoot(tool, gun)
 		end
-		if recoil > 0 then
-			camera.CFrame *= CFrame.Angles(math.rad(recoil * dt * 7), 0, 0)
-			recoil = math.max(0, recoil - dt * 9)
+		recoil = math.max(0, recoil - dt * 9)
+	end)
+
+	-- Recoil: a temporary kick applied AFTER Roblox's camera each frame, so it never
+	-- accumulates or drags your aim upward.
+	RunService:BindToRenderStep("GunRecoil", Enum.RenderPriority.Camera.Value + 1, function()
+		if recoil > 0.01 then
+			camera.CFrame *= CFrame.Angles(math.rad(recoil * 0.9), math.rad(math.sin(os.clock() * 40) * recoil * 0.15), 0)
 		end
 	end)
 

@@ -36,9 +36,22 @@ local function blk(parent, size, cf, color, material, extra)
 	return make(props.Shape and "Part" or "Part", props, parent)
 end
 
+-- Text on a part face. Uses a fixed canvas matched to the face's aspect ratio so letters
+-- never get squashed, with padding so text doesn't touch the edges.
 local function label(parent: BasePart, text: string, color: Color3, face)
-	local g = make("SurfaceGui", { Face = face or Enum.NormalId.Front, PixelsPerStud = 24, LightInfluence = 0 }, parent)
-	make("TextLabel", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = text, TextScaled = true, Font = Enum.Font.GothamBlack, TextColor3 = color }, g)
+	face = face or Enum.NormalId.Front
+	local s = parent.Size
+	local w, h
+	if face == Enum.NormalId.Top or face == Enum.NormalId.Bottom then
+		w, h = s.X, s.Z
+	elseif face == Enum.NormalId.Left or face == Enum.NormalId.Right then
+		w, h = s.Z, s.Y
+	else
+		w, h = s.X, s.Y
+	end
+	local k = 40
+	local g = make("SurfaceGui", { Face = face, SizingMode = Enum.SurfaceGuiSizingMode.FixedSize, CanvasSize = Vector2.new(math.max(40, w * k), math.max(20, h * k)), LightInfluence = 0 }, parent)
+	make("TextLabel", { Size = UDim2.new(0.92, 0, 0.8, 0), Position = UDim2.fromScale(0.04, 0.1), BackgroundTransparency = 1, Text = text, TextScaled = true, Font = Enum.Font.GothamBlack, TextColor3 = color }, g)
 	return g
 end
 
@@ -380,9 +393,48 @@ function PlotBuilder.buildShell(model: Model, origin: CFrame)
 		blk(model, Vector3.new(0.6, 0.05, 8), at(i * 10, 1.03, -140), Color3.fromRGB(240, 240, 240), Enum.Material.SmoothPlastic, { CanCollide = false }).Name = "Stripe"
 	end
 
-	-- showroom floor (open-air "used lot" until income upgrades dress it up)
-	blk(model, Vector3.new(172, 0.4, 132), at(-40, 1.1, -30), Color3.fromRGB(150, 152, 158), Enum.Material.Concrete).Name = "ShowroomFloor"
-	blk(model, Vector3.new(74, 0.4, 132), at(90, 1.1, -30), Color3.fromRGB(46, 40, 30), Enum.Material.Slate).Name = "SpecialFloor"
+	-- SHOWROOM BUILDING: glass box with marble floor, roof, columns and ceiling lights
+	local sx, sz, sw, sd = -40, -30, 172, 132 -- centre + size of the showroom
+	blk(model, Vector3.new(sw, 0.4, sd), at(sx, 1.1, sz), Color3.fromRGB(236, 236, 240), Enum.Material.Marble, { Reflectance = 0.12 }).Name = "ShowroomFloor"
+	local roofY = 30
+	blk(model, Vector3.new(sw + 8, 1.6, sd + 8), at(sx, roofY, sz), Color3.fromRGB(26, 28, 34), Enum.Material.SmoothPlastic).Name = "ShowroomRoof"
+	blk(model, Vector3.new(sw + 8.4, 0.8, 1), at(sx, roofY - 1.2, sz - sd / 2 - 4), Color3.fromRGB(80, 170, 255), Enum.Material.Neon).Name = "RoofNeon"
+	for _, cx in { sx - sw / 2, sx - sw / 4, sx, sx + sw / 4, sx + sw / 2 } do
+		for _, cz in { sz - sd / 2, sz + sd / 2 } do
+			blk(model, Vector3.new(2.4, roofY - 1, 2.4), at(cx, roofY / 2 + 0.5, cz), Color3.fromRGB(50, 52, 60), Enum.Material.Metal)
+		end
+	end
+	-- front glass with a wide doorway in the middle
+	local doorW = 40
+	local paneW = (sw - doorW) / 2
+	for _, side in { -1, 1 } do
+		blk(model, Vector3.new(paneW, roofY - 2, 0.4), at(sx + side * (doorW / 2 + paneW / 2), roofY / 2, sz - sd / 2), Color3.fromRGB(170, 210, 235), Enum.Material.Glass, { Transparency = 0.65, Reflectance = 0.25, CanCollide = false })
+		blk(model, Vector3.new(0.4, roofY - 2, sd), at(sx + side * sw / 2, roofY / 2, sz), Color3.fromRGB(170, 210, 235), Enum.Material.Glass, { Transparency = 0.65, Reflectance = 0.25, CanCollide = false })
+	end
+	blk(model, Vector3.new(doorW, 4, 0.4), at(sx, roofY - 3, sz - sd / 2), Color3.fromRGB(26, 28, 34), Enum.Material.SmoothPlastic)
+	for i = -2, 2 do
+		for j = -1, 1 do
+			local lamp = blk(model, Vector3.new(12, 0.3, 12), at(sx + i * 34, roofY - 1, sz + j * 40), Color3.fromRGB(255, 250, 240), Enum.Material.Neon, { CanCollide = false })
+			make("SurfaceLight", { Face = Enum.NormalId.Bottom, Range = 34, Brightness = 1.3, Angle = 120 }, lamp)
+		end
+	end
+	local showSign = blk(model, Vector3.new(60, 6, 0.6), at(sx, roofY + 4, sz - sd / 2 - 3), Color3.fromRGB(16, 16, 20), Enum.Material.SmoothPlastic)
+	label(showSign, "SHOWROOM", Color3.fromRGB(255, 255, 255))
+
+	-- VIP lots: raised gold-trimmed platform
+	blk(model, Vector3.new(74, 1.2, 132), at(90, 1.5, -30), Color3.fromRGB(30, 26, 22), Enum.Material.Slate).Name = "SpecialFloor"
+	-- thin gold border instead of a glowing sheet
+	for _, e in { { 0, -66.5, 75, 1 }, { 0, 66.5, 75, 1 }, { -37, 0, 1, 133 }, { 37, 0, 1, 133 } } do
+		blk(model, Vector3.new(e[3], 0.5, e[4]), at(90 + e[1], 2.3, -30 + e[2]), Color3.fromRGB(230, 180, 40), Enum.Material.Neon, { CanCollide = false })
+	end
+	local vipSign = blk(model, Vector3.new(40, 6, 0.6), at(90, 12, -97), Color3.fromRGB(20, 16, 10), Enum.Material.SmoothPlastic)
+	label(vipSign, "VIP LOTS", Color3.fromRGB(255, 200, 60))
+	blk(model, Vector3.new(1, 10, 1), at(90, 5, -97), Color3.fromRGB(60, 60, 64), Enum.Material.Metal)
+
+	-- parking bays painted on the front lot
+	for i = -4, 4 do
+		blk(model, Vector3.new(0.5, 0.05, 22), at(i * 16 - 40, 1.03, -150), Color3.fromRGB(245, 245, 245), Enum.Material.SmoothPlastic, { CanCollide = false })
+	end
 
 	local pads = make("Folder", { Name = "Pads" }, model)
 	for slot = 1, PlotBuilder.DisplayPads + PlotBuilder.SpecialPads do
@@ -415,18 +467,28 @@ function PlotBuilder.buildShell(model: Model, origin: CFrame)
 	label(kiosk, "BUY CARS", Color3.fromRGB(255, 220, 80))
 	make("ProximityPrompt", { Name = "CatalogPrompt", ActionText = "Open Catalogue", ObjectText = "New Cars", MaxActivationDistance = 12, RequiresLineOfSight = false }, kiosk)
 
-	-- sign over the gate
-	local sign = blk(model, Vector3.new(gateW, 9, 1), at(0, wallH + 13, -D / 2), Color3.fromRGB(18, 20, 26), Enum.Material.SmoothPlastic)
+	-- gate arch sign: low enough to read, with a padded label on both faces
+	local sign = blk(model, Vector3.new(gateW + 4, 7, 1.2), at(0, wallH + 6, -D / 2), Color3.fromRGB(16, 18, 24), Enum.Material.SmoothPlastic)
 	sign.Name = "Sign"
 	for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
-		local g = make("SurfaceGui", { Face = face, PixelsPerStud = 12, LightInfluence = 0 }, sign)
-		make("TextLabel", { Name = "Label", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "FOR SALE - Claim this lot!", TextScaled = true, Font = Enum.Font.GothamBlack, TextColor3 = Color3.new(1, 1, 1) }, g)
+		local g = make("SurfaceGui", { Face = face, SizingMode = Enum.SurfaceGuiSizingMode.FixedSize, CanvasSize = Vector2.new(840, 74), LightInfluence = 0 }, sign)
+		make("TextLabel", { Name = "Label", Size = UDim2.new(1, -40, 1, -14), Position = UDim2.fromOffset(20, 7), BackgroundTransparency = 1, Text = "FOR SALE - Claim this lot!", TextScaled = true, Font = Enum.Font.GothamBlack, TextColor3 = Color3.new(1, 1, 1) }, g)
 	end
 	for _, side in { -1, 1 } do
-		blk(model, Vector3.new(1.5, wallH + 12, 1.5), at(side * (gateW / 2 + 1), (wallH + 12) / 2 + 1, -D / 2), Color3.fromRGB(50, 52, 56), Enum.Material.Metal).Name = "SignPost"
+		blk(model, Vector3.new(2, wallH + 9, 2), at(side * (gateW / 2 + 2), (wallH + 9) / 2 + 1, -D / 2), Color3.fromRGB(50, 52, 56), Enum.Material.Metal).Name = "SignPost"
 	end
-	local trim = blk(model, Vector3.new(gateW + 4, 0.6, 1.2), at(0, wallH + 8.2, -D / 2), Color3.fromRGB(80, 170, 255), Enum.Material.Neon)
+	local trim = blk(model, Vector3.new(gateW + 4, 0.6, 1.4), at(0, wallH + 2.2, -D / 2), Color3.fromRGB(80, 170, 255), Enum.Material.Neon)
 	trim.Name = "Trim"
+	-- floating owner tag (always faces you, readable from the road)
+	local tagAnchor = blk(model, Vector3.new(1, 1, 1), at(0, wallH + 16, -D / 2), Color3.new(), Enum.Material.SmoothPlastic, { Transparency = 1, CanCollide = false, CanQuery = false })
+	tagAnchor.Name = "TagAnchor"
+	-- sized in studs so it shrinks with distance like a real sign
+	local bb = make("BillboardGui", { Name = "OwnerTag", Size = UDim2.fromScale(44, 9), MaxDistance = 700, LightInfluence = 0 }, tagAnchor)
+	local frame = make("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(14, 15, 20), BackgroundTransparency = 0.15 }, bb)
+	make("UICorner", { CornerRadius = UDim.new(0, 12) }, frame)
+	make("UIStroke", { Color = Color3.fromRGB(255, 196, 40), Thickness = 2 }, frame)
+	make("TextLabel", { Name = "Owner", Size = UDim2.new(1, -16, 0.6, 0), Position = UDim2.fromOffset(8, 2), BackgroundTransparency = 1, Text = "EMPTY LOT", TextScaled = true, Font = Enum.Font.GothamBlack, TextColor3 = Color3.new(1, 1, 1) }, frame)
+	make("TextLabel", { Name = "Rank", Size = UDim2.new(1, -16, 0.38, 0), Position = UDim2.new(0, 8, 0.6, 0), BackgroundTransparency = 1, Text = "walk in to claim", TextScaled = true, Font = Enum.Font.GothamBold, TextColor3 = Color3.fromRGB(255, 196, 40) }, frame)
 
 	-- upgrade stations (button pads appear here)
 	for _, track in Upgrades.Tracks do

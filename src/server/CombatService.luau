@@ -57,6 +57,10 @@ local function makeTool(gun): Tool
 	local len = handle.Size.Z
 	-- hold it a third of the way from the back, barrel pointing forward
 	tool.Grip = CFrame.new(0, -handle.Size.Y * 0.15, dir * -len * 0.18) * (dir == 1 and CFrame.Angles(0, math.pi, 0) or CFrame.new())
+	-- the AI sniper model came out upside down (bipod on top): roll it upright
+	if gun.id == "Sniper" then
+		tool.Grip *= CFrame.Angles(0, 0, math.pi)
+	end
 	local muzzle = Instance.new("Attachment")
 	muzzle.Name = "Muzzle"
 	muzzle.Position = Vector3.new(0, handle.Size.Y * 0.2, dir * len / 2)

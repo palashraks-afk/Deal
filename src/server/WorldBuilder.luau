@@ -49,7 +49,64 @@ local function variant(part: BasePart, name: string)
 	if v and v:IsA("MaterialVariant") then
 		part.Material = v.BaseMaterial
 		part.MaterialVariant = name
+		-- part colour tints the texture; keep it near-white so the real facade shows
+		local c = part.Color
+		part.Color = Color3.new(0.82 + c.R * 0.18, 0.82 + c.G * 0.18, 0.82 + c.B * 0.18)
 	end
+end
+
+-- Real props (Creator Store models, scripts stripped) live in ServerStorage.Assets.Props.
+-- prop("Palm", position, scale) drops one with its base on the ground and a random turn.
+local ServerStorage = game:GetService("ServerStorage")
+local function propTemplate(name: string)
+	local assets = ServerStorage:FindFirstChild("Assets")
+	local props = assets and assets:FindFirstChild("Props")
+	return props and props:FindFirstChild(name)
+end
+local function prop(parent, name: string, pos: Vector3, scale: number?, yaw: number?): Model?
+	local t = propTemplate(name)
+	if not t then
+		return nil
+	end
+	local m = t:Clone()
+	if scale and scale ~= 1 then
+		m:ScaleTo(m:GetScale() * scale)
+	end
+	local bb, size = m:GetBoundingBox()
+	local offset = m:GetPivot().Position - bb.Position
+	m:PivotTo(CFrame.new(pos + offset + Vector3.new(0, size.Y / 2, 0)) * CFrame.Angles(0, yaw or rng:NextNumber(0, math.pi * 2), 0))
+	for _, d in m:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.Anchored = true
+		end
+	end
+	m.Parent = parent
+	return m
+end
+WorldBuilder.prop = prop
+
+-- One pine from the pine pack (the pack is a model of several trees).
+local function pine(parent, pos: Vector3, scale: number?)
+	local pack = propTemplate("Trees2")
+	if not pack then
+		return
+	end
+	local kids = pack:GetChildren()
+	local one = kids[rng:NextInteger(1, #kids)]:Clone()
+	local holder = Instance.new("Model")
+	one.Parent = holder
+	if scale then
+		holder:ScaleTo(scale)
+	end
+	local bb, size = holder:GetBoundingBox()
+	holder:PivotTo(CFrame.new(pos + (holder:GetPivot().Position - bb.Position) + Vector3.new(0, size.Y / 2, 0)))
+	for _, d in holder:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.Anchored = true
+		end
+	end
+	holder.Name = "Pine"
+	holder.Parent = parent
 end
 
 local function mapColor(part: BasePart, color: Color3, layer: number)
@@ -58,6 +115,20 @@ local function mapColor(part: BasePart, color: Color3, layer: number)
 end
 
 local function road(parent, center: Vector3, sizeX: number, sizeZ: number)
+	-- Roblox parts max out at 2048 studs, so long roads are built from pieces
+	local MAX = 1800
+	if sizeX > MAX or sizeZ > MAX then
+		local alongX = sizeX > sizeZ
+		local len = alongX and sizeX or sizeZ
+		local n = math.ceil(len / MAX)
+		local piece = len / n
+		local last
+		for i = 0, n - 1 do
+			local offset = -len / 2 + piece * (i + 0.5)
+			last = road(parent, center + (alongX and Vector3.new(offset, 0, 0) or Vector3.new(0, 0, offset)), alongX and piece or sizeX, alongX and sizeZ or piece)
+		end
+		return last
+	end
 	local r = make("Part", {
 		Name = "Road",
 		Size = Vector3.new(sizeX, 0.2, sizeZ),
@@ -92,6 +163,10 @@ local function streetLight(parent, pos: Vector3, facing: Vector3)
 end
 
 local function tree(parent, pos: Vector3, palm: boolean?)
+	-- real models first, simple blocks as a fallback
+	if prop(parent, palm and "Palm" or "Tree", pos, palm and rng:NextNumber(0.55, 0.75) or rng:NextNumber(0.45, 0.65)) then
+		return
+	end
 	if palm then
 		for i = 0, 5 do
 			make("Part", { Size = Vector3.new(1.4 - i * 0.1, 3, 1.4 - i * 0.1), CFrame = CFrame.new(pos + Vector3.new(math.sin(i * 0.4) * 0.6, 1.5 + i * 2.8, 0)), Material = Enum.Material.Wood, Color = Color3.fromRGB(120, 86, 52) }, parent)
@@ -264,14 +339,17 @@ local function buildGunStore(map)
 	local lot = make("Part", { Name = "Lot", Size = Vector3.new(120, 0.6, 110), CFrame = at(0, 0.3, 0), Material = Enum.Material.Asphalt, Color = Color3.fromRGB(60, 60, 64) }, m)
 	mapColor(lot, Color3.fromRGB(220, 60, 60), 4)
 	lot:SetAttribute("MapLabel", "GUN STORE")
-	local building = make("Part", { Name = "Building", Size = Vector3.new(80, 26, 46), CFrame = at(0, 13.6, 25), Material = Enum.Material.Brick, Color = Color3.fromRGB(70, 60, 58) }, m)
-	variant(building, "DD_BrickApartment")
+	make("Part", { Name = "Building", Size = Vector3.new(80, 26, 46), CFrame = at(0, 13.6, 25), Material = Enum.Material.Brick, Color = Color3.fromRGB(60, 52, 50) }, m)
+	-- dark trim bands + side windows so it reads as a shop, not a box
+	for _, y in { 0.9, 25.8 } do
+		make("Part", { Size = Vector3.new(81, 1.6, 47), CFrame = at(0, y, 25), Material = Enum.Material.Metal, Color = Color3.fromRGB(26, 26, 30) }, m)
+	end
 	make("Part", { Name = "Window", Size = Vector3.new(56, 12, 0.4), CFrame = at(0, 8, 1.8), Material = Enum.Material.Glass, Color = Color3.fromRGB(120, 170, 200), Transparency = 0.45, CanCollide = false }, m)
 	make("Part", { Name = "Awning", Size = Vector3.new(64, 0.6, 8), CFrame = at(0, 15, -2) * CFrame.Angles(math.rad(-12), 0, 0), Material = Enum.Material.Fabric, Color = Color3.fromRGB(180, 30, 36) }, m)
 	local sign = make("Part", { Name = "Sign", Size = Vector3.new(60, 9, 1.2), CFrame = at(0, 30, 1.6), Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(16, 16, 20) }, m)
 	for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
-		local g = make("SurfaceGui", { Face = face, PixelsPerStud = 14, LightInfluence = 0 }, sign)
-		make("TextLabel", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "AMMO & ARMS", TextScaled = true, Font = Enum.Font.GothamBlack, TextColor3 = Color3.fromRGB(255, 70, 60) }, g)
+		local g = make("SurfaceGui", { Face = face, SizingMode = Enum.SurfaceGuiSizingMode.FixedSize, CanvasSize = Vector2.new(600, 90), LightInfluence = 0 }, sign)
+		make("TextLabel", { Size = UDim2.new(1, -30, 1, -12), Position = UDim2.fromOffset(15, 6), BackgroundTransparency = 1, Text = "AMMO & ARMS", TextScaled = true, Font = Enum.Font.GothamBlack, TextColor3 = Color3.fromRGB(255, 70, 60) }, g)
 	end
 	make("PointLight", { Range = 40, Brightness = 2, Color = Color3.fromRGB(255, 90, 70) }, sign)
 	-- walk-in counter
@@ -450,11 +528,17 @@ local function buildHills(map)
 		make("Part", { Size = Vector3.new(40, 10, 0.4), Position = Vector3.new(p.X, y + 12, p.Z - 18.2), Material = Enum.Material.Glass, Color = Color3.fromRGB(120, 170, 210), Transparency = 0.3 }, m)
 		make("Part", { Size = Vector3.new(20, 0.6, 12), Position = Vector3.new(p.X + 32, y + 0.8, p.Z), Material = Enum.Material.Glass, Color = Color3.fromRGB(60, 170, 230), Transparency = 0.2 }, m)
 	end
-	for i = 1, 70 do
+	-- pine forest (the map isn't in Workspace yet, so only terrain hills are hit; flat ground = y 0)
+	for i = 1, 110 do
 		local x, z = rng:NextNumber(-1980, -700), rng:NextNumber(380, 1380)
-		local hit = workspace:Raycast(Vector3.new(x, 300, z), Vector3.new(0, -400, 0))
-		if hit and not inPlotArea(x, z) then
-			tree(f, hit.Position)
+		if not inPlotArea(x, z) then
+			local hit = workspace:Raycast(Vector3.new(x, 300, z), Vector3.new(0, -400, 0))
+			local y = hit and hit.Position.Y or 0
+			if propTemplate("Trees2") then
+				pine(f, Vector3.new(x, y - 1, z), rng:NextNumber(0.45, 0.7))
+			else
+				tree(f, Vector3.new(x, y, z))
+			end
 		end
 	end
 	WorldBuilder.Landmarks.Hills = Vector3.new(-1300, 4, 480)
@@ -519,42 +603,55 @@ local function buildDesert(map)
 	local f = make("Folder", { Name = "Desert" }, map)
 	local x0, x1, z0, z1 = AVENUE_X[2], HALF_X, 0, HALF_Z
 	zoneGround(f, "Desert", x0, x1, z0, z1, Enum.Material.Sand, Color3.fromRGB(214, 170, 110), Color3.fromRGB(210, 166, 110))
-	local terrain = workspace.Terrain
-	-- canyon rocks + dunes
-	for i = 1, 22 do
-		local x, z = rng:NextNumber(700, 1980), rng:NextNumber(420, 1380)
-		if (Vector2.new(x, z) - Vector2.new(1400, 900)).Magnitude > 380 and not inPlotArea(x, z, 40) then
-			local r = rng:NextNumber(30, 70)
-			terrain:FillBall(Vector3.new(x, r * 0.2, z), r, rng:NextNumber() < 0.6 and Enum.Material.Sandstone or Enum.Material.Sand)
+	-- canyon: real mesa rock formations around the edges (away from roads and the track)
+	local cx, cz = 1400, 900
+	local mesaSpots = { Vector3.new(1900, 0, 1250), Vector3.new(1880, 0, 700), Vector3.new(950, 0, 1300), Vector3.new(780, 0, 1050), Vector3.new(1250, 0, 1330), Vector3.new(1650, 0, 1340), Vector3.new(1920, 0, 980), Vector3.new(800, 0, 760) }
+	for _, p in mesaSpots do
+		if not prop(f, "Mesa", p, rng:NextNumber(0.7, 1.3)) then
+			workspace.Terrain:FillBall(p + Vector3.new(0, 10, 0), 50, Enum.Material.Sandstone)
 		end
 	end
-	-- speedway oval
-	local cx, cz = 1400, 900
-	local segs = 36
+	-- speedway oval: many short overlapping pieces so there are no gaps
+	local segs = 72
+	local rx, rz = 300, 200
 	for i = 0, segs - 1 do
 		local a0, a1 = i / segs * math.pi * 2, (i + 1) / segs * math.pi * 2
-		local p0 = Vector3.new(cx + math.cos(a0) * 300, 0.3, cz + math.sin(a0) * 200)
-		local p1 = Vector3.new(cx + math.cos(a1) * 300, 0.3, cz + math.sin(a1) * 200)
-		local seg = make("Part", { Name = "Road", Size = Vector3.new(44, 0.6, (p1 - p0).Magnitude + 6), CFrame = CFrame.lookAt((p0 + p1) / 2, p1), Material = Enum.Material.Asphalt, Color = Color3.fromRGB(40, 40, 44) }, f)
+		local p0 = Vector3.new(cx + math.cos(a0) * rx, 0.3, cz + math.sin(a0) * rz)
+		local p1 = Vector3.new(cx + math.cos(a1) * rx, 0.3, cz + math.sin(a1) * rz)
+		local len = (p1 - p0).Magnitude + 14
+		local cf = CFrame.lookAt((p0 + p1) / 2, p1)
+		local seg = make("Part", { Name = "Road", Size = Vector3.new(48, 0.6, len), CFrame = cf, Material = Enum.Material.Asphalt, Color = Color3.fromRGB(38, 38, 42) }, f)
 		mapColor(seg, Color3.fromRGB(46, 48, 54), 3)
-		if i % 2 == 0 then
-			make("Part", { Size = Vector3.new(2, 1.6, (p1 - p0).Magnitude + 6), CFrame = CFrame.lookAt((p0 + p1) / 2, p1) * CFrame.new(23, 0.8, 0), Material = Enum.Material.SmoothPlastic, Color = (i % 4 == 0) and Color3.fromRGB(220, 30, 30) or Color3.fromRGB(240, 240, 240) }, f)
+		-- red/white kerbs on both edges
+		for _, side in { -1, 1 } do
+			make("Part", { Name = "Kerb", Size = Vector3.new(3, 0.8, len - 10), CFrame = cf * CFrame.new(side * 25.5, 0.1, 0), Material = Enum.Material.SmoothPlastic, Color = (i % 2 == 0) and Color3.fromRGB(220, 30, 30) or Color3.fromRGB(245, 245, 245) }, f)
 		end
-		if i % 6 == 0 then
+		if i % 12 == 0 then
 			addSpawn(CFrame.lookAt((p0 + p1) / 2 + Vector3.new(0, 0.2, 0), p1))
 		end
 	end
-	local stand = make("Part", { Name = "Grandstand", Size = Vector3.new(200, 20, 24), Position = Vector3.new(cx, 10, cz - 250), Material = Enum.Material.Concrete, Color = Color3.fromRGB(180, 180, 186) }, f)
-	local _ = stand
+	-- infield grass + start/finish line
+	local infield = make("Part", { Name = "Infield", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.3, rz * 2 - 52, rx * 2 - 52), CFrame = CFrame.new(cx, 0.15, cz) * CFrame.Angles(0, 0, math.pi / 2), Material = Enum.Material.Grass, Color = Color3.fromRGB(80, 140, 60) }, f)
+	local _ = infield
+	for k = 0, 9 do
+		make("Part", { Size = Vector3.new(4.8, 0.05, 4), Position = Vector3.new(cx + rx - 22 + k * 4.8, 0.62, cz), Material = Enum.Material.SmoothPlastic, Color = (k % 2 == 0) and Color3.new(1, 1, 1) or Color3.new(0, 0, 0), CanCollide = false }, f)
+	end
+	-- grandstands with seat rows
+	for _, side in { -1, 1 } do
+		local sz = cz + side * (rz + 40)
+		for row = 0, 5 do
+			make("Part", { Name = "Stand", Size = Vector3.new(220, 3, 6), Position = Vector3.new(cx, 1.5 + row * 3, sz + side * row * 6), Material = Enum.Material.Concrete, Color = row % 2 == 0 and Color3.fromRGB(200, 40, 40) or Color3.fromRGB(230, 230, 235) }, f)
+		end
+	end
 	road(f, Vector3.new(1400, 0, 470), 1300, ROAD_W)
 	road(f, Vector3.new(1400, 0, 590), ROAD_W, 240)
-	-- cacti
-	for i = 1, 60 do
+	-- cacti (real model, scaled up)
+	for i = 1, 70 do
 		local x, z = rng:NextNumber(680, 1980), rng:NextNumber(380, 1380)
-		if (Vector2.new(x, z) - Vector2.new(cx, cz)).Magnitude > 330 then
-			local h = rng:NextNumber(6, 12)
-			make("Part", { Size = Vector3.new(1.6, h, 1.6), Position = Vector3.new(x, h / 2, z), Material = Enum.Material.Grass, Color = Color3.fromRGB(70, 130, 60) }, f)
-			make("Part", { Size = Vector3.new(1.2, h * 0.4, 1.2), Position = Vector3.new(x + 1.4, h * 0.6, z), Material = Enum.Material.Grass, Color = Color3.fromRGB(70, 130, 60) }, f)
+		if math.abs(((x - cx) / (rx + 60)) ^ 2 + ((z - cz) / (rz + 80)) ^ 2) > 1 and not inPlotArea(x, z, 20) and math.abs(z - 470) > 30 then
+			if not prop(f, "Cactus", Vector3.new(x, 0, z), rng:NextNumber(2.5, 4)) then
+				make("Part", { Size = Vector3.new(1.6, 10, 1.6), Position = Vector3.new(x, 5, z), Material = Enum.Material.Grass, Color = Color3.fromRGB(70, 130, 60) }, f)
+			end
 		end
 	end
 	-- gas station by the boulevard
@@ -630,7 +727,12 @@ function WorldBuilder.build()
 	local map = Instance.new("Model")
 	map.Name = "Map"
 	-- far ground under everything (so nothing falls into the void)
-	make("Part", { Name = "Ground", Size = Vector3.new(HALF_X * 2 + 400, 4, HALF_Z * 2 + 400), Position = Vector3.new(0, -2.05, 0), Material = Enum.Material.Grass, Color = Color3.fromRGB(78, 120, 64) }, map)
+	-- base ground in tiles (parts can't be bigger than 2048 studs)
+	for gx = -1, 1, 2 do
+		for gz = -1, 1, 2 do
+			make("Part", { Name = "Ground", Size = Vector3.new(HALF_X + 200, 4, HALF_Z + 200), Position = Vector3.new(gx * (HALF_X + 200) / 2, -2.05, gz * (HALF_Z + 200) / 2), Material = Enum.Material.Grass, Color = Color3.fromRGB(78, 120, 64) }, map)
+		end
+	end
 	buildMainRoads(map)
 	buildDowntown(map)
 	buildGunStore(map)

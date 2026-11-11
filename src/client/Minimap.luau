@@ -60,17 +60,32 @@ function Minimap.start()
 		end
 	end
 
+	local function place(d)
+		local p = (d.pos - Vector2.new(minX, minZ)) * scale
+		d.frame.Position = UDim2.fromOffset(p.X, p.Y)
+		if not d.label then
+			d.frame.Size = UDim2.fromOffset(math.max(2, d.size.X * scale), math.max(2, d.size.Y * scale))
+		end
+	end
 	local function layout()
 		canvas.Size = UDim2.fromOffset(worldW * scale, worldD * scale)
 		for _, d in drawn do
-			local p = (d.pos - Vector2.new(minX, minZ)) * scale
-			d.frame.Position = UDim2.fromOffset(p.X, p.Y)
-			if not d.label then
-				d.frame.Size = UDim2.fromOffset(math.max(2, d.size.X * scale), math.max(2, d.size.Y * scale))
-			end
+			place(d)
 		end
 	end
 	layout()
+	-- parts that replicate in after we start still get drawn
+	map.DescendantAdded:Connect(function(d)
+		if d:IsA("BasePart") then
+			task.defer(function()
+				local before = #drawn
+				addRect(d)
+				for i = before + 1, #drawn do
+					place(drawn[i])
+				end
+			end)
+		end
+	end)
 
 	local blips = new("Folder", { Name = "Blips", Parent = canvas })
 	local me = UIKit.label({ Text = "▲", Font = UIKit.FontHeavy, TextSize = 22, TextColor3 = Color3.fromRGB(80, 200, 255), TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.fromOffset(22, 22), AnchorPoint = Vector2.new(0.5, 0.5), ZIndex = 20, Parent = holder })
