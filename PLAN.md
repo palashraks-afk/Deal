@@ -60,21 +60,19 @@ Six tiers, lowest to highest. Spawn rates are tunable in `src/shared/Config.luau
 
 ---
 
-## 4. The 1000-car list
+## 4. The 100-car list
 
-- Built by `tools/gen_cars.py` and written to `src/shared/CarData.luau`, with a CSV copy in `data/cars.csv`.
-- **About 290 real base models**, each with real-world length, width, height, horsepower and price. Trims and generations ("Sport", "GT", "R", "Track") bring the list to exactly 1000. Legendary hypercars stay one-of-a-kind.
-- Each car has: id, altered brand, altered model, the real car it's based on, body type, rarity, real dimensions (m), hp, top speed, price, and showroom income/sec.
-- Every brand name is altered (Toyota → Toyoda, Ferrari → Ferrano, BMW → BMV). The real name is kept in a `basedOn` field for reference only and never shown in game.
+- **100 cars** (30 Common, 25 Uncommon, 20 Rare, 13 Epic, 8 Mythic, 4 Legendary), hand-picked in `tools/top100.txt` with **short names** (20 characters max, e.g. "Toyoda Supro", "Bugotti Chyron").
+- They're drawn from `tools/base_models.txt`, a library of 470 real cars with real length, width, height, horsepower and price. `python tools/gen_cars.py` writes `src/shared/CarData/` and `data/cars.csv`.
+- Every brand name is altered (Toyota → Toyoda, Ferrari → Ferrano, BMW → BMV). The real car goes in a `basedOn` field for reference only and is never shown in game.
 
 ---
 
 ## 5. 3D models — what "accurate" means here
 
-1000 hand-made, real-accurate car meshes is a professional art team's job. Here's how it's handled:
-
-1. **Now (in this repo):** a procedural car builder (`CarBuilder.luau`) builds every car from parts using its **real length, width and height** and a body-type profile (sedan, hatch, coupe, SUV, truck, van, muscle, supercar, hypercar, classic, off-road). Proportions match the real car, with glass, chrome, emissive headlights, brake lights, rims and spoilers on sports cars. It's recognisable, but it's not a copy of the real body.
-2. **Upgrade path:** each car has an optional `meshId` field. Put a real mesh in (made in Blender, bought, or made with Roblox's mesh generation) and the builder uses it instead. Do this first for the ~120 Epic / Mythic / Legendary cars, since those are what players chase.
+1. **Fallback (working now):** `CarBuilder.luau` builds any car from blocks at its **real length, width and height**. It's playable, but it looks basic.
+2. **Real models (next):** every one of the 100 cars gets a textured 3D mesh from Roblox Studio's AI mesh generator (body + 4 separate wheels so they spin), scaled to the real car's dimensions. The first test supercar came out with proper curves, textures, rims and brake calipers. No real logos or badges.
+3. **Blender pass:** cleanup and detail on the hero cars (Epic and up) once the Blender connection is live.
 
 ---
 

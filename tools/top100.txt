@@ -1,0 +1,102 @@
+# The 100 cars in DrivinDealz.
+# Tier|GameBrand|GameModel (as in base_models.txt)|Short display name (<= 20 chars)
+Common|Toyoda|Corrola|Toyoda Corrola
+Common|Toyoda|Camrie|Toyoda Camrie
+Common|Toyoda|Prios|Toyoda Prios
+Common|Hondo|Civik|Hondo Civik
+Common|Hondo|Acord|Hondo Acord
+Common|Hondo|CR-W|Hondo CR-W
+Common|Nissun|Altema|Nissun Altema
+Common|Nissun|Sentro|Nissun Sentro
+Common|Mazza|Mazza3|Mazza 3
+Common|Fjord|Fuzion|Fjord Fuzion
+Common|Fjord|Escaype|Fjord Escaype
+Common|Fjord|Rangr|Fjord Rangr
+Common|Chevlon|Malibou|Chevlon Malibou
+Common|Chevlon|Sparq|Chevlon Sparq
+Common|Chevlon|Equinoks|Chevlon Equinoks
+Common|Hyundia|Elantro|Hyundia Elantro
+Common|Hyundia|Tuscon|Hyundia Tuscon
+Common|Kio|Sowl|Kio Sowl
+Common|Kio|Fortay|Kio Fortay
+Common|Volkswagon|Gollf|VW Gollf
+Common|Volkswagon|Jeta|VW Jeta
+Common|Subara|Impreeza|Subara Impreeza
+Common|Subara|Outbak|Subara Outbak
+Common|Jeepo|Compas|Jeepo Compas
+Common|Fiatt|Cinkuecento|Fiatt 550
+Common|Mino|Kooper S|Mino Kooper S
+Common|Teslo|Modell 3|Teslo Modell 3
+Common|Dodje|Grand Caravann|Dodje Caravann
+Common|Volkswagon|Beatle '67|VW Beatle '67
+Common|Fjord|Modell T|Fjord Modell T
+Uncommon|Toyoda|Takoma|Toyoda Takoma
+Uncommon|Toyoda|GR-68|Toyoda GR-68
+Uncommon|Toyoda|5Runner|Toyoda 5Runner
+Uncommon|Hondo|Civik Type-Q|Civik Type-Q
+Uncommon|Subara|WRZ|Subara WRZ
+Uncommon|Mazza|MX-6 Miyata|Mazza Miyata
+Uncommon|Nissun|370-X|Nissun 370-X
+Uncommon|Fjord|Mustank GT|Fjord Mustank GT
+Uncommon|Fjord|F-151|Fjord F-151
+Uncommon|Fjord|Bronko|Fjord Bronko
+Uncommon|Chevlon|Camarro SS|Camarro SS
+Uncommon|Chevlon|Silverodo|Chevlon Silverodo
+Uncommon|Chevlon|Tahoo|Chevlon Tahoo
+Uncommon|Dodje|Challengr Q/T|Dodje Challengr
+Uncommon|Jeepo|Wranglr|Jeepo Wranglr
+Uncommon|Rham|1500|Rham 1500
+Uncommon|Teslo|Modell Y|Teslo Modell Y
+Uncommon|BMV|3 Seriez 330|BMV 330
+Uncommon|Audy|A-4|Audy A-4
+Uncommon|Mercedez-Benn|K-Class K300|Mercedez K300
+Uncommon|Volkswagon|Gollf GTY|VW Gollf GTY
+Uncommon|Mitsubushi|Lanser Evo 9|Lanser Evo 9
+Uncommon|Nissun|240-ZX S13|Nissun 240-ZX
+Uncommon|Hyundia|Ionik 5|Hyundia Ionik 5
+Uncommon|Lexon|IZ 350|Lexon IZ 350
+Rare|Toyoda|Supro A90|Toyoda Supro
+Rare|Toyoda|Supro Mk4|Supro Mk4
+Rare|Toyoda|Land Cruzer|Land Cruzer
+Rare|Nissun|GT-Q R35|Nissun GT-Q
+Rare|Nissun|Skylyne GT-Q R34|Skylyne R34
+Rare|Mazza|RQ-7 FD|Mazza RQ-7
+Rare|BMV|M-3 E-46|BMV M-3 E46
+Rare|BMV|M-4 CSQ|BMV M-4 CSQ
+Rare|Porsha|9-11 Carrera|Porsha 9-11
+Rare|Chevlon|Corvete C8 Stingrai|Corvete C8
+Rare|Dodje|Chargr SRT Hellkat|Chargr Hellkat
+Rare|Fjord|F-151 Raptur|F-151 Raptur
+Rare|Fjord|Mustank Shelbee GT-500|Mustank GT-500
+Rare|Teslo|Modell S Plad|Teslo Plad
+Rare|Teslo|Cybertrukk|Cybertrukk
+Rare|Audy|RQ6 Avant|Audy RQ6
+Rare|Mercedez-Benn|AMG K63 Z|Mercedez AMG K63
+Rare|Hondo|NSZ|Hondo NSZ
+Rare|Lotos|Eliss|Lotos Eliss
+Rare|Alfa Rameo|Giullia Quadrifolio|Alfa Giullia
+Epic|Porsha|9-11 GT-3 QS|Porsha GT-3 QS
+Epic|Lamborgini|Huracon EVO|Huracon EVO
+Epic|Ferrano|F-8 Tribuuto|Ferrano F-8
+Epic|McLaron|702S|McLaron 702S
+Epic|Audy|R-88 V-10|Audy R-88
+Epic|Mercedez-Benn|AMG H63|Mercedez H63
+Epic|Lamborgini|Uruz|Lamborgini Uruz
+Epic|Aston Marten|DB-21|Aston DB-21
+Epic|Bentlee|Continentall GT|Bentlee GT
+Epic|Rolls-Roice|Culinan|Rolls Culinan
+Epic|Nissun|GT-Q Nizmo|GT-Q Nizmo
+Epic|Dodje|Vyper ACQ|Dodje Vyper
+Epic|Maseratti|MQ20|Maseratti MQ20
+Mythic|Ferrano|SF91 Stradala|Ferrano SF91
+Mythic|Lamborgini|Aventadorr ZVJ|Aventadorr ZVJ
+Mythic|Ferrano|LaFerrano|LaFerrano
+Mythic|Porsha|918 Spyda|Porsha 918
+Mythic|McLaron|P-11|McLaron P-11
+Mythic|Lexon|LFX|Lexon LFX
+Mythic|Ferrano|F-44|Ferrano F-44
+Mythic|Lamborgini|Countash LP-400|Countash
+Legendary|Bugotti|Chyron|Bugotti Chyron
+Legendary|Koenigsegk|Jessko|Koenigsegk Jessko
+Legendary|Pagana|Huayrra|Pagana Huayrra
+Legendary|McLaron|F-11|McLaron F-11
