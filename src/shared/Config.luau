@@ -32,12 +32,12 @@ Config.Npc = {
 	SpawnEvery = 9, -- seconds per plot at 1x foot traffic
 	MaxPerPlot = 6,
 	MaxPerPlotCap = 14,
-	MaxTotal = 48,
+	MaxTotal = 60,
 	Browse = { 4, 9 }, -- seconds looking at a car
 	CarsPerVisit = 3,
 	BaseTolerance = 1.15, -- happy paying up to ~115% of value
 	SpecialLotBonus = 0.4, -- special lots pull buyers who pay more
-	Pedestrians = 34, -- people walking around the map
+	Pedestrians = 70, -- people walking around the map
 }
 
 -- City spawns

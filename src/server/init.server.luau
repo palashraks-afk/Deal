@@ -10,9 +10,11 @@ local NpcService = require(script.NpcService)
 local FactoryService = require(script.FactoryService)
 local CityService = require(script.CityService)
 local CombatService = require(script.CombatService)
+local BreakableService = require(script.BreakableService)
 
 WorldBuilder.build()
 WorldBuilder.startDayNight()
+BreakableService.start()
 
 VehicleService.Tycoon = TycoonService
 VehicleService.start()

@@ -117,6 +117,7 @@ local function buildFromTemplate(template: Model, stats, opts)
 		Transparency = 1,
 		Massless = false,
 		CanCollide = opts.drivable == true,
+		CanTouch = opts.drivable == true, -- the low block is what hits hydrants, bins and people
 		CustomPhysicalProperties = PhysicalProperties.new(2.4, 0.3, 0, 1, 1),
 	})
 	model.PrimaryPart = root
@@ -126,7 +127,7 @@ local function buildFromTemplate(template: Model, stats, opts)
 		Transparency = 1,
 		Massless = true,
 		CanCollide = true,
-		CanTouch = false,
+		CanTouch = true, -- lets cars knock over street objects and pedestrians
 		CustomPhysicalProperties = PhysicalProperties.new(0.1, 0, 0, 100, 1),
 	})
 
@@ -287,11 +288,38 @@ local function settleWheels(model: Model)
 	return model
 end
 
+-- Low invisible "bumper" zone: on its suspension a car rides high enough to pass over
+-- hydrants and bins, so this detects (never blocks) whatever the front end runs into.
+local function addBumper(model: Model, opts)
+	if not opts.drivable or not model.PrimaryPart then
+		return model
+	end
+	local L, W, H = model:GetAttribute("Length") or 16, model:GetAttribute("Width") or 7, model:GetAttribute("Height") or 5.6
+	local root = model.PrimaryPart
+	local cf = root.CFrame * CFrame.new(0, -root.CFrame.Position.Y, 0) -- car-space ground level
+	local b = Instance.new("Part")
+	b.Name = "Bumper"
+	b.Size = Vector3.new(W * 0.98, H * 0.45, L * 1.02)
+	b.CFrame = cf * CFrame.new(0, H * 0.3, 0)
+	b.Transparency = 1
+	b.CanCollide = false
+	b.CanQuery = false
+	b.CanTouch = true
+	b.Massless = true
+	b.Anchored = root.Anchored
+	b.Parent = model
+	local w = Instance.new("WeldConstraint")
+	w.Part0 = root
+	w.Part1 = b
+	w.Parent = b
+	return model
+end
+
 function CarBuilder.build(stats, paint: Color3, opts)
 	opts = opts or {}
 	local template = findTemplate(stats)
 	if template then
-		return settleWheels(buildFromTemplate(template, stats, opts))
+		return addBumper(settleWheels(buildFromTemplate(template, stats, opts)), opts)
 	end
 	local P = PROFILES[stats.body] or PROFILES.sedan
 	local L, W, H = stats.length * S, stats.width * S, stats.height * S
@@ -310,6 +338,7 @@ function CarBuilder.build(stats, paint: Color3, opts)
 	local root = part(model, nil, "Chassis", Vector3.new(W * 0.9, lh * 0.6, L * 0.9), CFrame.new(0, clr + lh * 0.35, 0), {
 		Transparency = 1,
 		Massless = false,
+		CanTouch = opts.drivable == true,
 		CustomPhysicalProperties = PhysicalProperties.new(2.4, 0.3, 0, 1, 1),
 	})
 	model.PrimaryPart = root
@@ -548,7 +577,7 @@ function CarBuilder.build(stats, paint: Color3, opts)
 	model:SetAttribute("Height", H)
 	model:SetAttribute("WheelRadius", R)
 	model:SetAttribute("Rarity", stats.rarity)
-	return settleWheels(model)
+	return addBumper(settleWheels(model), opts)
 end
 
 -- Unanchor every part so physics takes over.

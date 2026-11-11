@@ -213,8 +213,10 @@ local function road(parent, center: Vector3, sizeX: number, sizeZ: number, skipR
 	return r
 end
 
+local CollectionService = game:GetService("CollectionService")
 local function streetLight(parent, pos: Vector3, facing: Vector3)
 	local m = make("Model", { Name = "StreetLight" }, parent)
+	CollectionService:AddTag(m, "Breakable")
 	make("Part", { Size = Vector3.new(0.8, 18, 0.8), Position = pos + Vector3.new(0, 9, 0), Material = Enum.Material.Metal, Color = Color3.fromRGB(50, 52, 56) }, m)
 	make("Part", { Size = Vector3.new(0.6, 0.6, 6), CFrame = CFrame.lookAt(pos + Vector3.new(0, 18, 0) + facing * 3, pos + Vector3.new(0, 18, 0) + facing * 6), Material = Enum.Material.Metal, Color = Color3.fromRGB(50, 52, 56) }, m)
 	local lamp = make("Part", { Size = Vector3.new(2, 0.5, 2), Position = pos + Vector3.new(0, 17.7, 0) + facing * 6, Material = Enum.Material.Neon, Color = Color3.fromRGB(255, 220, 170), CanCollide = false }, m)
@@ -1229,6 +1231,7 @@ end
 -- over the two roads toward the junction centre
 local function trafficLight(parent, corner: Vector3, sx: number, sz: number)
 	local m = make("Model", { Name = "TrafficLight" }, parent)
+	CollectionService:AddTag(m, "Breakable")
 	local grey = Color3.fromRGB(58, 60, 64)
 	make("Part", { Size = Vector3.new(0.9, 18, 0.9), Position = corner + Vector3.new(0, 9, 0), Material = Enum.Material.Metal, Color = grey }, m)
 	for _, arm in { { axis = "X", dir = Vector3.new(0, 0, -sz) }, { axis = "Z", dir = Vector3.new(-sx, 0, 0) } } do
@@ -1242,7 +1245,10 @@ local function trafficLight(parent, corner: Vector3, sx: number, sz: number)
 		for i, c in { "R", "Y", "G" } do
 			for _, side in { -1, 1 } do -- lamps on both faces so both directions see them
 				local lamp = make("Part", { Name = "Lamp" .. c, Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.25, 1.1, 1.1), CFrame = headCf * CFrame.new(0, 1.4 - (i - 1) * 1.4, side * -0.62) * CFrame.Angles(0, math.pi / 2, 0), Material = Enum.Material.SmoothPlastic, Color = LAMP_OFF, CanCollide = false, CastShadow = false }, m)
-				table.insert(WorldBuilder.TrafficLamps, { part = lamp, axis = arm.axis == "X" and "X" or "Z", color = c })
+				-- tagged (not listed) so a light that's knocked over and grows back keeps cycling
+				lamp:SetAttribute("Axis", arm.axis)
+				lamp:SetAttribute("Lamp", c)
+				CollectionService:AddTag(lamp, "TrafficLamp")
 			end
 		end
 	end
@@ -1250,6 +1256,7 @@ end
 
 local function stopSign(parent, pos: Vector3, facing: Vector3)
 	local m = make("Model", { Name = "StopSign" }, parent)
+	CollectionService:AddTag(m, "Breakable")
 	make("Part", { Size = Vector3.new(0.3, 8, 0.3), Position = pos + Vector3.new(0, 4, 0), Material = Enum.Material.Metal, Color = Color3.fromRGB(150, 150, 152) }, m)
 	local face = make("Part", { Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.2, 3, 3), CFrame = CFrame.lookAt(pos + Vector3.new(0, 8, 0), pos + Vector3.new(0, 8, 0) + facing) * CFrame.Angles(0, math.pi / 2, 0), Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(200, 20, 24) }, m)
 	signText(face, Enum.NormalId.Left, "STOP", Color3.new(1, 1, 1), Vector2.new(120, 120))
@@ -1257,6 +1264,7 @@ end
 
 local function busStop(parent, cf: CFrame)
 	local m = make("Model", { Name = "BusStop" }, parent)
+	CollectionService:AddTag(m, "Breakable")
 	local glass = Color3.fromRGB(170, 200, 215)
 	make("Part", { Size = Vector3.new(10, 0.4, 4.5), CFrame = cf * CFrame.new(0, 8.2, 0), Material = Enum.Material.Metal, Color = Color3.fromRGB(40, 44, 52) }, m)
 	make("Part", { Size = Vector3.new(10, 7.6, 0.2), CFrame = cf * CFrame.new(0, 4.3, 2.1), Material = Enum.Material.Glass, Color = glass, Transparency = 0.5 }, m)
@@ -1272,12 +1280,16 @@ local function busStop(parent, cf: CFrame)
 end
 
 local function hydrant(parent, pos: Vector3)
-	make("Part", { Name = "Hydrant", Shape = Enum.PartType.Cylinder, Size = Vector3.new(2.4, 1.1, 1.1), CFrame = CFrame.new(pos + Vector3.new(0, 1.2, 0)) * CFrame.Angles(0, 0, math.pi / 2), Material = Enum.Material.Metal, Color = Color3.fromRGB(200, 30, 30) }, parent)
-	make("Part", { Shape = Enum.PartType.Ball, Size = Vector3.one * 1.1, Position = pos + Vector3.new(0, 2.4, 0), Material = Enum.Material.Metal, Color = Color3.fromRGB(200, 30, 30) }, parent)
+	local m = make("Model", { Name = "Hydrant" }, parent)
+	CollectionService:AddTag(m, "Breakable")
+	make("Part", { Shape = Enum.PartType.Cylinder, Size = Vector3.new(2.4, 1.1, 1.1), CFrame = CFrame.new(pos + Vector3.new(0, 1.2, 0)) * CFrame.Angles(0, 0, math.pi / 2), Material = Enum.Material.Metal, Color = Color3.fromRGB(200, 30, 30) }, m)
+	make("Part", { Shape = Enum.PartType.Ball, Size = Vector3.one * 1.1, Position = pos + Vector3.new(0, 2.4, 0), Material = Enum.Material.Metal, Color = Color3.fromRGB(200, 30, 30) }, m)
 end
 
 local function bin(parent, pos: Vector3)
-	make("Part", { Name = "Bin", Shape = Enum.PartType.Cylinder, Size = Vector3.new(3, 2, 2), CFrame = CFrame.new(pos + Vector3.new(0, 1.5, 0)) * CFrame.Angles(0, 0, math.pi / 2), Material = Enum.Material.Metal, Color = Color3.fromRGB(40, 70, 50) }, parent)
+	local m = make("Model", { Name = "Bin" }, parent)
+	CollectionService:AddTag(m, "Breakable")
+	make("Part", { Shape = Enum.PartType.Cylinder, Size = Vector3.new(3, 2, 2), CFrame = CFrame.new(pos + Vector3.new(0, 1.5, 0)) * CFrame.Angles(0, 0, math.pi / 2), Material = Enum.Material.Metal, Color = Color3.fromRGB(40, 70, 50) }, m)
 end
 
 local function buildStreetLife(map)
@@ -1408,19 +1420,20 @@ function WorldBuilder.startTrafficLights()
 		while true do
 			local greenAxis = (phase % 2 == 0) and "X" or "Z"
 			for _, step in { "G", "Y", "R" } do
-				for _, l in WorldBuilder.TrafficLamps do
+				for _, part in CollectionService:GetTagged("TrafficLamp") do
+					local color = part:GetAttribute("Lamp")
 					local lit
-					if l.axis == greenAxis then
-						lit = l.color == step
+					if part:GetAttribute("Axis") == greenAxis then
+						lit = color == step
 					else
-						lit = l.color == "R"
+						lit = color == "R"
 					end
 					if step == "R" then
 						-- all-red moment before the other way goes
-						lit = l.color == "R"
+						lit = color == "R"
 					end
-					l.part.Color = lit and LAMP_ON[l.color] or LAMP_OFF
-					l.part.Material = lit and Enum.Material.Neon or Enum.Material.SmoothPlastic
+					part.Color = lit and LAMP_ON[color] or LAMP_OFF
+					part.Material = lit and Enum.Material.Neon or Enum.Material.SmoothPlastic
 				end
 				task.wait(step == "G" and 8 or (step == "Y" and 2 or 1))
 			end
