@@ -2,7 +2,9 @@
 
 local Config = {}
 
-Config.StudsPerMeter = 3 -- real car dimensions are scaled by this
+-- Real car dimensions are scaled by this. 4 studs/m makes cars big enough for a Roblox
+-- character (~5 studs tall) to sit inside instead of poking through the roof.
+Config.StudsPerMeter = 4
 
 Config.RarityOrder = { "Common", "Uncommon", "Rare", "Epic", "Mythic", "Legendary" }
 
@@ -35,6 +37,7 @@ Config.Npc = {
 	CarsPerVisit = 3,
 	BaseTolerance = 1.15, -- happy paying up to ~115% of value
 	SpecialLotBonus = 0.4, -- special lots pull buyers who pay more
+	Pedestrians = 34, -- people walking around the map
 }
 
 -- City spawns

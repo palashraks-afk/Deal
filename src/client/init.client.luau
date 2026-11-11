@@ -10,24 +10,29 @@ local HUD = require(script.HUD)
 local Minimap = require(script.Minimap)
 local Menus = require(script.Menus)
 local Combat = require(script.Combat)
+local Effects = require(script.Effects)
+local Waypoint = require(script.Waypoint)
+local Tutorial = require(script.Tutorial)
 require(script.State)
 
 local menus = Menus.build()
 DriveController.start()
 HUD.start(menus)
 Combat.start()
+Effects.start()
+Waypoint.start()
 task.spawn(Minimap.start)
+task.spawn(Tutorial.start)
 
--- keyboard shortcuts
+-- keyboard shortcuts (menus only open when you're on foot)
 local KEYS = {
 	[Enum.KeyCode.B] = menus.Garage,
 	[Enum.KeyCode.N] = menus.Shop,
 	[Enum.KeyCode.U] = menus.Upgrades,
 	[Enum.KeyCode.J] = menus.Factory,
-	[Enum.KeyCode.K] = menus.Guns,
 }
 UserInputService.InputBegan:Connect(function(input, processed)
-	if processed then
+	if processed or DriveController.Car then
 		return
 	end
 	local menu = KEYS[input.KeyCode]

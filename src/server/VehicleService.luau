@@ -27,12 +27,14 @@ local function notify(player, text, color)
 end
 VehicleService.notify = notify
 
+local SCALE = Config.StudsPerMeter / 3 -- speeds were tuned at 3 studs/m
+
 function VehicleService.topSpeed(stats): number
-	return math.floor(40 + stats.topKmh * 0.32)
+	return math.floor((40 + stats.topKmh * 0.32) * SCALE)
 end
 
 function VehicleService.accel(stats): number
-	return math.floor(18 + math.sqrt(stats.hp) * 1.6)
+	return math.floor((18 + math.sqrt(stats.hp) * 1.6) * SCALE)
 end
 
 -- Put a car's wheels on the ground at cf (cf = ground position + facing).

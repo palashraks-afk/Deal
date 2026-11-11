@@ -8,6 +8,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared.Config)
+local Sounds = require(Shared.Sounds)
 
 local player = Players.LocalPlayer
 
@@ -243,6 +244,52 @@ function DriveController.start()
 		end
 	end)
 	conn = RunService.PreSimulation:Connect(step)
+
+	-- engine sounds for every occupied car near you (pitch follows speed), skid squeal for yours
+	local engines = {}
+	local skid
+	RunService.Heartbeat:Connect(function()
+		local cam = workspace.CurrentCamera.CFrame.Position
+		local vehicles = workspace:FindFirstChild("Vehicles")
+		for _, car in vehicles and vehicles:GetChildren() or {} do
+			local seat = car:FindFirstChild("DriverSeat")
+			local root = car.PrimaryPart
+			local active = seat and seat.Occupant and root and (root.Position - cam).Magnitude < 250
+			local s = engines[car]
+			if active and not s then
+				s = Sounds.loop("Engine", root, car == DriveController.Car and 0.55 or 0.4)
+				engines[car] = s
+			elseif not active and s then
+				s:Destroy()
+				engines[car] = nil
+				s = nil
+			end
+			if s then
+				local top = car:GetAttribute("TopSpeed") or 120
+				local speed = root.AssemblyLinearVelocity.Magnitude
+				s.PlaybackSpeed = 0.75 + math.clamp(speed / top, 0, 1.1) * 1.05
+			end
+		end
+		for car, s in engines do
+			if not car.Parent then
+				s:Destroy()
+				engines[car] = nil
+			end
+		end
+		local mine = DriveController.Car
+		if mine and mine.PrimaryPart then
+			if not skid or skid.Parent ~= mine.PrimaryPart then
+				if skid then
+					skid:Destroy()
+				end
+				skid = Sounds.loop("Skid", mine.PrimaryPart, 0)
+			end
+			skid.Volume = DriveController.Drifting and 0.5 or 0
+		elseif skid then
+			skid:Destroy()
+			skid = nil
+		end
+	end)
 end
 
 function DriveController.stop()

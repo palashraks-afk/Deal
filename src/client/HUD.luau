@@ -71,7 +71,7 @@ function HUD.start(menus)
 
 	------------------------------------------------ dock
 	-- vertical dock on the left (the Roblox hotbar owns the bottom centre)
-	local dock = new("Frame", { Name = "Dock", Size = UDim2.fromOffset(84, 5 * 90), Position = UDim2.new(0, 14, 0.5, 130), AnchorPoint = Vector2.new(0, 0.5), BackgroundTransparency = 1, Parent = screen })
+	local dock = new("Frame", { Name = "Dock", Size = UDim2.fromOffset(84, 4 * 90), Position = UDim2.new(0, 14, 0.5, 130), AnchorPoint = Vector2.new(0, 0.5), BackgroundTransparency = 1, Parent = screen })
 	local dl = UIKit.list(dock, 8, Enum.FillDirection.Vertical)
 	dl.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	dl.VerticalAlignment = Enum.VerticalAlignment.Center
@@ -80,7 +80,6 @@ function HUD.start(menus)
 		{ "🏷️", "SHOP", "N", C.Accent, menus.Shop },
 		{ "🔧", "UPGRADES", "U", C.Good, menus.Upgrades },
 		{ "🏭", "FACTORY", "J", Color3.fromRGB(255, 140, 40), menus.Factory },
-		{ "🔫", "GUNS", "K", C.Hot, menus.Guns },
 	} do
 		local tile = new("TextButton", { Size = UDim2.fromOffset(76, 80), BackgroundColor3 = C.Panel, Text = "", AutoButtonColor = false, LayoutOrder = i, ClipsDescendants = true, Parent = dock }, { UIKit.corner(14), UIKit.stroke(def[4], 2) })
 		new("Frame", { Size = UDim2.new(1, 0, 0, 5), Position = UDim2.new(0, 0, 1, -5), BackgroundColor3 = def[4], BorderSizePixel = 0, Parent = tile })
@@ -147,12 +146,25 @@ function HUD.start(menus)
 	local carName = UIKit.label({ Text = "", Font = UIKit.FontHeavy, TextSize = 15, Size = UDim2.new(1, -20, 0, 20), Position = UDim2.fromOffset(10, 6), TextTruncate = Enum.TextTruncate.AtEnd, Parent = carPanel })
 	local hpBack = new("Frame", { Size = UDim2.new(1, -20, 0, 10), Position = UDim2.fromOffset(10, 30), BackgroundColor3 = C.Panel3, Parent = carPanel }, { UIKit.corner(5) })
 	local hp = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = C.Good, Parent = hpBack }, { UIKit.corner(5) })
-	UIKit.label({ Text = "SHIFT drift  •  R flip  •  SPACE exit", TextSize = 10, TextColor3 = C.Muted, Size = UDim2.new(1, -20, 0, 12), Position = UDim2.fromOffset(10, 43), Parent = carPanel })
+	UIKit.label({ Text = "WASD drive • SHIFT drift • R flip • SPACE exit", TextSize = 10, TextColor3 = C.Muted, Size = UDim2.new(1, -20, 0, 12), Position = UDim2.fromOffset(10, 43), Parent = carPanel })
 
+	local wasDriving = false
 	RunService.RenderStepped:Connect(function()
 		local car = DriveController.Car
 		gauge.Visible = car ~= nil
 		carPanel.Visible = car ~= nil
+		-- driving mode: only the minimap + driving HUD
+		local driving = car ~= nil
+		if driving ~= wasDriving then
+			wasDriving = driving
+			dock.Visible = not driving
+			incomePill.Visible = not driving
+			if driving then
+				for _, m in menus do
+					m.close()
+				end
+			end
+		end
 		if car then
 			local rarity = car:GetAttribute("Rarity")
 			carName.Text = car:GetAttribute("CarName") or ""

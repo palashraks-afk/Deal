@@ -7,6 +7,7 @@ local Config = require(Shared.Config)
 local Cars = require(Shared.Cars)
 local CarBuilder = require(Shared.CarBuilder)
 local Upgrades = require(Shared.Upgrades)
+local Net = require(Shared.Net)
 
 local DataService = require(script.Parent.DataService)
 local WorldBuilder = require(script.Parent.WorldBuilder)
@@ -368,6 +369,7 @@ function Tycoon.buyUpgrade(player: Player, track: string, index: number)
 	Tycoon.refreshPlot(player)
 	DataService.push(player)
 	notify(player, ("Built: %s"):format(u.name), Color3.fromRGB(110, 255, 150))
+	Net.Effect:FireClient(player, "Build", plot.cframe.Position)
 	task.delay(1.2, function() -- the next button appears where you're standing; don't auto-buy it
 		buying[player] = nil
 	end)
@@ -490,7 +492,8 @@ function Tycoon.tryRaid(thief: Player, owner: Player, slot: number)
 	end
 	entry.inTransit = true
 	Tycoon.refreshPlot(owner)
-	VehicleService.spawnRaid(owner, entry, CFrame.new(pad.Position + Vector3.new(0, 0.4, 0)), thief)
+	-- face the plot's gate
+	VehicleService.spawnRaid(owner, entry, CFrame.new(pad.Position + Vector3.new(0, 0.4, 0)) * plot.cframe.Rotation, thief)
 	local name = Cars.resolve(entry).name
 	notify(owner, ("%s is stealing your %s! Shoot their car!"):format(thief.DisplayName, name), Color3.fromRGB(255, 60, 60))
 	notify(thief, "Get it to YOUR garage zone to keep it!", Color3.fromRGB(255, 200, 40))

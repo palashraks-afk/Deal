@@ -39,6 +39,7 @@ local function defaultProfile()
 		factory = {}, -- [line] = { id, startedAt, duration }
 		guns = { Pistol = true },
 		equippedGun = "Pistol",
+		tutorial = 1, -- tutorial step (0 = finished/skipped)
 		stats = { found = 0, stolen = 0, lost = 0, sold = 0, built = 0, earned = 0 },
 	}
 end
@@ -205,7 +206,14 @@ local function load(player: Player)
 			task.wait(1.5)
 		end
 	end
+	local isNew = data == nil and not failed
 	local profile = reconcile(data or defaultProfile())
+	if isNew then
+		-- two starter cars so a new player can stock their lot straight away
+		for _, id in { 1, 4 } do
+			table.insert(profile.garage, { uid = DataService.newUid(), id = id })
+		end
+	end
 	if failed then
 		profile._noSave = true
 		Net.Notify:FireClient(player, { text = "Couldn't load your save - progress this session won't be saved.", color = Color3.fromRGB(255, 90, 90) })
@@ -231,6 +239,12 @@ local function load(player: Player)
 end
 
 function DataService.start()
+	Net.Tutorial.OnServerEvent:Connect(function(player, step)
+		local p = DataService.Profiles[player]
+		if p and type(step) == "number" and step >= 0 and step <= 20 then
+			p.tutorial = math.floor(step)
+		end
+	end)
 	Players.PlayerAdded:Connect(load)
 	for _, p in Players:GetPlayers() do
 		task.spawn(load, p)

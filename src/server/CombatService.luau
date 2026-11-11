@@ -13,6 +13,7 @@ local Net = require(Shared.Net)
 
 local DataService = require(script.Parent.DataService)
 local VehicleService = require(script.Parent.VehicleService)
+local NpcService = require(script.Parent.NpcService)
 
 local CombatService = {}
 local state = {} :: { [Player]: { [string]: { ammo: number, last: number, reloadUntil: number } } }
@@ -196,6 +197,7 @@ local function damageHumanoid(shooter: Player, hum: Humanoid, amount: number)
 end
 
 local function explode(shooter: Player, gun, at: Vector3)
+	Net.Effect:FireAllClients("Explosion", at)
 	local boom = Instance.new("Explosion")
 	boom.Position = at
 	boom.BlastRadius = gun.explosive
@@ -220,7 +222,7 @@ local function explode(shooter: Player, gun, at: Vector3)
 end
 
 ---------------------------------------------------------------- firing
-local function onFire(player: Player, gunId: string, target: Vector3)
+local function onFire(player: Player, gunId: string, target: Vector3, aiming: boolean?)
 	if typeof(target) ~= "Vector3" or type(gunId) ~= "string" then
 		return
 	end
@@ -267,7 +269,8 @@ local function onFire(player: Player, gunId: string, target: Vector3)
 	local hits = {}
 	for _ = 1, gun.pellets or 1 do
 		local dir = (target - origin).Unit
-		local spread = math.rad(gun.spread)
+		-- aiming down sights = shots land where the crosshair is (shotguns still spread a bit)
+		local spread = math.rad(gun.spread) * (aiming == true and (gun.pellets and 0.5 or 0.08) or 1)
 		dir = (CFrame.lookAt(Vector3.zero, dir) * CFrame.Angles(rng:NextNumber(-spread, spread), rng:NextNumber(-spread, spread), 0)).LookVector
 		local result = workspace:Raycast(origin, dir * gun.range, params)
 		local hitPos = result and result.Position or (origin + dir * gun.range)
@@ -279,12 +282,20 @@ local function onFire(player: Player, gunId: string, target: Vector3)
 				local car = carFromPart(result.Instance)
 				if car then
 					damageCar(player, car, gun.carDamage)
+					Net.Effect:FireAllClients("CarHit", hitPos, result.Normal)
 				else
 					local model = result.Instance:FindFirstAncestorOfClass("Model")
 					local victimHum = model and model:FindFirstChildOfClass("Humanoid")
 					if victimHum then
-						local headshot = result.Instance.Name == "Head"
-						damageHumanoid(player, victimHum, gun.damage * (headshot and 1.6 or 1))
+						if model:GetAttribute("Kind") then
+							NpcService.react(model)
+						else
+							local headshot = result.Instance.Name == "Head"
+							damageHumanoid(player, victimHum, gun.damage * (headshot and 1.6 or 1))
+						end
+						Net.Effect:FireAllClients("BodyHit", hitPos, result.Normal)
+					else
+						Net.Effect:FireAllClients("Impact", hitPos, result.Normal)
 					end
 				end
 			end

@@ -31,5 +31,7 @@ Net.Notify = get("Notify", "RemoteEvent") -- server -> client: toast {text, colo
 Net.Action = get("Action", "RemoteFunction") -- client -> server: (action, args) -> ok, message
 Net.Fire = get("Fire", "RemoteEvent") -- client -> server: blaster shot at position
 Net.Tracer = get("Tracer", "RemoteEvent") -- server -> clients: draw a shot
+Net.Effect = get("Effect", "RemoteEvent") -- server -> clients: (kind, position) sounds + VFX
+Net.Tutorial = get("Tutorial", "RemoteEvent") -- client -> server: tutorial progress
 
 return Net

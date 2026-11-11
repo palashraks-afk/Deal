@@ -2,6 +2,7 @@
 -- chunky type, rarity-coloured trims. Every screen builds from these pieces.
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local Sounds = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Sounds"))
 
 local UIKit = {}
 
@@ -105,6 +106,7 @@ function UIKit.button(text: string, color: Color3?, props)
 	end)
 	b.MouseButton1Down:Connect(function()
 		TweenService:Create(scale, TweenInfo.new(0.06), { Scale = 0.94 }):Play()
+		Sounds.play("Click", nil, 0.4)
 	end)
 	b.MouseButton1Up:Connect(function()
 		TweenService:Create(scale, TweenInfo.new(0.1), { Scale = 1.05 }):Play()

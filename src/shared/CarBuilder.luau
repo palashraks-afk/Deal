@@ -183,7 +183,8 @@ local function buildFromTemplate(template: Model, stats, opts)
 	local seat = Instance.new("VehicleSeat")
 	seat.Name = "DriverSeat"
 	seat.Size = Vector3.new(0.5 * S, 0.12 * S, 0.5 * S)
-	seat.CFrame = CFrame.new(-W * 0.2, H * 0.28, -L / 2 + (P.cab0 + 0.12) * L + 0.4 * S)
+	-- low seat so the driver's head stays under the roof
+	seat.CFrame = CFrame.new(-W * 0.2, H * 0.2, -L / 2 + (P.cab0 + 0.14) * L + 0.4 * S)
 	seat.Transparency = 1
 	seat.CanCollide = false
 	seat.Massless = true
