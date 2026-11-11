@@ -1002,6 +1002,207 @@ local function buildBoulevardStreets(map)
 	end
 end
 
+---------------------------------------------------------------- FILL THE GAPS
+-- After everything else is built (and in Workspace), walk the map in 100x100 cells.
+-- Any cell with nothing standing in it gets buildings that fit its district. Every
+-- footprint is checked against roads, lots, other buildings and water first.
+local function districtAt(x: number, z: number): string
+	if z < 0 then
+		return x < AVENUE_X[1] and "Suburbs" or (x < AVENUE_X[2] and "Downtown" or "Port")
+	end
+	return x < AVENUE_X[1] and "Hills" or (x < AVENUE_X[2] and "Beach" or "Desert")
+end
+
+local function warehouse(parent, cf: CFrame, w: number, d: number)
+	local m = make("Model", { Name = "Warehouse" }, parent)
+	local h = rng:NextNumber(16, 26)
+	local body = make("Part", { Size = Vector3.new(w, h, d), CFrame = cf * CFrame.new(0, h / 2, 0), Material = Enum.Material.CorrodedMetal, Color = CONTAINER_COLORS[rng:NextInteger(1, #CONTAINER_COLORS)] }, m)
+	variant(body, "DD_Corrugated")
+	make("Part", { Size = Vector3.new(w + 1, 1.2, d + 1), CFrame = cf * CFrame.new(0, h + 0.6, 0), Material = Enum.Material.Metal, Color = Color3.fromRGB(80, 82, 86) }, m)
+	for i = -1, 1 do
+		if math.abs(i * w / 3) < w / 2 - 6 then
+			make("Part", { Size = Vector3.new(10, 12, 0.5), CFrame = cf * CFrame.new(i * w / 3, 6, -d / 2 - 0.25), Material = Enum.Material.CorrodedMetal, Color = Color3.fromRGB(205, 205, 210) }, m)
+		end
+	end
+	make("Part", { Size = Vector3.new(w + 8, 0.3, 14), CFrame = cf * CFrame.new(0, 0.15, -d / 2 - 7), Material = Enum.Material.Concrete, Color = Color3.fromRGB(130, 130, 128) }, m)
+end
+
+local function containerStack(parent, cf: CFrame)
+	local m = make("Model", { Name = "Containers" }, parent)
+	for col = 0, rng:NextInteger(1, 3) do
+		for s = 1, rng:NextInteger(1, 3) do
+			make("Part", { Size = Vector3.new(10, 9, 28), CFrame = cf * CFrame.new(col * 11 - 11, 4.5 + (s - 1) * 9, 0), Material = Enum.Material.CorrodedMetal, Color = CONTAINER_COLORS[rng:NextInteger(1, #CONTAINER_COLORS)] }, m)
+		end
+	end
+end
+
+local function fuelTanks(parent, cf: CFrame)
+	local m = make("Model", { Name = "FuelTanks" }, parent)
+	for i = -1, 1, 2 do
+		local r = rng:NextNumber(9, 13)
+		local tank = make("Part", { Shape = Enum.PartType.Cylinder, Size = Vector3.new(r * 1.6, r * 2, r * 2), CFrame = cf * CFrame.new(i * (r + 3), r * 0.8, 0) * CFrame.Angles(0, 0, math.pi / 2), Material = Enum.Material.Metal, Color = Color3.fromRGB(225, 225, 220) }, m)
+		local _ = tank
+		make("Part", { Size = Vector3.new(0.6, r * 1.8, 0.6), CFrame = cf * CFrame.new(i * (r + 3) + r * 0.7, r * 0.9, -r * 0.7), Material = Enum.Material.Metal, Color = Color3.fromRGB(200, 60, 40) }, m)
+	end
+end
+
+local function motel(parent, cf: CFrame, w: number, d: number)
+	local m = make("Model", { Name = "Motel" }, parent)
+	local col = ({ Color3.fromRGB(240, 210, 180), Color3.fromRGB(180, 220, 230), Color3.fromRGB(245, 190, 200), Color3.fromRGB(230, 230, 200) })[rng:NextInteger(1, 4)]
+	make("Part", { Size = Vector3.new(w, 11, d), CFrame = cf * CFrame.new(0, 5.5, 0), Material = Enum.Material.Plaster, Color = col }, m)
+	make("Part", { Size = Vector3.new(w + 2, 0.8, d + 6), CFrame = cf * CFrame.new(0, 11.4, -2), Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(230, 120, 60) }, m)
+	for x = -w / 2 + 5, w / 2 - 5, 8 do
+		make("Part", { Size = Vector3.new(3.5, 7, 0.4), CFrame = cf * CFrame.new(x, 3.5, -d / 2 - 0.2), Material = Enum.Material.Wood, Color = Color3.fromRGB(90, 140, 160) }, m)
+		make("Part", { Size = Vector3.new(2.5, 2.5, 0.3), CFrame = cf * CFrame.new(x + 3, 6, -d / 2 - 0.15), Material = Enum.Material.Glass, Color = Color3.fromRGB(160, 200, 220), Transparency = 0.2 }, m)
+	end
+	local sign = make("Part", { Size = Vector3.new(14, 4, 0.6), CFrame = cf * CFrame.new(-w / 2 - 6, 14, -d / 2 - 4), Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(20, 20, 26) }, m)
+	signText(sign, Enum.NormalId.Front, ({ "MOTEL", "SUNSET INN", "PALMS MOTEL", "SEA BREEZE" })[rng:NextInteger(1, 4)], Color3.fromRGB(255, 120, 160), Vector2.new(260, 70))
+	make("Part", { Size = Vector3.new(0.8, 14, 0.8), CFrame = cf * CFrame.new(-w / 2 - 6, 7, -d / 2 - 4), Material = Enum.Material.Metal, Color = Color3.fromRGB(70, 70, 74) }, m)
+end
+
+local function adobe(parent, cf: CFrame, w: number, d: number)
+	local m = make("Model", { Name = "Adobe" }, parent)
+	local h = rng:NextNumber(9, 13)
+	make("Part", { Size = Vector3.new(w, h, d), CFrame = cf * CFrame.new(0, h / 2, 0), Material = Enum.Material.Sandstone, Color = Color3.fromRGB(196, 150, 104) }, m)
+	-- roof beams sticking out of the walls
+	for x = -w / 2 + 3, w / 2 - 3, 5 do
+		make("Part", { Size = Vector3.new(0.8, 0.8, d + 3), CFrame = cf * CFrame.new(x, h - 1.2, 0), Material = Enum.Material.Wood, Color = Color3.fromRGB(100, 70, 44) }, m)
+	end
+	make("Part", { Size = Vector3.new(4, 7, 0.4), CFrame = cf * CFrame.new(0, 3.5, -d / 2 - 0.2), Material = Enum.Material.Wood, Color = Color3.fromRGB(90, 60, 40) }, m)
+	for _, x in { -w / 3, w / 3 } do
+		make("Part", { Size = Vector3.new(3, 3, 0.3), CFrame = cf * CFrame.new(x, h * 0.55, -d / 2 - 0.15), Material = Enum.Material.Glass, Color = Color3.fromRGB(70, 90, 110) }, m)
+	end
+end
+
+local function trailer(parent, cf: CFrame)
+	local m = make("Model", { Name = "Trailer" }, parent)
+	make("Part", { Size = Vector3.new(10, 9, 30), CFrame = cf * CFrame.new(0, 5.5, 0), Material = Enum.Material.DiamondPlate, Color = Color3.fromRGB(215, 210, 196) }, m)
+	make("Part", { Size = Vector3.new(10.2, 1.2, 30.2), CFrame = cf * CFrame.new(0, 7, 0), Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(120, 160, 140) }, m)
+	for _, z in { -8, 8 } do
+		make("Part", { Size = Vector3.new(0.3, 2.5, 4), CFrame = cf * CFrame.new(-5.1, 6, z), Material = Enum.Material.Glass, Color = Color3.fromRGB(80, 100, 110) }, m)
+	end
+end
+
+local function cabin(parent, cf: CFrame, w: number, d: number)
+	local m = make("Model", { Name = "Cabin" }, parent)
+	local h = rng:NextNumber(10, 13)
+	make("Part", { Size = Vector3.new(w, h, d), CFrame = cf * CFrame.new(0, h / 2, 0), Material = Enum.Material.WoodPlanks, Color = Color3.fromRGB(120, 84, 56) }, m)
+	for _, s in { -1, 1 } do
+		make("WedgePart", { Size = Vector3.new(w + 3, 7, d / 2 + 2), CFrame = cf * CFrame.new(0, h + 3.5, s * (d / 4 + 1)) * CFrame.Angles(0, s == 1 and math.pi or 0, 0), Material = Enum.Material.Slate, Color = Color3.fromRGB(60, 62, 66) }, m)
+	end
+	make("Part", { Size = Vector3.new(w, 0.6, 7), CFrame = cf * CFrame.new(0, 1.2, -d / 2 - 3.5), Material = Enum.Material.WoodPlanks, Color = Color3.fromRGB(140, 100, 64) }, m)
+	make("Part", { Size = Vector3.new(3, h + 6, 3), CFrame = cf * CFrame.new(w / 2 - 2, (h + 6) / 2, d / 4), Material = Enum.Material.Cobblestone, Color = Color3.fromRGB(120, 116, 110) }, m)
+end
+
+local function buildFill(map)
+	local f = make("Folder", { Name = "Fill" }, map)
+	local CELL = 100
+	local params = OverlapParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = { map }
+	-- is this footprint clear of roads, lots, buildings and water?
+	local function clear(cf: CFrame, w: number, d: number): boolean
+		local x, z = cf.Position.X, cf.Position.Z
+		if inPlotArea(x, z, math.max(w, d) / 2 + 10) then
+			return false
+		end
+		for _, p in workspace:GetPartBoundsInBox(cf * CFrame.new(0, 12, 0), Vector3.new(w + 10, 22, d + 10), params) do
+			if p.Transparency < 1 and not p.Name:find("Ground") then
+				return false
+			end
+		end
+		local hit = workspace:Raycast(Vector3.new(x, 120, z), Vector3.new(0, -200, 0))
+		if hit and (hit.Material == Enum.Material.Water or hit.Position.Y > 3 or hit.Position.Y < -1) then
+			return false
+		end
+		return true
+	end
+	local placed = 0
+	for x = -HALF_X + CELL / 2, HALF_X - CELL / 2, CELL do
+		for z = -HALF_Z + CELL / 2, HALF_Z - CELL / 2, CELL do
+			local district = districtAt(x, z)
+			-- skip cells that already have something standing in them
+			local busy = false
+			for _, p in workspace:GetPartBoundsInBox(CFrame.new(x, 20, z), Vector3.new(CELL, 36, CELL), params) do
+				if p.Size.Y > 3 and p.Transparency < 1 and not p.Name:find("Ground") then
+					busy = true
+					break
+				end
+			end
+			if not busy then
+				-- up to two buildings per empty cell, each tried in a few spots
+				for _ = 1, (district == "Hills" or district == "Desert") and 1 or 2 do
+					for _ = 1, 5 do
+						local w, d = rng:NextInteger(26, 46), rng:NextInteger(22, 36)
+						local yaw = (rng:NextInteger(0, 3)) * math.pi / 2
+						local cf = CFrame.new(x + rng:NextNumber(-28, 28), 0, z + rng:NextNumber(-28, 28)) * CFrame.Angles(0, yaw, 0)
+						local fw, fd = w, d
+						if district == "Port" then
+							fw, fd = rng:NextInteger(50, 80), rng:NextInteger(36, 50)
+						end
+						if clear(cf, fw, fd) then
+							if district == "Port" then
+								local r = rng:NextNumber()
+								if r < 0.45 then
+									warehouse(f, cf, fw, fd)
+								elseif r < 0.8 then
+									containerStack(f, cf)
+								else
+									fuelTanks(f, cf)
+								end
+							elseif district == "Beach" then
+								if rng:NextNumber() < 0.5 then
+									motel(f, cf, w + 10, d)
+								else
+									streetShop(f, cf, w, d)
+								end
+								for _ = 1, 3 do
+									tree(f, (cf * CFrame.new(rng:NextNumber(-w / 2, w / 2), 0, -d / 2 - 10)).Position, true)
+								end
+							elseif district == "Desert" then
+								local r = rng:NextNumber()
+								if r < 0.5 then
+									adobe(f, cf, w * 0.7, d * 0.8)
+								elseif r < 0.8 then
+									trailer(f, cf)
+								else
+									workspace.Terrain:FillBall(cf.Position + Vector3.new(0, -6, 0), rng:NextNumber(14, 22), Enum.Material.Sandstone)
+								end
+								if propTemplate("Cactus") then
+									prop(f, "Cactus", (cf * CFrame.new(w / 2 + 8, 0, 0)).Position, rng:NextNumber(2.5, 3.5))
+								end
+							elseif district == "Hills" then
+								cabin(f, cf, w * 0.7, d * 0.8)
+								for _ = 1, 4 do
+									local p = (cf * CFrame.new(rng:NextNumber(-40, 40), 0, rng:NextNumber(18, 40))).Position
+									if propTemplate("Trees2") then
+										pine(f, p, rng:NextNumber(0.45, 0.65))
+									else
+										tree(f, p)
+									end
+								end
+							elseif district == "Downtown" then
+								if rng:NextNumber() < 0.5 then
+									apartment(f, cf, w + 10, d)
+								else
+									streetShop(f, cf, w, d)
+								end
+							else -- Suburbs
+								house(f, cf)
+								tree(f, (cf * CFrame.new(rng:NextNumber(-15, 15), 0, 20)).Position)
+							end
+							placed += 1
+							break
+						end
+					end
+				end
+			end
+		end
+		task.wait()
+	end
+	return placed
+end
+
 ---------------------------------------------------------------- plots
 local function buildPlots(map)
 	local plots = make("Folder", { Name = "Plots" }, map)
@@ -1073,6 +1274,9 @@ function WorldBuilder.build()
 	map:SetAttribute("HalfX", HALF_X)
 	map:SetAttribute("HalfZ", HALF_Z)
 	map.Parent = workspace
+	-- needs the map in Workspace so it can see what's already there
+	local filled = buildFill(map)
+	print(("[DrivinDealz] filled %d empty spots"):format(filled))
 
 	local spawn = make("SpawnLocation", { Name = "Spawn", Size = Vector3.new(16, 1, 16), Position = Vector3.new(0, 0.7, 0), Transparency = 1, CanCollide = false, Neutral = true, Duration = 0 }, workspace)
 	spawn.Enabled = true
