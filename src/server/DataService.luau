@@ -1,5 +1,5 @@
 -- Player save data: load with retries, autosave, save on leave and on shutdown.
--- If DataStores aren't available (Studio without API access) players get a fresh,
+-- If DataStores aren't available (unpublished place in Studio) players get a fresh,
 -- unsaved profile and a warning instead of an error.
 local DataStoreService = game:GetService("DataStoreService")
 local HttpService = game:GetService("HttpService")
@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared.Config)
 local Net = require(Shared.Net)
+local Upgrades = require(Shared.Upgrades)
 
 local DataService = {}
 DataService.Profiles = {} :: { [Player]: any }
@@ -17,7 +18,7 @@ DataService.BeforeSave = {} :: { (Player) -> () }
 local store
 do
 	local ok, result = pcall(function()
-		return DataStoreService:GetDataStore("DrivinDealz_v1")
+		return DataStoreService:GetDataStore("DrivinDealz_v2")
 	end)
 	if ok then
 		store = result
@@ -26,29 +27,39 @@ do
 	end
 end
 
-local function blueprintTable()
-	local t = {}
-	for _, part in Config.BlueprintParts do
-		t[part] = {}
-		for _, r in Config.RarityOrder do
-			t[part][r] = 0
-		end
-	end
-	return t
-end
-
 local function defaultProfile()
 	return {
 		cash = Config.StartingCash,
-		level = 1,
-		garage = {}, -- array of {uid, id | custom, paint?}
-		showroom = {}, -- [slotIndex] = { uid = string, forSale = bool, saleAt = number? }
-		blueprints = blueprintTable(),
-		stats = { found = 0, stolen = 0, lost = 0, sold = 0, crafted = 0 },
+		garage = {}, -- array of {uid, id, paint?}
+		showroom = {}, -- [slot] = { uid }
+		prices = {}, -- [uid] = price multiplier (x value)
+		prize = {}, -- [slot] = uid   (prize room: NPCs can't buy these)
+		upgrades = { Base = {}, Factory = {}, Prize = {} }, -- [index] = true
+		blueprints = {}, -- [carId] = count
+		factory = {}, -- [line] = { id, startedAt, duration }
+		guns = { Pistol = true },
+		equippedGun = "Pistol",
+		stats = { found = 0, stolen = 0, lost = 0, sold = 0, built = 0, earned = 0 },
 	}
 end
 
--- Fill in any fields added after a player's data was first saved.
+-- JSON turns number keys into strings; these maps use number keys in game.
+local NUMBER_KEYED = { "showroom", "prize", "blueprints", "factory" }
+local function numKeys(t)
+	local out = {}
+	for k, v in t or {} do
+		out[tonumber(k) or k] = v
+	end
+	return out
+end
+local function strKeys(t)
+	local out = {}
+	for k, v in t or {} do
+		out[tostring(k)] = v
+	end
+	return out
+end
+
 local function reconcile(data)
 	local def = defaultProfile()
 	for k, v in def do
@@ -56,22 +67,32 @@ local function reconcile(data)
 			data[k] = v
 		end
 	end
-	for _, part in Config.BlueprintParts do
-		data.blueprints[part] = data.blueprints[part] or {}
-		for _, r in Config.RarityOrder do
-			data.blueprints[part][r] = data.blueprints[part][r] or 0
-		end
-	end
 	for k, v in def.stats do
 		data.stats[k] = data.stats[k] or v
 	end
-	-- showroom keys come back from JSON as strings
-	local fixed = {}
-	for k, v in data.showroom do
-		fixed[tonumber(k)] = v
+	for _, key in NUMBER_KEYED do
+		data[key] = numKeys(data[key])
 	end
-	data.showroom = fixed
+	for _, track in Upgrades.Tracks do
+		data.upgrades[track] = numKeys(data.upgrades[track])
+	end
+	data.guns.Pistol = true
 	return data
+end
+
+-- A copy safe to send to the client / save (string keys for sparse maps).
+local function serialise(p)
+	local copy = table.clone(p)
+	copy._noSave = nil
+	copy._effects = nil
+	for _, key in NUMBER_KEYED do
+		copy[key] = strKeys(p[key])
+	end
+	copy.upgrades = {}
+	for _, track in Upgrades.Tracks do
+		copy.upgrades[track] = strKeys(p.upgrades[track])
+	end
+	return copy
 end
 
 function DataService.newUid(): string
@@ -82,26 +103,49 @@ function DataService.get(player: Player)
 	return DataService.Profiles[player]
 end
 
--- Send the client a copy of their data. Called after every change.
+-- Upgrade effects, cached until the next purchase.
+function DataService.effects(player: Player)
+	local p = DataService.Profiles[player]
+	if not p then
+		return nil
+	end
+	if not p._effects then
+		p._effects = Upgrades.effects(p.upgrades)
+	end
+	return p._effects
+end
+
+function DataService.invalidate(player: Player)
+	local p = DataService.Profiles[player]
+	if p then
+		p._effects = nil
+	end
+end
+
 function DataService.push(player: Player)
 	local p = DataService.Profiles[player]
 	if p then
-		local showroom = {}
-		for slot, v in p.showroom do
-			showroom[tostring(slot)] = v
-		end
-		Net.Data:FireClient(player, {
-			cash = p.cash,
-			level = p.level,
-			garage = p.garage,
-			showroom = showroom,
-			blueprints = p.blueprints,
-			stats = p.stats,
-		})
+		local data = serialise(p)
+		data.serverTime = os.time()
+		Net.Data:FireClient(player, data)
 		local ls = player:FindFirstChild("leaderstats")
 		if ls then
 			ls.Cash.Value = p.cash
-			ls.Level.Value = p.level
+			ls.Upgrades.Value = DataService.effects(player).baseCount
+		end
+	end
+end
+
+function DataService.addCash(player: Player, amount: number)
+	local p = DataService.Profiles[player]
+	if p then
+		p.cash += amount
+		if amount > 0 then
+			p.stats.earned += amount
+		end
+		local ls = player:FindFirstChild("leaderstats")
+		if ls then
+			ls.Cash.Value = p.cash
 		end
 	end
 end
@@ -120,12 +164,8 @@ function DataService.findCar(player: Player, uid: string)
 end
 
 function DataService.garageCap(player: Player): number
-	local p = DataService.Profiles[player]
-	local cap = Config.BaseGarageSize
-	for lvl = 1, p.level do
-		cap += Config.Levels[lvl].garageBonus or 0
-	end
-	return cap + p.level * 5
+	local e = DataService.effects(player)
+	return Config.BaseGarageSize + (e and e.garage or 0)
 end
 
 local function save(player: Player)
@@ -133,13 +173,7 @@ local function save(player: Player)
 	if not p or not store or p._noSave then
 		return
 	end
-	local copy = table.clone(p)
-	copy._noSave = nil
-	local showroom = {}
-	for slot, v in p.showroom do
-		showroom[tostring(slot)] = v
-	end
-	copy.showroom = showroom
+	local copy = serialise(p)
 	for attempt = 1, 3 do
 		local ok, err = pcall(function()
 			store:SetAsync("u_" .. player.UserId, copy)
@@ -173,11 +207,9 @@ local function load(player: Player)
 	end
 	local profile = reconcile(data or defaultProfile())
 	if failed then
-		-- Never overwrite real data with a blank profile.
 		profile._noSave = true
 		Net.Notify:FireClient(player, { text = "Couldn't load your save - progress this session won't be saved.", color = Color3.fromRGB(255, 90, 90) })
 	end
-	-- Cars stuck "in transit" from a crash come home.
 	for _, entry in profile.garage do
 		entry.inTransit = nil
 		entry.spawned = nil
@@ -188,9 +220,9 @@ local function load(player: Player)
 	local cash = Instance.new("NumberValue")
 	cash.Name = "Cash"
 	cash.Parent = ls
-	local level = Instance.new("IntValue")
-	level.Name = "Level"
-	level.Parent = ls
+	local ups = Instance.new("IntValue")
+	ups.Name = "Upgrades"
+	ups.Parent = ls
 	ls.Parent = player
 
 	DataService.Profiles[player] = profile
@@ -204,7 +236,6 @@ function DataService.start()
 		task.spawn(load, p)
 	end
 	Players.PlayerRemoving:Connect(function(player)
-		-- Let other services tidy up (despawn cars, return stolen ones) before saving.
 		for _, fn in DataService.BeforeSave do
 			pcall(fn, player)
 		end
@@ -212,9 +243,8 @@ function DataService.start()
 		DataService.Profiles[player] = nil
 	end)
 	game:BindToClose(function()
-		local threads = {}
 		for _, player in Players:GetPlayers() do
-			table.insert(threads, task.spawn(save, player))
+			task.spawn(save, player)
 		end
 		task.wait(3)
 	end)

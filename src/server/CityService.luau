@@ -1,13 +1,10 @@
--- Rare cars and blueprint pieces appear around the city using the rarity weights in Config.
+-- Rare cars appear around the city using the rarity weights in Config.
 -- Each find glows in its rarity colour with a light beam visible from far away.
-local Players = game:GetService("Players")
-
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Config = require(Shared.Config)
 local Cars = require(Shared.Cars)
 local Net = require(Shared.Net)
 
-local DataService = require(script.Parent.DataService)
 local WorldBuilder = require(script.Parent.WorldBuilder)
 local VehicleService = require(script.Parent.VehicleService)
 
@@ -111,82 +108,6 @@ local function spawnCar(cf: CFrame, rarity: string)
 	return stats
 end
 
-local function spawnBlueprint(cf: CFrame, rarity: string)
-	local partType = Config.BlueprintParts[rng:NextInteger(1, #Config.BlueprintParts)]
-	local model = Instance.new("Model")
-	model.Name = "Blueprint"
-	model:SetAttribute("Rarity", rarity)
-	model:SetAttribute("Kind", "Blueprint")
-	model:SetAttribute("PartType", partType)
-	model:SetAttribute("Label", ("%s %s BLUEPRINT"):format(rarity:upper(), partType:upper()))
-
-	local scroll = Instance.new("Part")
-	scroll.Name = "Scroll"
-	scroll.Size = Vector3.new(3, 0.2, 4)
-	scroll.CFrame = cf * CFrame.new(0, 3.5, 0) * CFrame.Angles(math.rad(-20), 0, 0)
-	scroll.Material = Enum.Material.Neon
-	scroll.Color = Color3.fromRGB(70, 140, 255)
-	scroll.Anchored = true
-	scroll.CanCollide = false
-	scroll.Parent = model
-	local base = Instance.new("Part")
-	base.Name = "Pedestal"
-	base.Shape = Enum.PartType.Cylinder
-	base.Size = Vector3.new(0.6, 6, 6)
-	base.CFrame = cf * CFrame.new(0, 0.5, 0) * CFrame.Angles(0, 0, math.pi / 2)
-	base.Material = Enum.Material.Neon
-	base.Color = Config.Rarity[rarity].color
-	base.Transparency = 0.3
-	base.Anchored = true
-	base.CanCollide = false
-	base.Parent = model
-	local hit = Instance.new("Part")
-	hit.Name = "Pickup"
-	hit.Size = Vector3.new(7, 7, 7)
-	hit.CFrame = cf * CFrame.new(0, 3.5, 0)
-	hit.Transparency = 1
-	hit.Anchored = true
-	hit.CanCollide = false
-	hit.Parent = model
-	model.PrimaryPart = hit
-	beacon(model, hit, rarity)
-
-	local taken = false
-	hit.Touched:Connect(function(other)
-		if taken then
-			return
-		end
-		local char = other:FindFirstAncestorOfClass("Model")
-		local player = char and Players:GetPlayerFromCharacter(char)
-		-- also count players touching it while driving
-		if not player then
-			local node = other
-			while node and node.Parent and node.Parent ~= workspace and node.Parent.Name ~= "Vehicles" do
-				node = node.Parent
-			end
-			if node and node.Parent and node.Parent.Name == "Vehicles" and node:IsA("Model") then
-				player = VehicleService.getDriver(node)
-			end
-		end
-		local p = player and DataService.get(player)
-		if not p then
-			return
-		end
-		taken = true
-		p.blueprints[partType][rarity] += 1
-		VehicleService.notify(player, ("Picked up a %s %s blueprint!"):format(rarity, partType), Config.Rarity[rarity].color)
-		DataService.push(player)
-		model:Destroy()
-	end)
-
-	model.Parent = finds
-	task.delay(Config.City.DespawnAfter, function()
-		if model.Parent then
-			model:Destroy()
-		end
-	end)
-end
-
 local function spawnOne()
 	local points = WorldBuilder.SpawnPoints
 	for _ = 1, 10 do
@@ -194,16 +115,9 @@ local function spawnOne()
 		if not occupied(cf) then
 			local rarity = Cars.rollRarity(rng)
 			local announceIdx = Cars.rarityIndex(Config.City.AnnounceFrom)
-			if rng:NextNumber() < Config.City.BlueprintChance then
-				spawnBlueprint(cf, rarity)
-				if Cars.rarityIndex(rarity) >= announceIdx then
-					announce(("A %s blueprint appeared in the city!"):format(rarity), Config.Rarity[rarity].color)
-				end
-			else
-				local stats = spawnCar(cf, rarity)
-				if Cars.rarityIndex(rarity) >= announceIdx then
-					announce(("A %s %s was spotted in the city!"):format(rarity, stats.name), Config.Rarity[rarity].color)
-				end
+			local stats = spawnCar(cf, rarity)
+			if Cars.rarityIndex(rarity) >= announceIdx then
+				announce(("A %s %s was spotted in the city!"):format(rarity, stats.name), Config.Rarity[rarity].color)
 			end
 			return
 		end

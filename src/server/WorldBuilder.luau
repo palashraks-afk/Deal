@@ -75,8 +75,8 @@ local function road(parent, center: Vector3, sizeX: number, sizeZ: number)
 		Name = "Line",
 		Size = alongX and Vector3.new(sizeX, 0.05, 0.5) or Vector3.new(0.5, 0.05, sizeZ),
 		Position = center + Vector3.new(0, 0.22, 0),
-		Material = Enum.Material.Neon,
-		Color = Color3.fromRGB(230, 190, 40),
+		Material = Enum.Material.SmoothPlastic,
+		Color = Color3.fromRGB(220, 180, 40),
 		CanCollide = false,
 	}, parent)
 end
@@ -155,7 +155,7 @@ local function buildCity(map)
 	for _, z in Z_LINES do
 		road(roads, Vector3.new(0, 0, z), xMax - xMin + ROAD_W, ROAD_W)
 	end
-	road(roads, Vector3.new(0, 0, DEALER_ROAD_Z), xMax - xMin + ROAD_W, ROAD_W)
+	road(roads, Vector3.new(0, 0, DEALER_ROAD_Z), 1860, ROAD_W) -- dealer row runs past every plot
 
 	-- blocks + buildings
 	for i = 1, #X_LINES - 1 do
@@ -212,115 +212,43 @@ local function buildCity(map)
 	end
 end
 
--- Plot layout (local space, -Z faces the dealer road):
---   showroom pads in a 5x4 grid at the back, spawn pad + garage zone + lock at the front.
-local PLOT_W, PLOT_D = 170, 200
-local PAD_COLS, PAD_ROWS = 5, 4
-WorldBuilder.MaxSlots = PAD_COLS * PAD_ROWS
+-- Plots: built by PlotBuilder (260 x 320 each), in a row south of the dealer road.
+local PlotBuilder = require(script.Parent.PlotBuilder)
+local PLOT_GAP = 30
+WorldBuilder.MaxSlots = PlotBuilder.DisplayPads + PlotBuilder.SpecialPads
 
 local function buildPlot(index: number, plotsFolder)
-	local x = (index - (WorldBuilder.PlotCount + 1) / 2) * (PLOT_W + 30)
-	local origin = CFrame.new(x, 0, DEALER_ROAD_Z + ROAD_W / 2 + 8 + PLOT_D / 2)
+	local x = (index - (WorldBuilder.PlotCount + 1) / 2) * (PlotBuilder.W + PLOT_GAP)
+	local origin = CFrame.new(x, 0, DEALER_ROAD_Z + ROAD_W / 2 + 10 + PlotBuilder.D / 2)
 	local model = make("Model", { Name = "Plot" .. index }, plotsFolder)
-	local function at(lx, ly, lz)
-		return origin * CFrame.new(lx, ly, lz)
-	end
-
-	make("Part", { Name = "Floor", Size = Vector3.new(PLOT_W, 1, PLOT_D), CFrame = at(0, 0.5, 0), Material = Enum.Material.Asphalt, Color = Color3.fromRGB(70, 72, 78) }, model)
-	-- perimeter walls with a gate in the front
-	local wallH = 12
-	local wallProps = { Material = Enum.Material.Brick, Color = Color3.fromRGB(120, 72, 58) }
-	local function wall(name, size, cf)
-		local p = table.clone(wallProps)
-		p.Name = name
-		p.Size = size
-		p.CFrame = cf
-		return make("Part", p, model)
-	end
-	wall("WallBack", Vector3.new(PLOT_W, wallH, 2), at(0, wallH / 2 + 1, PLOT_D / 2))
-	wall("WallLeft", Vector3.new(2, wallH, PLOT_D), at(-PLOT_W / 2, wallH / 2 + 1, 0))
-	wall("WallRight", Vector3.new(2, wallH, PLOT_D), at(PLOT_W / 2, wallH / 2 + 1, 0))
-	local gateW = 80
-	local sideW = (PLOT_W - gateW) / 2
-	wall("WallFrontL", Vector3.new(sideW, wallH, 2), at(-PLOT_W / 2 + sideW / 2, wallH / 2 + 1, -PLOT_D / 2))
-	wall("WallFrontR", Vector3.new(sideW, wallH, 2), at(PLOT_W / 2 - sideW / 2, wallH / 2 + 1, -PLOT_D / 2))
-	make("Part", {
-		Name = "LockBarrier",
-		Size = Vector3.new(gateW, wallH + 6, 1),
-		CFrame = at(0, (wallH + 6) / 2 + 1, -PLOT_D / 2),
-		Material = Enum.Material.ForceField,
-		Color = Color3.fromRGB(80, 180, 255),
-		Transparency = 1,
-		CanCollide = false,
-	}, model)
-
-	-- showroom building shell (glass front, roof)
-	local showroomZ0, showroomZ1 = -20, PLOT_D / 2 - 4
-	local sd = showroomZ1 - showroomZ0
-	local sz = (showroomZ0 + showroomZ1) / 2
-	make("Part", { Name = "ShowroomFloor", Size = Vector3.new(PLOT_W - 8, 0.4, sd), CFrame = at(0, 1.2, sz), Material = Enum.Material.Marble, Color = Color3.fromRGB(235, 235, 240), Reflectance = 0.15 }, model)
-	make("Part", { Name = "ShowroomRoof", Size = Vector3.new(PLOT_W - 4, 1.5, sd + 4), CFrame = at(0, 28, sz), Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(30, 32, 38) }, model)
-	make("Part", { Name = "ShowroomGlass", Size = Vector3.new(PLOT_W - 8, 26, 0.5), CFrame = at(0, 14.4, showroomZ0), Material = Enum.Material.Glass, Color = Color3.fromRGB(170, 210, 235), Transparency = 0.7, Reflectance = 0.2, CanCollide = false }, model)
-	for _, lx in { -PLOT_W / 2 + 4, -PLOT_W / 4, 0, PLOT_W / 4, PLOT_W / 2 - 4 } do
-		make("Part", { Name = "Column", Size = Vector3.new(2, 26, 2), CFrame = at(lx, 14.4, showroomZ0), Material = Enum.Material.Metal, Color = Color3.fromRGB(60, 62, 70) }, model)
-	end
-	local trim = make("Part", { Name = "RoofTrim", Size = Vector3.new(PLOT_W - 4, 1, 1), CFrame = at(0, 27, showroomZ0 - 2), Material = Enum.Material.Neon, Color = Color3.fromRGB(80, 170, 255) }, model)
-	for i = -2, 2 do
-		local lamp = make("Part", { Name = "CeilingLight", Size = Vector3.new(10, 0.3, 10), CFrame = at(i * 30, 27.1, sz), Material = Enum.Material.Neon, Color = Color3.fromRGB(255, 250, 240), CanCollide = false }, model)
-		make("SurfaceLight", { Face = Enum.NormalId.Bottom, Range = 30, Brightness = 1.4, Angle = 120 }, lamp)
-	end
-
-	-- showroom pads
-	local pads = make("Folder", { Name = "Pads" }, model)
-	local spacingX = (PLOT_W - 20) / PAD_COLS
-	local spacingZ = sd / PAD_ROWS
-	local slot = 0
-	for row = 1, PAD_ROWS do
-		for col = 1, PAD_COLS do
-			slot += 1
-			local lx = -PLOT_W / 2 + 10 + spacingX * (col - 0.5)
-			local lz = showroomZ0 + spacingZ * (row - 0.5)
-			local pad = make("Part", {
-				Name = "Pad" .. slot,
-				Shape = Enum.PartType.Cylinder,
-				Size = Vector3.new(0.4, spacingX * 0.92, spacingX * 0.92),
-				CFrame = at(lx, 1.5, lz) * CFrame.Angles(0, 0, math.pi / 2),
-				Material = Enum.Material.Metal,
-				Color = Color3.fromRGB(60, 64, 72),
-				Reflectance = 0.2,
-			}, pads)
-			pad:SetAttribute("Slot", slot)
-		end
-	end
-
-	-- spawn pad, garage zone, lock button, catalogue kiosk, crafting bench
-	local spawnPad = make("Part", { Name = "SpawnPad", Size = Vector3.new(26, 0.3, 30), CFrame = at(-14, 1.15, -58), Material = Enum.Material.Neon, Color = Color3.fromRGB(60, 200, 120), Transparency = 0.6, CanCollide = false }, model)
-	spawnPad:SetAttribute("Facing", -1)
-	local zone = make("Part", { Name = "GarageZone", Size = Vector3.new(44, 14, 40), CFrame = at(45, 8, -62), Material = Enum.Material.ForceField, Color = Color3.fromRGB(255, 200, 40), Transparency = 0.75, CanCollide = false, CanQuery = false }, model)
-	local zoneGui = make("SurfaceGui", { Face = Enum.NormalId.Top, PixelsPerStud = 20 }, zone)
-	make("TextLabel", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "GARAGE\ndrive finds here", TextScaled = true, Font = Enum.Font.GothamBlack, TextColor3 = Color3.fromRGB(255, 220, 80) }, zoneGui)
-
-	local lockPad = make("Part", { Name = "LockButton", Size = Vector3.new(6, 1.2, 6), CFrame = at(-PLOT_W / 2 + 26, 1.6, -PLOT_D / 2 + 14), Material = Enum.Material.Neon, Color = Color3.fromRGB(80, 180, 255) }, model)
-	make("ProximityPrompt", { Name = "LockPrompt", ActionText = "Lock Base", ObjectText = "Base Lock", HoldDuration = 0.5, MaxActivationDistance = 12, RequiresLineOfSight = false }, lockPad)
-
-	local kiosk = make("Part", { Name = "CatalogKiosk", Size = Vector3.new(6, 8, 3), CFrame = at(-58, 5, -30), Material = Enum.Material.Glass, Color = Color3.fromRGB(40, 50, 70) }, model)
-	make("ProximityPrompt", { Name = "CatalogPrompt", ActionText = "Open Catalogue", ObjectText = "Dealership", MaxActivationDistance = 12, RequiresLineOfSight = false }, kiosk)
-
-	local bench = make("Part", { Name = "CraftBench", Size = Vector3.new(14, 4, 6), CFrame = at(PLOT_W / 2 - 14, 3.4, PLOT_D / 2 - 12), Material = Enum.Material.DiamondPlate, Color = Color3.fromRGB(90, 94, 100) }, model)
-	make("ProximityPrompt", { Name = "CraftPrompt", ActionText = "Craft a Car", ObjectText = "Blueprint Bench", MaxActivationDistance = 12, RequiresLineOfSight = false }, bench)
-
-	-- sign over the gate
-	local sign = make("Part", { Name = "Sign", Size = Vector3.new(gateW, 8, 1), CFrame = at(0, wallH + 12, -PLOT_D / 2), Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(18, 20, 26) }, model)
-	for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
-		local g = make("SurfaceGui", { Face = face, PixelsPerStud = 12, LightInfluence = 0 }, sign)
-		make("TextLabel", { Name = "Label", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "FOR SALE - Claim this lot!", TextScaled = true, Font = Enum.Font.GothamBlack, TextColor3 = Color3.fromRGB(255, 255, 255) }, g)
-	end
-	for _, side in { -1, 1 } do
-		make("Part", { Name = "SignPost", Size = Vector3.new(1.5, wallH + 10, 1.5), CFrame = at(side * (gateW / 2 + 1), (wallH + 10) / 2 + 1, -PLOT_D / 2), Material = Enum.Material.Metal, Color = Color3.fromRGB(50, 52, 56) }, model)
-	end
-
+	local parts = PlotBuilder.buildShell(model, origin)
 	model.PrimaryPart = model.Floor
-	table.insert(WorldBuilder.Plots, { index = index, cframe = origin, model = model, zone = zone, spawnPad = spawnPad, trim = trim })
+	table.insert(WorldBuilder.Plots, { index = index, cframe = origin, model = model, zone = parts.zone, spawnPad = parts.spawnPad, trim = parts.trim })
+end
+
+-- Gun Store: between the city and the dealer row.
+local function buildGunStore(map)
+	local m = make("Model", { Name = "GunStore" }, map)
+	local origin = CFrame.new(80, 0, 230)
+	local function at(x, y, z)
+		return origin * CFrame.new(x, y, z)
+	end
+	make("Part", { Name = "Lot", Size = Vector3.new(110, 0.6, 90), CFrame = at(0, 0.3, 0), Material = Enum.Material.Concrete, Color = Color3.fromRGB(90, 92, 98) }, m)
+	make("Part", { Name = "Building", Size = Vector3.new(70, 22, 40), CFrame = at(0, 11.6, 15), Material = Enum.Material.Brick, Color = Color3.fromRGB(58, 56, 60) }, m)
+	make("Part", { Name = "Window", Size = Vector3.new(50, 10, 0.4), CFrame = at(0, 8, -5.2), Material = Enum.Material.Glass, Color = Color3.fromRGB(120, 170, 200), Transparency = 0.5, CanCollide = false }, m)
+	local sign = make("Part", { Name = "Sign", Size = Vector3.new(56, 8, 1.2), CFrame = at(0, 26, -5.6), Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(16, 16, 20) }, m)
+	for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
+		local g = make("SurfaceGui", { Face = face, PixelsPerStud = 14, LightInfluence = 0 }, sign)
+		make("TextLabel", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "AMMO & ARMS", TextScaled = true, Font = Enum.Font.GothamBlack, TextColor3 = Color3.fromRGB(255, 70, 60) }, g)
+	end
+	make("PointLight", { Range = 30, Brightness = 2, Color = Color3.fromRGB(255, 90, 70) }, sign)
+	local counter = make("Part", { Name = "Counter", Size = Vector3.new(24, 4, 4), CFrame = at(0, 2.6, -12), Material = Enum.Material.Wood, Color = Color3.fromRGB(90, 60, 40) }, m)
+	make("ProximityPrompt", { Name = "GunStorePrompt", ActionText = "Shop Guns", ObjectText = "Ammo & Arms", MaxActivationDistance = 14, RequiresLineOfSight = false, KeyboardKeyCode = Enum.KeyCode.E }, counter)
+	-- gun rack display
+	for i = 0, 4 do
+		make("Part", { Name = "Rack", Size = Vector3.new(4, 0.4, 1), CFrame = at(-8 + i * 4, 6, -5.6), Material = Enum.Material.Metal, Color = Color3.fromRGB(40, 40, 44) }, m)
+	end
+	WorldBuilder.GunStore = m
 end
 
 function WorldBuilder.build()
@@ -340,6 +268,7 @@ function WorldBuilder.build()
 	map.Name = "Map"
 	make("Part", { Name = "Ground", Size = Vector3.new(2048, 4, 2048), Position = Vector3.new(0, -2, 0), Material = Enum.Material.Grass, Color = Color3.fromRGB(78, 120, 64) }, map)
 	buildCity(map)
+	buildGunStore(map)
 	local plots = make("Folder", { Name = "Plots" }, map)
 	for i = 1, WorldBuilder.PlotCount do
 		buildPlot(i, plots)

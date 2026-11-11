@@ -1,4 +1,4 @@
--- Every tunable number in DrivinDealz lives here.
+-- Every tunable number in DrivinDealz lives here (upgrades are in Upgrades.luau, guns in Guns.luau).
 
 local Config = {}
 
@@ -7,50 +7,49 @@ Config.StudsPerMeter = 3 -- real car dimensions are scaled by this
 Config.RarityOrder = { "Common", "Uncommon", "Rare", "Epic", "Mythic", "Legendary" }
 
 Config.Rarity = {
-	Common = { color = Color3.fromRGB(176, 182, 190), weight = 55, health = 100 },
-	Uncommon = { color = Color3.fromRGB(76, 214, 108), weight = 25, health = 120 },
-	Rare = { color = Color3.fromRGB(64, 156, 255), weight = 12, health = 140 },
-	Epic = { color = Color3.fromRGB(178, 92, 255), weight = 5.5, health = 170 },
-	Mythic = { color = Color3.fromRGB(255, 64, 88), weight = 2, health = 200 },
-	Legendary = { color = Color3.fromRGB(255, 196, 40), weight = 0.5, health = 250 },
+	Common = { color = Color3.fromRGB(176, 182, 190), weight = 55, health = 100, buildTime = 45 },
+	Uncommon = { color = Color3.fromRGB(76, 214, 108), weight = 25, health = 120, buildTime = 90 },
+	Rare = { color = Color3.fromRGB(64, 156, 255), weight = 12, health = 150, buildTime = 180 },
+	Epic = { color = Color3.fromRGB(178, 92, 255), weight = 5.5, health = 190, buildTime = 360 },
+	Mythic = { color = Color3.fromRGB(255, 64, 88), weight = 2, health = 240, buildTime = 720 },
+	Legendary = { color = Color3.fromRGB(255, 196, 40), weight = 0.5, health = 300, buildTime = 1500 },
 }
 
-Config.StartingCash = 20000
-Config.BaseGarageSize = 15
-Config.SellMultiplier = 0.6 -- selling a car back to the game
-Config.NpcMarkup = 1.3 -- NPC buyers pay this much for cars marked "For Sale"
-Config.NpcBuyTime = { 25, 70 } -- seconds before an NPC buys a for-sale car
-Config.CatalogRarities = { Common = 1, Uncommon = 2 } -- rarity -> dealership level needed to buy
+Config.StartingCash = 25000
+Config.BaseGarageSize = 20
+Config.SellMultiplier = 0.6 -- instant-sell a car back to the game
+Config.DefaultPriceMult = 1.2 -- new showroom cars are listed at 120% of value
+Config.PriceMultRange = { 0.5, 3 } -- owners can list between 50% and 300% of value
+Config.CatalogRarities = { Common = 0, Uncommon = 10 } -- rarity -> base upgrades needed to buy it new
 
--- Dealership progression
-Config.Levels = {
-	{ name = "Used Lot", slots = 3, cost = 0 },
-	{ name = "Corner Dealer", slots = 5, cost = 25000 },
-	{ name = "City Showroom", slots = 8, cost = 150000, garageBonus = 10, crafting = true },
-	{ name = "Luxury Motors", slots = 12, cost = 750000, npcBonus = 1.25 },
-	{ name = "Supercar Gallery", slots = 16, cost = 3000000, lockBonus = 60 },
-	{ name = "Hypercar Palace", slots = 20, cost = 15000000, pedestal = true },
+-- Blueprints (bought with cash, built in the Factory)
+Config.BlueprintPriceMult = 0.4 -- blueprint costs 40% of the car's value (minus factory discounts)
+
+-- NPC customers
+Config.Npc = {
+	SpawnEvery = 9, -- seconds per plot at 1x foot traffic
+	MaxPerPlot = 6,
+	MaxPerPlotCap = 14,
+	MaxTotal = 48,
+	Browse = { 4, 9 }, -- seconds looking at a car
+	CarsPerVisit = 3,
+	BaseTolerance = 1.15, -- happy paying up to ~115% of value
+	SpecialLotBonus = 0.4, -- special lots pull buyers who pay more
 }
-Config.CraftingLevel = 3
 
 -- City spawns
 Config.City = {
-	MaxSpawns = 16,
-	SpawnInterval = 12, -- seconds between spawn attempts
-	BlueprintChance = 0.35, -- otherwise a car
-	DespawnAfter = 300, -- unclaimed items vanish after this
-	AnnounceFrom = "Mythic", -- server-wide announcement at this rarity and above
+	MaxSpawns = 14,
+	SpawnInterval = 12,
+	DespawnAfter = 300,
+	AnnounceFrom = "Mythic",
 }
 
-Config.BlueprintParts = { "Body", "Engine", "Chassis", "Wheels" }
-
 -- Combat
-Config.Blaster = {
-	Damage = 9,
-	FireRate = 0.14,
-	Range = 350,
+Config.Combat = {
 	HotwireTime = 3,
-	RepairedHealth = 0.4, -- hotwired cars come back at 40% health
+	RepairedHealth = 0.4,
+	PlayerRespawn = 4,
 }
 
 -- Raids
@@ -58,16 +57,15 @@ Config.Raid = {
 	StealHoldTime = 4,
 	LockDuration = 60,
 	LockCooldown = 90,
-	NewPlayerProtection = 300, -- seconds after joining before your base can be raided
-	ReturnAfter = 180, -- abandoned stolen cars go home after this
+	NewPlayerProtection = 300,
+	ReturnAfter = 180,
 }
 
--- Driving (studs, seconds)
+-- Driving
 Config.Drive = {
-	SpeedScale = 0.55, -- real km/h -> game stud/s feel
-	MinTopSpeed = 70,
-	Grip = 0.9,
-	SteerRate = 2.2,
+	Grip = 0.92,
+	DriftGrip = 0.18,
+	SteerRate = 2.3,
 }
 
 Config.AutosaveInterval = 120

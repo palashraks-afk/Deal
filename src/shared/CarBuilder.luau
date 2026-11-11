@@ -4,6 +4,8 @@
 -- CarBuilder.build(stats, paintColor, { drivable = bool }) -> Model
 
 local AssetService = game:GetService("AssetService")
+local RunService = game:GetService("RunService")
+local ServerStorage = game:GetService("ServerStorage")
 local Config = require(script.Parent.Config)
 
 local CarBuilder = {}
@@ -78,8 +80,144 @@ local function hasSpoiler(stats)
 	return false
 end
 
+-- AI-generated textured models live in ServerStorage.Assets.Cars as "Car_<id>"
+-- (a body MeshPart + four wheel MeshParts named "...front left wheel..." etc).
+local function findTemplate(stats)
+	if not RunService:IsServer() or not stats.id then
+		return nil
+	end
+	local assets = ServerStorage:FindFirstChild("Assets")
+	local folder = assets and assets:FindFirstChild("Cars")
+	return folder and folder:FindFirstChild("Car_" .. stats.id)
+end
+
+local WHEEL_KEYS = { { "front left", "FL" }, { "front right", "FR" }, { "rear left", "RL" }, { "rear right", "RR" } }
+
+local function buildFromTemplate(template: Model, stats, opts)
+	local P = PROFILES[stats.body] or PROFILES.sedan
+	local L, W, H = stats.length * S, stats.width * S, stats.height * S
+	local src = template:Clone()
+	local bbCf, size = src:GetBoundingBox()
+	-- stretch to the real car's length/width/height
+	local f = Vector3.new(W / size.X, H / size.Y, L / size.Z)
+	local origin = Vector3.new(bbCf.Position.X, bbCf.Position.Y - size.Y / 2, bbCf.Position.Z)
+
+	local model = Instance.new("Model")
+	model.Name = stats.name or stats.model
+	local root = part(model, nil, "Chassis", Vector3.new(W * 0.9, H * 0.3, L * 0.9), CFrame.new(0, H * 0.32, 0), {
+		Transparency = 1,
+		Massless = false,
+		CanCollide = opts.drivable == true,
+		CustomPhysicalProperties = PhysicalProperties.new(2.4, 0.3, 0, 1, 1),
+	})
+	model.PrimaryPart = root
+
+	local wheelR = P.r * S
+	for _, d in src:GetDescendants() do
+		if d:IsA("MeshPart") then
+			local lname = string.lower(d.Name)
+			local wheelKey
+			for _, k in WHEEL_KEYS do
+				if string.find(lname, k[1], 1, true) then
+					wheelKey = k[2]
+				end
+			end
+			local rel = (d.Position - origin) * f
+			if wheelKey then
+				-- keep wheels round: scale Y/Z equally
+				local s = (f.Y + f.Z) / 2
+				d.Size = Vector3.new(d.Size.X * f.X, d.Size.Y * s, d.Size.Z * s)
+				wheelR = math.max(d.Size.Y, d.Size.Z) / 2
+			else
+				d.Size = d.Size * f
+			end
+			d.CFrame = CFrame.new(rel) * d.CFrame.Rotation
+			d.Anchored = true
+			d.CanTouch = false
+			d.CanQuery = true
+			d.Massless = true
+			-- (CollisionFidelity = Box is set on the templates in Studio; it can't be set at runtime)
+			if wheelKey then
+				d.Name = "Wheel" .. wheelKey
+				d.CanCollide = opts.drivable == true
+				d.CustomPhysicalProperties = PhysicalProperties.new(0.7, 0, 0, 100, 1)
+				d.Parent = model
+				local weld = Instance.new("Weld")
+				weld.Name = "Axle"
+				weld.Part0 = root
+				weld.Part1 = d
+				weld.C0 = root.CFrame:Inverse() * d.CFrame
+				weld.Parent = d
+				d:SetAttribute("BaseC0", weld.C0)
+			else
+				d.Name = "Body"
+				d.CanCollide = false
+				d.Parent = model
+				local w = Instance.new("WeldConstraint")
+				w.Part0 = root
+				w.Part1 = d
+				w.Parent = d
+			end
+		end
+	end
+	src:Destroy()
+
+	-- lights (the mesh already has painted lamps; these just glow at night)
+	for _, sx in { -1, 1 } do
+		local head = part(model, root, "Headlight", Vector3.new(0.3, 0.3, 0.1), CFrame.new(sx * W * 0.32, H * 0.42, -L / 2 + 0.2), { Transparency = 1 })
+		local spot = Instance.new("SpotLight")
+		spot.Face = Enum.NormalId.Front
+		spot.Range = 45
+		spot.Angle = 70
+		spot.Brightness = 2.5
+		spot.Color = Color3.fromRGB(255, 244, 220)
+		spot.Parent = head
+		local tail = part(model, root, "Taillight", Vector3.new(0.3, 0.3, 0.1), CFrame.new(sx * W * 0.32, H * 0.5, L / 2 - 0.2), { Transparency = 1 })
+		local glow = Instance.new("PointLight")
+		glow.Range = 7
+		glow.Brightness = 0.8
+		glow.Color = Color3.fromRGB(255, 30, 30)
+		glow.Parent = tail
+	end
+
+	local seat = Instance.new("VehicleSeat")
+	seat.Name = "DriverSeat"
+	seat.Size = Vector3.new(0.5 * S, 0.12 * S, 0.5 * S)
+	seat.CFrame = CFrame.new(-W * 0.2, H * 0.28, -L / 2 + (P.cab0 + 0.12) * L + 0.4 * S)
+	seat.Transparency = 1
+	seat.CanCollide = false
+	seat.Massless = true
+	seat.Anchored = true
+	seat.MaxSpeed = 0
+	seat.Torque = 0
+	seat.TurnSpeed = 0
+	seat.HeadsUpDisplay = false
+	seat.Disabled = not opts.drivable
+	seat.Parent = model
+	local sw = Instance.new("WeldConstraint")
+	sw.Part0 = root
+	sw.Part1 = seat
+	sw.Parent = seat
+
+	model:SetAttribute("Length", L)
+	model:SetAttribute("Width", W)
+	model:SetAttribute("Height", H)
+	model:SetAttribute("WheelRadius", wheelR)
+	model:SetAttribute("Rarity", stats.rarity)
+	model:SetAttribute("Mesh", true)
+	return model
+end
+
+function CarBuilder.hasModel(stats): boolean
+	return findTemplate(stats) ~= nil
+end
+
 function CarBuilder.build(stats, paint: Color3, opts)
 	opts = opts or {}
+	local template = findTemplate(stats)
+	if template then
+		return buildFromTemplate(template, stats, opts)
+	end
 	local P = PROFILES[stats.body] or PROFILES.sedan
 	local L, W, H = stats.length * S, stats.width * S, stats.height * S
 	local R = P.r * S

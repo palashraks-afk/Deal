@@ -25,8 +25,8 @@ function Minimap.start()
 	local holder = new("Frame", {
 		Name = "Minimap",
 		Size = UDim2.fromOffset(SMALL, SMALL),
-		Position = UDim2.new(1, -14, 0, 8),
-		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(0, 14, 0, 62),
+		AnchorPoint = Vector2.new(0, 0),
 		BackgroundColor3 = Color3.fromRGB(58, 86, 52),
 		ClipsDescendants = true,
 		Parent = screen,

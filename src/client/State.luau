@@ -1,19 +1,33 @@
 -- Latest copy of this player's data from the server, plus helpers to call actions.
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Net = require(Shared.Net)
+local Upgrades = require(Shared.Upgrades)
 
 local State = {}
 State.Data = nil
+State.Effects = nil
 State.Changed = Instance.new("BindableEvent")
 State.Toast = Instance.new("BindableEvent") -- fire({text, color}) to show a toast
 
-Net.Data.OnClientEvent:Connect(function(data)
-	local showroom = {}
-	for k, v in data.showroom do
-		showroom[tonumber(k)] = v
+local function numKeys(t)
+	local out = {}
+	for k, v in t or {} do
+		out[tonumber(k) or k] = v
 	end
-	data.showroom = showroom
+	return out
+end
+
+Net.Data.OnClientEvent:Connect(function(data)
+	for _, key in { "showroom", "prize", "blueprints", "factory" } do
+		data[key] = numKeys(data[key])
+	end
+	for _, track in Upgrades.Tracks do
+		data.upgrades[track] = numKeys(data.upgrades[track])
+	end
+	-- server clock offset so factory timers count down correctly
+	data.clockOffset = (data.serverTime or os.time()) - os.time()
 	State.Data = data
+	State.Effects = Upgrades.effects(data.upgrades)
 	State.Changed:Fire(data)
 end)
 
@@ -36,6 +50,22 @@ function State.slotOf(uid: string): number?
 		end
 	end
 	return nil
+end
+
+function State.prizeSlotOf(uid: string): number?
+	if not State.Data then
+		return nil
+	end
+	for slot, u in State.Data.prize do
+		if u == uid then
+			return slot
+		end
+	end
+	return nil
+end
+
+function State.now(): number
+	return os.time() + (State.Data and State.Data.clockOffset or 0)
 end
 
 return State

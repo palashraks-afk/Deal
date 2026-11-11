@@ -19,34 +19,33 @@ Combat.start()
 task.spawn(Minimap.start)
 
 -- keyboard shortcuts
+local KEYS = {
+	[Enum.KeyCode.B] = menus.Garage,
+	[Enum.KeyCode.N] = menus.Shop,
+	[Enum.KeyCode.U] = menus.Upgrades,
+	[Enum.KeyCode.J] = menus.Factory,
+	[Enum.KeyCode.K] = menus.Guns,
+}
 UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then
 		return
 	end
-	if input.KeyCode == Enum.KeyCode.B then
-		menus.Garage.toggle()
-	elseif input.KeyCode == Enum.KeyCode.N then
-		menus.Dealership.toggle()
-	elseif input.KeyCode == Enum.KeyCode.C then
-		menus.Craft.toggle()
+	local menu = KEYS[input.KeyCode]
+	if menu then
+		menu.toggle()
 	end
 end)
 
--- plot prompts open menus; hide "Steal" on your own cars
+-- prompts that open menus; hide Buy/Steal on your own cars
 ProximityPromptService.PromptTriggered:Connect(function(prompt)
-	local plot = prompt:FindFirstAncestorWhichIsA("Model")
-	while plot and not plot.Name:match("^Plot%d") do
-		plot = plot:FindFirstAncestorWhichIsA("Model")
-	end
-	local mine = plot and plot:GetAttribute("OwnerUserId") == player.UserId
-	if prompt.Name == "CatalogPrompt" and mine then
-		menus.Dealership.open()
-	elseif prompt.Name == "CraftPrompt" and mine then
-		menus.Craft.open()
+	if prompt.Name == "CatalogPrompt" then
+		menus.Shop.open()
+	elseif prompt.Name == "GunStorePrompt" then
+		menus.Guns.open()
 	end
 end)
 ProximityPromptService.PromptShown:Connect(function(prompt)
-	if prompt.Name == "StealPrompt" and prompt:GetAttribute("OwnerUserId") == player.UserId then
+	if (prompt.Name == "StealPrompt" or prompt.Name == "BuyPrompt") and prompt:GetAttribute("OwnerUserId") == player.UserId then
 		prompt.Enabled = false
 	end
 end)

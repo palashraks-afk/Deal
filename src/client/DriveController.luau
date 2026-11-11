@@ -14,6 +14,8 @@ local player = Players.LocalPlayer
 local DriveController = {}
 DriveController.Car = nil :: Model?
 DriveController.Speed = 0
+DriveController.Fx = {}
+DriveController.Drifting = false
 
 local handbrake = false
 local conn
@@ -123,8 +125,16 @@ local function step(dt: number)
 	local nonYaw = (ang - up * currentYaw) * 0.9
 	root.AssemblyAngularVelocity = nonYaw + up * newYaw
 
+	-- drift effects: tyre smoke + skid marks while sliding
+	local sliding = (math.abs(sideSpeed) > 14 or (handbrake and math.abs(fwdSpeed) > 18))
+	for _, fx in DriveController.Fx do
+		fx.smoke.Enabled = sliding
+		fx.trail.Enabled = sliding
+	end
+	DriveController.Drifting = sliding
+
 	-- wheels
-	wheelSpin = (wheelSpin + fwdSpeed * dt / ((car:GetAttribute("WheelRadius") or 1))) % (math.pi * 2)
+	wheelSpin =(wheelSpin + fwdSpeed * dt / ((car:GetAttribute("WheelRadius") or 1))) % (math.pi * 2)
 	for _, name in { "WheelFL", "WheelFR", "WheelRL", "WheelRR" } do
 		local wheel = car:FindFirstChild(name)
 		local weld = wheel and wheel:FindFirstChild("Axle")
@@ -173,9 +183,63 @@ function DriveController.start()
 	RunService.Heartbeat:Connect(function()
 		local car = currentCar()
 		if car ~= DriveController.Car then
+			for _, fx in DriveController.Fx do
+				fx.folder:Destroy()
+			end
+			table.clear(DriveController.Fx)
 			DriveController.Car = car
 			DriveController.Speed = 0
 			handbrake = false
+			if car then
+				-- local-only drift FX on the rear wheels
+				for _, name in { "WheelRL", "WheelRR" } do
+					local wheel = car:FindFirstChild(name)
+					if wheel then
+						local folder = Instance.new("Folder")
+						folder.Name = "DriftFx"
+						local r = wheel.Size.Y / 2
+						local a0 = Instance.new("Attachment")
+						a0.Position = Vector3.new(-wheel.Size.X / 2, -r + 0.1, 0)
+						local a1 = Instance.new("Attachment")
+						a1.Position = Vector3.new(wheel.Size.X / 2, -r + 0.1, 0)
+						local mid = Instance.new("Attachment")
+						mid.Position = Vector3.new(0, -r + 0.2, 0)
+						for _, a in { a0, a1, mid } do
+							a.Parent = car.PrimaryPart
+							a.WorldPosition = wheel.CFrame:PointToWorldSpace(a.Position)
+						end
+						local trail = Instance.new("Trail")
+						trail.Attachment0 = a0
+						trail.Attachment1 = a1
+						trail.Lifetime = 4
+						trail.Color = ColorSequence.new(Color3.fromRGB(20, 20, 22))
+						trail.Transparency = NumberSequence.new(0.35, 1)
+						trail.LightInfluence = 1
+						trail.FaceCamera = false
+						trail.Enabled = false
+						trail.Parent = folder
+						local smoke = Instance.new("ParticleEmitter")
+						smoke.Texture = "rbxasset://textures/particles/smoke_main.dds"
+						smoke.Rate = 40
+						smoke.Lifetime = NumberRange.new(1, 1.8)
+						smoke.Speed = NumberRange.new(2, 5)
+						smoke.SpreadAngle = Vector2.new(40, 40)
+						smoke.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1.5), NumberSequenceKeypoint.new(1, 6) })
+						smoke.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.5), NumberSequenceKeypoint.new(1, 1) })
+						smoke.Color = ColorSequence.new(Color3.fromRGB(225, 225, 225))
+						smoke.Acceleration = Vector3.new(0, 3, 0)
+						smoke.Enabled = false
+						smoke.Parent = mid
+						folder.Parent = car
+						table.insert(DriveController.Fx, { folder = folder, trail = trail, smoke = smoke, attachments = { a0, a1, mid } })
+						folder.Destroying:Connect(function()
+							for _, a in { a0, a1, mid } do
+								a:Destroy()
+							end
+						end)
+					end
+				end
+			end
 		end
 	end)
 	conn = RunService.PreSimulation:Connect(step)

@@ -183,7 +183,7 @@ function VehicleService.spawnOwned(player: Player, uid: string)
 		return false, "That car is already out."
 	end
 	local Tycoon = VehicleService.Tycoon
-	if Tycoon.slotOf(player, uid) then
+	if Tycoon.isBusy(player, uid) then
 		return false, "Take it off display first."
 	end
 	local plot = Tycoon.plotOf(player)

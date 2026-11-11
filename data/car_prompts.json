@@ -1,0 +1,1002 @@
+[
+ {
+  "id": 1,
+  "name": "Chevlon Sparq",
+  "prompt": "Highly accurate realistic 3D model of a Chevrolet Spark (hatch), burgundy paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 4.8,
+   "y": 4.56,
+   "z": 10.92
+  }
+ },
+ {
+  "id": 2,
+  "name": "Fiatt 550",
+  "prompt": "Highly accurate realistic 3D model of a Fiat 500 (hatch), royal purple metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 4.89,
+   "y": 4.47,
+   "z": 10.71
+  }
+ },
+ {
+  "id": 3,
+  "name": "Nissun Sentro",
+  "prompt": "Highly accurate realistic 3D model of a Nissan Sentra (sedan), matte grey paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.46,
+   "y": 4.35,
+   "z": 13.92
+  }
+ },
+ {
+  "id": 4,
+  "name": "Kio Sowl",
+  "prompt": "Highly accurate realistic 3D model of a Kia Soul (hatch), pearl white paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.4,
+   "y": 4.83,
+   "z": 12.6
+  }
+ },
+ {
+  "id": 5,
+  "name": "Kio Fortay",
+  "prompt": "Highly accurate realistic 3D model of a Kia Forte (sedan), matte grey paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.4,
+   "y": 4.32,
+   "z": 13.92
+  }
+ },
+ {
+  "id": 6,
+  "name": "Hyundia Elantro",
+  "prompt": "Highly accurate realistic 3D model of a Hyundai Elantra (sedan), gunmetal grey metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.49,
+   "y": 4.26,
+   "z": 14.04
+  }
+ },
+ {
+  "id": 7,
+  "name": "VW Jeta",
+  "prompt": "Highly accurate realistic 3D model of a Volkswagen Jetta (sedan), pearl white paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.4,
+   "y": 4.38,
+   "z": 14.1
+  }
+ },
+ {
+  "id": 8,
+  "name": "Toyoda Corrola",
+  "prompt": "Highly accurate realistic 3D model of a Toyota Corolla (sedan), matte grey paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.34,
+   "y": 4.29,
+   "z": 13.89
+  }
+ },
+ {
+  "id": 9,
+  "name": "Fjord Fuzion",
+  "prompt": "Highly accurate realistic 3D model of a Ford Fusion (sedan), pearl white paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.55,
+   "y": 4.44,
+   "z": 14.61
+  }
+ },
+ {
+  "id": 10,
+  "name": "Subara Impreeza",
+  "prompt": "Highly accurate realistic 3D model of a Subaru Impreza (hatch), gunmetal grey metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.34,
+   "y": 4.44,
+   "z": 13.44
+  }
+ },
+ {
+  "id": 11,
+  "name": "Hondo Civik",
+  "prompt": "Highly accurate realistic 3D model of a Honda Civic (sedan), gunmetal grey metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.4,
+   "y": 4.26,
+   "z": 14.01
+  }
+ },
+ {
+  "id": 12,
+  "name": "Mazza 3",
+  "prompt": "Highly accurate realistic 3D model of a Mazda Mazda3 (hatch), gunmetal grey metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.4,
+   "y": 4.32,
+   "z": 13.38
+  }
+ },
+ {
+  "id": 13,
+  "name": "Chevlon Malibou",
+  "prompt": "Highly accurate realistic 3D model of a Chevrolet Malibu (sedan), teal metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.55,
+   "y": 4.38,
+   "z": 14.79
+  }
+ },
+ {
+  "id": 14,
+  "name": "VW Beatle '67",
+  "prompt": "Highly accurate realistic 3D model of a Volkswagen Beetle 1967 (classic), silver metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 4.62,
+   "y": 4.5,
+   "z": 12.24
+  }
+ },
+ {
+  "id": 15,
+  "name": "Fjord Modell T",
+  "prompt": "Highly accurate realistic 3D model of a Ford Model T (classic), royal purple metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.04,
+   "y": 6.39,
+   "z": 10.2
+  }
+ },
+ {
+  "id": 16,
+  "name": "Nissun Altema",
+  "prompt": "Highly accurate realistic 3D model of a Nissan Altima (sedan), deep midnight blue metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.55,
+   "y": 4.32,
+   "z": 14.7
+  }
+ },
+ {
+  "id": 17,
+  "name": "VW Gollf",
+  "prompt": "Highly accurate realistic 3D model of a Volkswagen Golf (hatch), hot pink paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.37,
+   "y": 4.38,
+   "z": 12.84
+  }
+ },
+ {
+  "id": 18,
+  "name": "Dodje Caravann",
+  "prompt": "Highly accurate realistic 3D model of a Dodge Grand Caravan (van), glossy black paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.0,
+   "y": 5.19,
+   "z": 15.45
+  }
+ },
+ {
+  "id": 19,
+  "name": "Toyoda Camrie",
+  "prompt": "Highly accurate realistic 3D model of a Toyota Camry (sedan), bronze metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.52,
+   "y": 4.32,
+   "z": 14.64
+  }
+ },
+ {
+  "id": 20,
+  "name": "Toyoda Prios",
+  "prompt": "Highly accurate realistic 3D model of a Toyota Prius (hatch), glossy black paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.34,
+   "y": 4.26,
+   "z": 13.8
+  }
+ },
+ {
+  "id": 21,
+  "name": "Hondo Acord",
+  "prompt": "Highly accurate realistic 3D model of a Honda Accord (sedan), glossy crimson red paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.58,
+   "y": 4.35,
+   "z": 14.91
+  }
+ },
+ {
+  "id": 22,
+  "name": "Chevlon Equinoks",
+  "prompt": "Highly accurate realistic 3D model of a Chevrolet Equinox (suv), light sky blue paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.7,
+   "y": 4.98,
+   "z": 13.95
+  }
+ },
+ {
+  "id": 23,
+  "name": "Jeepo Compas",
+  "prompt": "Highly accurate realistic 3D model of a Jeep Compass (suv), dark racing green paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.46,
+   "y": 4.89,
+   "z": 13.2
+  }
+ },
+ {
+  "id": 24,
+  "name": "Hyundia Tuscon",
+  "prompt": "Highly accurate realistic 3D model of a Hyundai Tucson (suv), glossy crimson red paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.61,
+   "y": 5.01,
+   "z": 13.89
+  }
+ },
+ {
+  "id": 25,
+  "name": "Fjord Escaype",
+  "prompt": "Highly accurate realistic 3D model of a Ford Escape (suv), pearl white paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.64,
+   "y": 5.04,
+   "z": 13.77
+  }
+ },
+ {
+  "id": 26,
+  "name": "Hondo CR-W",
+  "prompt": "Highly accurate realistic 3D model of a Honda CR-V (suv), hot pink paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.61,
+   "y": 5.04,
+   "z": 14.1
+  }
+ },
+ {
+  "id": 27,
+  "name": "Subara Outbak",
+  "prompt": "Highly accurate realistic 3D model of a Subaru Outback (wagon), bright yellow paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.58,
+   "y": 5.04,
+   "z": 14.61
+  }
+ },
+ {
+  "id": 28,
+  "name": "Mino Kooper S",
+  "prompt": "Highly accurate realistic 3D model of a Mini Cooper S (hatch), teal metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.19,
+   "y": 4.29,
+   "z": 11.64
+  }
+ },
+ {
+  "id": 29,
+  "name": "Fjord Rangr",
+  "prompt": "Highly accurate realistic 3D model of a Ford Ranger (truck), pearl white paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.76,
+   "y": 5.64,
+   "z": 16.11
+  }
+ },
+ {
+  "id": 30,
+  "name": "Teslo Modell 3",
+  "prompt": "Highly accurate realistic 3D model of a Tesla Model 3 (sedan), matte grey paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.55,
+   "y": 4.32,
+   "z": 14.16
+  }
+ },
+ {
+  "id": 31,
+  "name": "Nissun 240-ZX",
+  "prompt": "Highly accurate realistic 3D model of a Nissan 240SX (S13) (classic), gunmetal grey metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.07,
+   "y": 3.87,
+   "z": 13.56
+  }
+ },
+ {
+  "id": 32,
+  "name": "Toyoda GR-68",
+  "prompt": "Highly accurate realistic 3D model of a Toyota GR86 (sports), royal purple metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.34,
+   "y": 3.93,
+   "z": 12.81
+  }
+ },
+ {
+  "id": 33,
+  "name": "Mazza Miyata",
+  "prompt": "Highly accurate realistic 3D model of a Mazda MX-5 Miata (sports), silver metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.19,
+   "y": 3.72,
+   "z": 11.76
+  }
+ },
+ {
+  "id": 34,
+  "name": "Nissun 370-X",
+  "prompt": "Highly accurate realistic 3D model of a Nissan 370Z (sports), bronze metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.55,
+   "y": 3.96,
+   "z": 12.75
+  }
+ },
+ {
+  "id": 35,
+  "name": "VW Gollf GTY",
+  "prompt": "Highly accurate realistic 3D model of a Volkswagen Golf GTI (hatch), pearl white paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.37,
+   "y": 4.32,
+   "z": 12.87
+  }
+ },
+ {
+  "id": 36,
+  "name": "Toyoda Takoma",
+  "prompt": "Highly accurate realistic 3D model of a Toyota Tacoma (truck), light sky blue paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.73,
+   "y": 5.37,
+   "z": 16.17
+  }
+ },
+ {
+  "id": 37,
+  "name": "Subara WRZ",
+  "prompt": "Highly accurate realistic 3D model of a Subaru WRX (sedan), teal metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.49,
+   "y": 4.41,
+   "z": 14.01
+  }
+ },
+ {
+  "id": 38,
+  "name": "Jeepo Wranglr",
+  "prompt": "Highly accurate realistic 3D model of a Jeep Wrangler (offroad), bright orange paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.67,
+   "y": 5.61,
+   "z": 14.37
+  }
+ },
+ {
+  "id": 39,
+  "name": "Dodje Challengr",
+  "prompt": "Highly accurate realistic 3D model of a Dodge Challenger R/T (muscle), royal purple metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.76,
+   "y": 4.35,
+   "z": 15.09
+  }
+ },
+ {
+  "id": 40,
+  "name": "Toyoda 5Runner",
+  "prompt": "Highly accurate realistic 3D model of a Toyota 4Runner (offroad), burgundy paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.79,
+   "y": 5.46,
+   "z": 14.49
+  }
+ },
+ {
+  "id": 41,
+  "name": "Rham 1500",
+  "prompt": "Highly accurate realistic 3D model of a Ram 1500 (truck), matte grey paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.24,
+   "y": 5.91,
+   "z": 17.43
+  }
+ },
+ {
+  "id": 42,
+  "name": "Audy A-4",
+  "prompt": "Highly accurate realistic 3D model of a Audi A4 (sedan), bright orange paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.55,
+   "y": 4.29,
+   "z": 14.28
+  }
+ },
+ {
+  "id": 43,
+  "name": "Camarro SS",
+  "prompt": "Highly accurate realistic 3D model of a Chevrolet Camaro SS (muscle), deep midnight blue metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.7,
+   "y": 4.05,
+   "z": 14.34
+  }
+ },
+ {
+  "id": 44,
+  "name": "Civik Type-Q",
+  "prompt": "Highly accurate realistic 3D model of a Honda Civic Type R (hatch), lime green paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.67,
+   "y": 4.23,
+   "z": 13.77
+  }
+ },
+ {
+  "id": 45,
+  "name": "Fjord Mustank GT",
+  "prompt": "Highly accurate realistic 3D model of a Ford Mustang GT (muscle), deep midnight blue metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.76,
+   "y": 4.17,
+   "z": 14.43
+  }
+ },
+ {
+  "id": 46,
+  "name": "Fjord F-151",
+  "prompt": "Highly accurate realistic 3D model of a Ford F-150 (truck), bright orange paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.09,
+   "y": 5.88,
+   "z": 17.67
+  }
+ },
+ {
+  "id": 47,
+  "name": "Fjord Bronko",
+  "prompt": "Highly accurate realistic 3D model of a Ford Bronco (offroad), glossy crimson red paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.79,
+   "y": 5.55,
+   "z": 14.43
+  }
+ },
+ {
+  "id": 48,
+  "name": "Chevlon Silverodo",
+  "prompt": "Highly accurate realistic 3D model of a Chevrolet Silverado (truck), bright orange paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.18,
+   "y": 5.76,
+   "z": 17.64
+  }
+ },
+ {
+  "id": 49,
+  "name": "Teslo Modell Y",
+  "prompt": "Highly accurate realistic 3D model of a Tesla Model Y (suv), royal purple metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.76,
+   "y": 4.86,
+   "z": 14.25
+  }
+ },
+ {
+  "id": 50,
+  "name": "BMV 330",
+  "prompt": "Highly accurate realistic 3D model of a BMW 330i (sedan), bright yellow paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.49,
+   "y": 4.32,
+   "z": 14.13
+  }
+ },
+ {
+  "id": 51,
+  "name": "Hyundia Ionik 5",
+  "prompt": "Highly accurate realistic 3D model of a Hyundai Ioniq 5 (suv), pearl white paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.67,
+   "y": 4.83,
+   "z": 13.92
+  }
+ },
+ {
+  "id": 52,
+  "name": "Lexon IZ 350",
+  "prompt": "Highly accurate realistic 3D model of a Lexus IS 350 (sedan), deep midnight blue metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.52,
+   "y": 4.29,
+   "z": 14.13
+  }
+ },
+ {
+  "id": 53,
+  "name": "Mercedez K300",
+  "prompt": "Highly accurate realistic 3D model of a Mercedes-Benz C-Class C300 (sedan), hot pink paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.46,
+   "y": 4.32,
+   "z": 14.25
+  }
+ },
+ {
+  "id": 54,
+  "name": "Lanser Evo 9",
+  "prompt": "Highly accurate realistic 3D model of a Mitsubishi Lancer Evolution IX (sedan), matte grey paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.31,
+   "y": 4.35,
+   "z": 13.47
+  }
+ },
+ {
+  "id": 55,
+  "name": "Chevlon Tahoo",
+  "prompt": "Highly accurate realistic 3D model of a Chevrolet Tahoe (suv), lime green paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.18,
+   "y": 5.79,
+   "z": 16.05
+  }
+ },
+ {
+  "id": 56,
+  "name": "Toyoda Supro",
+  "prompt": "Highly accurate realistic 3D model of a Toyota Supra A90 (sports), teal metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.55,
+   "y": 3.87,
+   "z": 13.14
+  }
+ },
+ {
+  "id": 57,
+  "name": "BMV M-3 E46",
+  "prompt": "Highly accurate realistic 3D model of a BMW M3 E46 (coupe), glossy black paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.34,
+   "y": 4.11,
+   "z": 13.47
+  }
+ },
+ {
+  "id": 58,
+  "name": "Lotos Eliss",
+  "prompt": "Highly accurate realistic 3D model of a Lotus Elise (sports), bright orange paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.16,
+   "y": 3.36,
+   "z": 11.46
+  }
+ },
+ {
+  "id": 59,
+  "name": "Land Cruzer",
+  "prompt": "Highly accurate realistic 3D model of a Toyota Land Cruiser (offroad), teal metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.94,
+   "y": 5.82,
+   "z": 14.94
+  }
+ },
+ {
+  "id": 60,
+  "name": "Corvete C8",
+  "prompt": "Highly accurate realistic 3D model of a Chevrolet Corvette C8 Stingray (super), bright yellow paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.79,
+   "y": 3.72,
+   "z": 13.89
+  }
+ },
+ {
+  "id": 61,
+  "name": "Mazza RQ-7",
+  "prompt": "Highly accurate realistic 3D model of a Mazda RX-7 FD (sports), bronze metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.28,
+   "y": 3.69,
+   "z": 12.87
+  }
+ },
+ {
+  "id": 62,
+  "name": "Chargr Hellkat",
+  "prompt": "Highly accurate realistic 3D model of a Dodge Charger SRT Hellcat (muscle), glossy crimson red paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.7,
+   "y": 4.38,
+   "z": 15.3
+  }
+ },
+ {
+  "id": 63,
+  "name": "F-151 Raptur",
+  "prompt": "Highly accurate realistic 3D model of a Ford F-150 Raptor (truck), light sky blue paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.6,
+   "y": 6.0,
+   "z": 17.73
+  }
+ },
+ {
+  "id": 64,
+  "name": "Mustank GT-500",
+  "prompt": "Highly accurate realistic 3D model of a Ford Mustang Shelby GT500 (muscle), matte grey paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.76,
+   "y": 4.14,
+   "z": 14.46
+  }
+ },
+ {
+  "id": 65,
+  "name": "Alfa Giullia",
+  "prompt": "Highly accurate realistic 3D model of a Alfa Romeo Giulia Quadrifoglio (sedan), bronze metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.61,
+   "y": 4.29,
+   "z": 13.92
+  }
+ },
+ {
+  "id": 66,
+  "name": "Mercedez AMG K63",
+  "prompt": "Highly accurate realistic 3D model of a Mercedes-Benz AMG C63 S (sedan), dark racing green paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.7,
+   "y": 4.38,
+   "z": 14.52
+  }
+ },
+ {
+  "id": 67,
+  "name": "Teslo Plad",
+  "prompt": "Highly accurate realistic 3D model of a Tesla Model S Plaid (sedan), burgundy paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.97,
+   "y": 4.29,
+   "z": 15.06
+  }
+ },
+ {
+  "id": 68,
+  "name": "Cybertrukk",
+  "prompt": "Highly accurate realistic 3D model of a Tesla Cybertruck (truck), matte grey paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.09,
+   "y": 5.37,
+   "z": 17.04
+  }
+ },
+ {
+  "id": 69,
+  "name": "Nissun GT-Q",
+  "prompt": "Highly accurate realistic 3D model of a Nissan GT-R R35 (super), matte grey paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.7,
+   "y": 4.11,
+   "z": 14.13
+  }
+ },
+ {
+  "id": 70,
+  "name": "Porsha 9-11",
+  "prompt": "Highly accurate realistic 3D model of a Porsche 911 Carrera (sports), gunmetal grey metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.55,
+   "y": 3.9,
+   "z": 13.56
+  }
+ },
+ {
+  "id": 71,
+  "name": "Supro Mk4",
+  "prompt": "Highly accurate realistic 3D model of a Toyota Supra Mk4 (sports), deep midnight blue metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.43,
+   "y": 3.84,
+   "z": 13.56
+  }
+ },
+ {
+  "id": 72,
+  "name": "Audy RQ6",
+  "prompt": "Highly accurate realistic 3D model of a Audi RS6 Avant (wagon), lime green paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.85,
+   "y": 4.38,
+   "z": 15.0
+  }
+ },
+ {
+  "id": 73,
+  "name": "BMV M-4 CSQ",
+  "prompt": "Highly accurate realistic 3D model of a BMW M4 CSL (coupe), teal metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.67,
+   "y": 4.17,
+   "z": 14.4
+  }
+ },
+ {
+  "id": 74,
+  "name": "Hondo NSZ",
+  "prompt": "Highly accurate realistic 3D model of a Honda NSX (2nd gen) (super), pearl white paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.82,
+   "y": 3.63,
+   "z": 13.47
+  }
+ },
+ {
+  "id": 75,
+  "name": "Skylyne R34",
+  "prompt": "Highly accurate realistic 3D model of a Nissan Skyline GT-R R34 (sports), dark racing green paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.37,
+   "y": 4.08,
+   "z": 13.8
+  }
+ },
+ {
+  "id": 76,
+  "name": "Audy R-88",
+  "prompt": "Highly accurate realistic 3D model of a Audi R8 V10 (super), glossy crimson red paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.82,
+   "y": 3.72,
+   "z": 13.29
+  }
+ },
+ {
+  "id": 77,
+  "name": "Mercedez H63",
+  "prompt": "Highly accurate realistic 3D model of a Mercedes-Benz AMG G63 (offroad), pearl white paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.94,
+   "y": 5.91,
+   "z": 14.61
+  }
+ },
+ {
+  "id": 78,
+  "name": "GT-Q Nizmo",
+  "prompt": "Highly accurate realistic 3D model of a Nissan GT-R Nismo (super), burgundy paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.7,
+   "y": 4.11,
+   "z": 14.07
+  }
+ },
+ {
+  "id": 79,
+  "name": "Porsha GT-3 QS",
+  "prompt": "Highly accurate realistic 3D model of a Porsche 911 GT3 RS (super), silver metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.7,
+   "y": 3.96,
+   "z": 13.71
+  }
+ },
+ {
+  "id": 80,
+  "name": "Lamborgini Uruz",
+  "prompt": "Highly accurate realistic 3D model of a Lamborghini Urus (suv), glossy black paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.06,
+   "y": 4.92,
+   "z": 15.33
+  }
+ },
+ {
+  "id": 81,
+  "name": "Maseratti MQ20",
+  "prompt": "Highly accurate realistic 3D model of a Maserati MC20 (super), gunmetal grey metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.91,
+   "y": 3.66,
+   "z": 14.01
+  }
+ },
+ {
+  "id": 82,
+  "name": "Aston DB-21",
+  "prompt": "Highly accurate realistic 3D model of a Aston Martin DB12 (coupe), royal purple metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.94,
+   "y": 3.9,
+   "z": 14.19
+  }
+ },
+ {
+  "id": 83,
+  "name": "Dodje Vyper",
+  "prompt": "Highly accurate realistic 3D model of a Dodge Viper ACR (super), gunmetal grey metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.82,
+   "y": 3.75,
+   "z": 13.38
+  }
+ },
+ {
+  "id": 84,
+  "name": "Huracon EVO",
+  "prompt": "Highly accurate realistic 3D model of a Lamborghini Huracan EVO (super), gunmetal grey metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.79,
+   "y": 3.51,
+   "z": 13.56
+  }
+ },
+ {
+  "id": 85,
+  "name": "Ferrano F-8",
+  "prompt": "Highly accurate realistic 3D model of a Ferrari F8 Tributo (super), bright orange paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.94,
+   "y": 3.63,
+   "z": 13.83
+  }
+ },
+ {
+  "id": 86,
+  "name": "McLaron 702S",
+  "prompt": "Highly accurate realistic 3D model of a McLaren 720S (super), light sky blue paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.18,
+   "y": 3.6,
+   "z": 13.62
+  }
+ },
+ {
+  "id": 87,
+  "name": "Bentlee GT",
+  "prompt": "Highly accurate realistic 3D model of a Bentley Continental GT (coupe), pearl white paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.91,
+   "y": 4.17,
+   "z": 14.55
+  }
+ },
+ {
+  "id": 88,
+  "name": "Rolls Culinan",
+  "prompt": "Highly accurate realistic 3D model of a Rolls-Royce Cullinan (suv), bright yellow paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.0,
+   "y": 5.52,
+   "z": 16.02
+  }
+ },
+ {
+  "id": 89,
+  "name": "Ferrano SF91",
+  "prompt": "Highly accurate realistic 3D model of a Ferrari SF90 Stradale (hyper), pearl white paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.91,
+   "y": 3.57,
+   "z": 14.13
+  }
+ },
+ {
+  "id": 90,
+  "name": "Aventadorr ZVJ",
+  "prompt": "Highly accurate realistic 3D model of a Lamborghini Aventador SVJ (hyper), glossy crimson red paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.3,
+   "y": 3.42,
+   "z": 14.82
+  }
+ },
+ {
+  "id": 91,
+  "name": "Lexon LFX",
+  "prompt": "Highly accurate realistic 3D model of a Lexus LFA (super), gunmetal grey metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.7,
+   "y": 3.66,
+   "z": 13.53
+  }
+ },
+ {
+  "id": 92,
+  "name": "McLaron P-11",
+  "prompt": "Highly accurate realistic 3D model of a McLaren P1 (hyper), silver metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.85,
+   "y": 3.57,
+   "z": 13.77
+  }
+ },
+ {
+  "id": 93,
+  "name": "Countash",
+  "prompt": "Highly accurate realistic 3D model of a Lamborghini Countach LP400 (classic), bright orange paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.67,
+   "y": 3.21,
+   "z": 12.42
+  }
+ },
+ {
+  "id": 94,
+  "name": "Porsha 918",
+  "prompt": "Highly accurate realistic 3D model of a Porsche 918 Spyder (hyper), matte grey paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.82,
+   "y": 3.51,
+   "z": 13.92
+  }
+ },
+ {
+  "id": 95,
+  "name": "Ferrano F-44",
+  "prompt": "Highly accurate realistic 3D model of a Ferrari F40 (hyper), bright yellow paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.91,
+   "y": 3.36,
+   "z": 13.08
+  }
+ },
+ {
+  "id": 96,
+  "name": "LaFerrano",
+  "prompt": "Highly accurate realistic 3D model of a Ferrari LaFerrari (hyper), light sky blue paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.97,
+   "y": 3.36,
+   "z": 14.1
+  }
+ },
+ {
+  "id": 97,
+  "name": "Koenigsegk Jessko",
+  "prompt": "Highly accurate realistic 3D model of a Koenigsegg Jesko (hyper), lime green paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.09,
+   "y": 3.63,
+   "z": 13.83
+  }
+ },
+ {
+  "id": 98,
+  "name": "Pagana Huayrra",
+  "prompt": "Highly accurate realistic 3D model of a Pagani Huayra (hyper), gunmetal grey metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.12,
+   "y": 3.51,
+   "z": 13.83
+  }
+ },
+ {
+  "id": 99,
+  "name": "Bugotti Chyron",
+  "prompt": "Highly accurate realistic 3D model of a Bugatti Chiron (hyper), bronze metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 6.12,
+   "y": 3.63,
+   "z": 13.62
+  }
+ },
+ {
+  "id": 100,
+  "name": "McLaron F-11",
+  "prompt": "Highly accurate realistic 3D model of a McLaren F1 (hyper), bronze metallic paint, correct real-world proportions, detailed headlights and taillights, tinted glass windows, detailed alloy rims and tyres, clean car game asset, no logos, no badges, no text, no license plate",
+  "size": {
+   "x": 5.46,
+   "y": 3.42,
+   "z": 12.87
+  }
+ }
+]
