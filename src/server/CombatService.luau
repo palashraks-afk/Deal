@@ -226,8 +226,8 @@ local function explode(shooter: Player, gun, at: Vector3)
 end
 
 ---------------------------------------------------------------- firing
-local function onFire(player: Player, gunId: string, target: Vector3, aiming: boolean?)
-	if typeof(target) ~= "Vector3" or type(gunId) ~= "string" then
+local function onFire(player: Player, gunId: string, target: any, aiming: boolean?)
+	if type(gunId) ~= "string" then
 		return
 	end
 	local gun = Guns.ById[gunId]
@@ -244,6 +244,17 @@ local function onFire(player: Player, gunId: string, target: Vector3, aiming: bo
 		state[player][gunId] = s
 	end
 	local now = os.clock()
+	-- manual reload (R): keep the server's magazine in step with the player's
+	if target == "reload" then
+		if now >= s.reloadUntil and s.ammo < gun.mag then
+			s.ammo = gun.mag
+			s.reloadUntil = now + gun.reload
+		end
+		return
+	end
+	if typeof(target) ~= "Vector3" then
+		return
+	end
 	if now < s.reloadUntil or now - s.last < gun.fireRate * 0.8 then
 		return
 	end
@@ -268,7 +279,14 @@ local function onFire(player: Player, gunId: string, target: Vector3, aiming: bo
 	end
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = { char }
+	-- never hit yourself or the car you're sitting in (its invisible hull would eat the shot)
+	local ignore = { char }
+	local seat = hum.SeatPart
+	local ownCar = seat and seat:FindFirstAncestorWhichIsA("Model")
+	if ownCar and ownCar ~= char then
+		table.insert(ignore, ownCar)
+	end
+	params.FilterDescendantsInstances = ignore
 
 	local hits = {}
 	for _ = 1, gun.pellets or 1 do

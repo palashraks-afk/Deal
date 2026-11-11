@@ -126,6 +126,7 @@ function Combat.start()
 		end
 		s.reloadUntil = os.clock() + gun.reload
 		s.ammo = gun.mag
+		Net.Fire:FireServer(gun.id, "reload") -- the server tracks the same magazine
 		local tool = equipped()
 		Sounds.play("Reload", tool and tool:FindFirstChild("Handle"), 0.6)
 	end
@@ -145,7 +146,13 @@ function Combat.start()
 		local ray = camera:ViewportPointToRay(sp.X, sp.Y)
 		local params = RaycastParams.new()
 		params.FilterType = Enum.RaycastFilterType.Exclude
-		params.FilterDescendantsInstances = { player.Character, camera }
+		local ignore = { player.Character, camera }
+		local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+		local ownCar = hum and hum.SeatPart and hum.SeatPart:FindFirstAncestorWhichIsA("Model")
+		if ownCar then
+			table.insert(ignore, ownCar)
+		end
+		params.FilterDescendantsInstances = ignore
 		local hit = workspace:Raycast(ray.Origin, ray.Direction * 1200, params)
 		return hit and hit.Position or (ray.Origin + ray.Direction * 1200), hit and hit.Instance
 	end
@@ -338,6 +345,69 @@ function Combat.start()
 			shoot(tool, gun)
 		end
 		recoil = math.max(0, recoil - dt * 9)
+	end)
+
+	-- Two-handed aim pose (R15): the default tool pose sticks one arm straight out and
+	-- never aims. Each frame, right after the Animator has posed the body
+	-- (PreSimulation), we add on top of the animation: the right arm follows the
+	-- camera's pitch and the left arm comes forward to support the gun.
+	local poseBlend = 0
+	local lastSet = setmetatable({}, { __mode = "k" }) -- what we wrote last frame
+	local lastAnim = setmetatable({}, { __mode = "k" }) -- the animation's own value
+	-- Newer avatars drive joints with AnimationConstraints instead of Motor6Ds; both
+	-- have a Transform the Animator writes each frame, so either works here.
+	local function motor(char, partName, jointName): any
+		local part = char:FindFirstChild(partName)
+		local m = part and part:FindFirstChild(jointName)
+		if m and (m:IsA("Motor6D") or m:IsA("AnimationConstraint")) then
+			return m
+		end
+		return nil
+	end
+	local function addRotation(m: any, rot: CFrame)
+		local anim = m.Transform
+		-- if the Animator didn't touch this joint since our last write, reuse its old
+		-- value instead of stacking our rotation on top of our own rotation
+		local prev = lastSet[m]
+		if prev and (anim.Position - prev.Position).Magnitude < 1e-4 and anim.LookVector:Dot(prev.LookVector) > 0.99999 and anim.UpVector:Dot(prev.UpVector) > 0.99999 then
+			anim = lastAnim[m] or CFrame.identity
+		end
+		lastAnim[m] = anim
+		local out = rot * anim
+		m.Transform = out
+		lastSet[m] = out
+	end
+	RunService.PreSimulation:Connect(function(dt)
+		local char = player.Character
+		local hum = char and char:FindFirstChildOfClass("Humanoid")
+		if not hum or hum.RigType ~= Enum.HumanoidRigType.R15 then
+			return
+		end
+		local tool = equipped()
+		local want = (tool and not hum.Sit and hum.Health > 0) and 1 or 0
+		poseBlend += (want - poseBlend) * math.clamp(dt * 14, 0, 1)
+		if poseBlend < 0.01 then
+			return
+		end
+		local right = motor(char, "RightUpperArm", "RightShoulder")
+		local left = motor(char, "LeftUpperArm", "LeftShoulder")
+		local waist = motor(char, "UpperTorso", "Waist")
+		if not right or not left then
+			return
+		end
+		local pitch = math.asin(math.clamp(camera.CFrame.LookVector.Y, -0.95, 0.95))
+		local kick = math.rad(recoil * 4) -- arms ride up with the recoil
+		-- right arm: the tool pose already points it forward, so only add the aim pitch
+		addRotation(right, CFrame.Angles((pitch * 0.85 + kick) * poseBlend, 0, 0))
+		-- left arm: from hanging down to forward and across to the gun's front grip
+		addRotation(left, CFrame.Angles(0, -0.55 * poseBlend, 0) * CFrame.Angles((math.rad(85) + pitch * 0.85 + kick) * poseBlend, 0, 0))
+		-- lean the upper body a little into the aim
+		if waist then
+			addRotation(waist, CFrame.Angles(pitch * 0.25 * poseBlend, 0, 0))
+		end
+	end)
+	player.CharacterAdded:Connect(function()
+		poseBlend = 0
 	end)
 
 	-- Recoil: a temporary kick applied AFTER Roblox's camera each frame, so it never
