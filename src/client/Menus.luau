@@ -239,7 +239,7 @@ local function buildUpgrades()
 	local info = UIKit.label({ Text = "", TextSize = 13, TextColor3 = C.Muted, Size = UDim2.new(1, 0, 0, 18), Position = UDim2.fromOffset(0, 44), ZIndex = 7, Parent = win.body })
 	local progress = UIKit.bar(win.body, 0, C.Good, { Position = UDim2.fromOffset(0, 66), Size = UDim2.new(1, 0, 0, 10) })
 	local list = UIKit.scroll({ Size = UDim2.new(1, 0, 1, -90), Position = UDim2.fromOffset(0, 88), Parent = win.body })
-	local grid = new("UIGridLayout", { CellSize = UDim2.fromOffset(190, 92), CellPadding = UDim2.fromOffset(8, 8), SortOrder = Enum.SortOrder.LayoutOrder, Parent = list })
+	local grid = new("UIGridLayout", { CellSize = UDim2.new(0.25, -10, 0, 92), CellPadding = UDim2.fromOffset(8, 8), SortOrder = Enum.SortOrder.LayoutOrder, Parent = list })
 	local _ = grid
 
 	local KIND_ICON = { slot = "🅿️", income = "💡", traffic = "📣", rich = "💎", special = "⭐", garage = "🚪", security = "🛡️", decor = "🌴", unlock = "🏗️", speed = "⚙️", line = "🛤️", bonus = "✨", discount = "🏷️", robot = "🤖", pedestal = "🏆", glow = "💡", laser = "🔴" }

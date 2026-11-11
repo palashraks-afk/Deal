@@ -408,8 +408,9 @@ function PlotBuilder.buildShell(model: Model, origin: CFrame)
 	local doorW = 40
 	local paneW = (sw - doorW) / 2
 	for _, side in { -1, 1 } do
-		blk(model, Vector3.new(paneW, roofY - 2, 0.4), at(sx + side * (doorW / 2 + paneW / 2), roofY / 2, sz - sd / 2), Color3.fromRGB(170, 210, 235), Enum.Material.Glass, { Transparency = 0.65, Reflectance = 0.25, CanCollide = false })
-		blk(model, Vector3.new(0.4, roofY - 2, sd), at(sx + side * sw / 2, roofY / 2, sz), Color3.fromRGB(170, 210, 235), Enum.Material.Glass, { Transparency = 0.65, Reflectance = 0.25, CanCollide = false })
+		-- solid glass: you go in and out through the doorway, not through the walls
+		blk(model, Vector3.new(paneW, roofY - 2, 1), at(sx + side * (doorW / 2 + paneW / 2), roofY / 2, sz - sd / 2), Color3.fromRGB(170, 210, 235), Enum.Material.Glass, { Transparency = 0.65, Reflectance = 0.25 }).Name = "Glass"
+		blk(model, Vector3.new(1, roofY - 2, sd), at(sx + side * sw / 2, roofY / 2, sz), Color3.fromRGB(170, 210, 235), Enum.Material.Glass, { Transparency = 0.65, Reflectance = 0.25 }).Name = "Glass"
 	end
 	blk(model, Vector3.new(doorW, 4, 0.4), at(sx, roofY - 3, sz - sd / 2), Color3.fromRGB(26, 28, 34), Enum.Material.SmoothPlastic)
 	for i = -2, 2 do
@@ -495,8 +496,11 @@ function PlotBuilder.buildShell(model: Model, origin: CFrame)
 		local st = make("Model", { Name = track .. "Station" }, model)
 		local base = blk(st, Vector3.new(30, 0.6, 10), origin * PlotBuilder.stationCFrame(track) * CFrame.new(0, 0.3, 0), Color3.fromRGB(30, 32, 40), Enum.Material.DiamondPlate)
 		base.Name = "Base"
-		local board = blk(st, Vector3.new(30, 4, 0.6), origin * PlotBuilder.stationCFrame(track) * CFrame.new(0, 7, 5), Color3.fromRGB(18, 20, 26), Enum.Material.SmoothPlastic)
+		local board = blk(st, Vector3.new(30, 4, 0.6), origin * PlotBuilder.stationCFrame(track) * CFrame.new(0, 14, 6), Color3.fromRGB(18, 20, 26), Enum.Material.SmoothPlastic)
 		board.Name = "Board"
+		for _, px in { -14, 14 } do
+			blk(st, Vector3.new(0.8, 14, 0.8), origin * PlotBuilder.stationCFrame(track) * CFrame.new(px, 7, 6), Color3.fromRGB(60, 62, 70), Enum.Material.Metal)
+		end
 		label(board, track == "Base" and "DEALERSHIP UPGRADES" or (track == "Prize" and "PRIZE VAULT" or "CAR FACTORY"), track == "Prize" and Color3.fromRGB(255, 200, 60) or Color3.fromRGB(120, 200, 255))
 	end
 

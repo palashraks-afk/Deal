@@ -4,8 +4,8 @@
 --   ================ DEALZ BOULEVARD ================
 --      HILLS   |   BEACH    |  DESERT        (south, z > 0)
 --
--- Each area has its own ground, roads, buildings and props, plus one tycoon plot that
--- faces the boulevard. Parts with a "MapColor" attribute are drawn on the minimap.
+-- Each area has its own ground, roads, buildings and props, plus one dealership plot
+-- placed inside it (PLOT_SPOTS) facing that area's road. Nothing else builds there. Parts with a "MapColor" attribute are drawn on the minimap.
 local Lighting = game:GetService("Lighting")
 
 local PlotBuilder = require(script.Parent.PlotBuilder)
@@ -15,7 +15,6 @@ local WorldBuilder = {}
 local HALF_X, HALF_Z = 2000, 1400
 local ROAD_W = 34
 local AVENUE_X = { -650, 650 } -- the two north-south avenues between areas
-local ZONE_X = { -1325, 0, 1325 } -- area centres (and plot x positions)
 
 WorldBuilder.PlotCount = 6
 WorldBuilder.Plots = {}
@@ -114,7 +113,46 @@ local function mapColor(part: BasePart, color: Color3, layer: number)
 	part:SetAttribute("MapLayer", layer)
 end
 
-local function road(parent, center: Vector3, sizeX: number, sizeZ: number)
+local function road(parent, center: Vector3, sizeX: number, sizeZ: number, skipReserve: boolean?)
+	-- roads stop at dealership lots instead of running through them
+	if not skipReserve and WorldBuilder.Reserved then
+		local alongX = sizeX >= sizeZ
+		local a0 = (alongX and center.X or center.Z) - (alongX and sizeX or sizeZ) / 2
+		local a1 = a0 + (alongX and sizeX or sizeZ)
+		local c0 = (alongX and center.Z or center.X) - (alongX and sizeZ or sizeX) / 2
+		local c1 = c0 + (alongX and sizeZ or sizeX)
+		local pieces = { { a0, a1 } }
+		for _, r in WorldBuilder.Reserved do
+			local rc0, rc1 = alongX and r[3] or r[1], alongX and r[4] or r[2]
+			local ra0, ra1 = alongX and r[1] or r[3], alongX and r[2] or r[4]
+			if rc1 > c0 and rc0 < c1 then
+				local nextPieces = {}
+				for _, p in pieces do
+					if ra1 <= p[1] or ra0 >= p[2] then
+						table.insert(nextPieces, p)
+					else
+						if ra0 > p[1] then
+							table.insert(nextPieces, { p[1], ra0 })
+						end
+						if ra1 < p[2] then
+							table.insert(nextPieces, { ra1, p[2] })
+						end
+					end
+				end
+				pieces = nextPieces
+			end
+		end
+		local last
+		for _, p in pieces do
+			local len = p[2] - p[1]
+			if len > 4 then
+				local mid = (p[1] + p[2]) / 2
+				local c = alongX and Vector3.new(mid, center.Y, center.Z) or Vector3.new(center.X, center.Y, mid)
+				last = road(parent, c, alongX and len or sizeX, alongX and sizeZ or len, true)
+			end
+		end
+		return last
+	end
 	-- Roblox parts max out at 2048 studs, so long roads are built from pieces
 	local MAX = 1800
 	if sizeX > MAX or sizeZ > MAX then
@@ -125,7 +163,7 @@ local function road(parent, center: Vector3, sizeX: number, sizeZ: number)
 		local last
 		for i = 0, n - 1 do
 			local offset = -len / 2 + piece * (i + 0.5)
-			last = road(parent, center + (alongX and Vector3.new(offset, 0, 0) or Vector3.new(0, 0, offset)), alongX and piece or sizeX, alongX and sizeZ or piece)
+			last = road(parent, center + (alongX and Vector3.new(offset, 0, 0) or Vector3.new(0, 0, offset)), alongX and piece or sizeX, alongX and sizeZ or piece, true)
 		end
 		return last
 	end
@@ -183,10 +221,31 @@ local function tree(parent, pos: Vector3, palm: boolean?)
 	end
 end
 
+-- Every dealership has its own spot inside its area, facing that area's road.
+-- yaw turns the plot so its gate (local -Z) faces the road.
+local PLOT_SPOTS = {
+	-- first free spot goes to the next player, so new players start in the middle
+	{ area = "Downtown", pos = Vector3.new(0, 0, -455), yaw = 0 }, -- heart of downtown, faces a city street
+	{ area = "Suburbs", pos = Vector3.new(-1793, 0, -760), yaw = math.pi / 2 }, -- faces the west ring road
+	{ area = "Port", pos = Vector3.new(1593, 0, -560), yaw = -math.pi / 2 }, -- by the docks, faces the dock road
+	{ area = "Hills", pos = Vector3.new(-837, 0, 850), yaw = -math.pi / 2 }, -- faces the west avenue
+	{ area = "Beach", pos = Vector3.new(0, 0, 707), yaw = 0 }, -- on the beach strip, faces the beach road
+	{ area = "Desert", pos = Vector3.new(900, 0, 657), yaw = 0 }, -- faces the desert road, west of the speedway
+}
+-- axis-aligned rectangles nothing else may be built in: { x0, x1, z0, z1 }
+local RESERVED = {}
+for _, s in PLOT_SPOTS do
+	local sideways = math.abs(math.sin(s.yaw)) > 0.5
+	local hx = (sideways and PlotBuilder.D or PlotBuilder.W) / 2 + 6
+	local hz = (sideways and PlotBuilder.W or PlotBuilder.D) / 2 + 6
+	table.insert(RESERVED, { s.pos.X - hx, s.pos.X + hx, s.pos.Z - hz, s.pos.Z + hz })
+end
+WorldBuilder.Reserved = RESERVED
+
 local function inPlotArea(x: number, z: number, margin: number?): boolean
 	margin = margin or 0
-	for _, px in ZONE_X do
-		if math.abs(x - px) < PlotBuilder.W / 2 + 20 + margin and math.abs(z) < PlotBuilder.D + 60 + margin then
+	for _, r in RESERVED do
+		if x > r[1] - margin and x < r[2] + margin and z > r[3] - margin and z < r[4] + margin then
 			return true
 		end
 	end
@@ -194,6 +253,9 @@ local function inPlotArea(x: number, z: number, margin: number?): boolean
 end
 
 local function addSpawn(cf: CFrame)
+	if inPlotArea(cf.Position.X, cf.Position.Z, 10) then
+		return
+	end
 	table.insert(WorldBuilder.SpawnPoints, cf)
 end
 
@@ -290,6 +352,10 @@ local function buildDowntown(map)
 			local bx0, bx1 = xs[i] + ROAD_W / 2, xs[i + 1] - ROAD_W / 2
 			local cx, cz = (bx0 + bx1) / 2, (bz0 + bz1) / 2
 			local bw, bd = bx1 - bx0, bz1 - bz0
+			-- the downtown dealership takes these blocks
+			if inPlotArea(bx0, bz0) or inPlotArea(bx1, bz1) or inPlotArea(bx0, bz1) or inPlotArea(bx1, bz0) or inPlotArea(cx, cz) then
+				continue
+			end
 			local walk = make("Part", { Name = "Sidewalk", Size = Vector3.new(bw, 0.6, bd), Position = Vector3.new(cx, 0.3, cz), Material = Enum.Material.Pavement, Color = Color3.fromRGB(176, 176, 172) }, f)
 			variant(walk, "DD_Sidewalk")
 			mapColor(walk, Color3.fromRGB(150, 152, 160), 2)
@@ -404,7 +470,7 @@ local function buildSuburbs(map)
 		for x = -1940, -700, 52 do
 			for _, side in { -1, 1 } do
 				local hz = z + side * 50
-				if not inPlotArea(x, hz) and math.abs(((x + 1900) % 300) - 0) > 30 and rng:NextNumber() < 0.85 then
+				if not inPlotArea(x, hz, 30) and math.abs(((x + 1900) % 300) - 0) > 30 and rng:NextNumber() < 0.85 then
 					house(f, CFrame.new(x, 0, hz) * CFrame.Angles(0, side == 1 and math.pi or 0, 0))
 				end
 			end
@@ -416,7 +482,7 @@ local function buildSuburbs(map)
 	end
 	for i = 1, 60 do
 		local x, z = rng:NextNumber(-1980, -680), rng:NextNumber(-1380, -380)
-		if not inPlotArea(x, z) then
+		if not inPlotArea(x, z, 12) then
 			tree(f, Vector3.new(x, 0, z))
 		end
 	end
@@ -499,7 +565,7 @@ local function buildHills(map)
 		terrain:FillBall(p + Vector3.new(0, -10, 0), 70, Enum.Material.Grass)
 	end
 	-- winding dirt track (flat segments around the hills)
-	local track = { Vector3.new(-760, 0, 420), Vector3.new(-1000, 0, 520), Vector3.new(-1300, 0, 470), Vector3.new(-1600, 0, 600), Vector3.new(-1850, 0, 820), Vector3.new(-1600, 0, 1000), Vector3.new(-1300, 0, 900), Vector3.new(-1000, 0, 1050), Vector3.new(-780, 0, 900) }
+	local track = { Vector3.new(-760, 0, 420), Vector3.new(-1000, 0, 520), Vector3.new(-1300, 0, 470), Vector3.new(-1600, 0, 600), Vector3.new(-1850, 0, 820), Vector3.new(-1600, 0, 1000), Vector3.new(-1300, 0, 900), Vector3.new(-1000, 0, 1050), Vector3.new(-700, 0, 1120) }
 	for i = 1, #track - 1 do
 		local a, b = track[i], track[i + 1]
 		local mid = (a + b) / 2
@@ -516,7 +582,9 @@ local function buildHills(map)
 			terrain:FillBlock(CFrame.new(p + Vector3.new(0, 30, 0)), Vector3.new(40, 60, 40), Enum.Material.Air)
 		end
 	end
-	terrain:FillBlock(CFrame.new(ZONE_X[1], 40, 200), Vector3.new(PlotBuilder.W + 80, 80, PlotBuilder.D + 120), Enum.Material.Air)
+	for _, r in RESERVED do
+		terrain:FillBlock(CFrame.new((r[1] + r[2]) / 2, 40, (r[3] + r[4]) / 2), Vector3.new(r[2] - r[1] + 80, 80, r[4] - r[3] + 80), Enum.Material.Air)
+	end
 	-- mansions on the hill tops
 	for _, p in { Vector3.new(-1500, 0, 1250), Vector3.new(-900, 0, 1300), Vector3.new(-1850, 0, 450) } do
 		local hit = workspace:Raycast(p + Vector3.new(0, 300, 0), Vector3.new(0, -400, 0))
@@ -531,7 +599,7 @@ local function buildHills(map)
 	-- pine forest (the map isn't in Workspace yet, so only terrain hills are hit; flat ground = y 0)
 	for i = 1, 110 do
 		local x, z = rng:NextNumber(-1980, -700), rng:NextNumber(380, 1380)
-		if not inPlotArea(x, z) then
+		if not inPlotArea(x, z, 12) then
 			local hit = workspace:Raycast(Vector3.new(x, 300, z), Vector3.new(0, -400, 0))
 			local y = hit and hit.Position.Y or 0
 			if propTemplate("Trees2") then
@@ -605,8 +673,11 @@ local function buildDesert(map)
 	zoneGround(f, "Desert", x0, x1, z0, z1, Enum.Material.Sand, Color3.fromRGB(214, 170, 110), Color3.fromRGB(210, 166, 110))
 	-- canyon: real mesa rock formations around the edges (away from roads and the track)
 	local cx, cz = 1400, 900
-	local mesaSpots = { Vector3.new(1900, 0, 1250), Vector3.new(1880, 0, 700), Vector3.new(950, 0, 1300), Vector3.new(780, 0, 1050), Vector3.new(1250, 0, 1330), Vector3.new(1650, 0, 1340), Vector3.new(1920, 0, 980), Vector3.new(800, 0, 760) }
+	local mesaSpots = { Vector3.new(1900, 0, 1250), Vector3.new(1880, 0, 700), Vector3.new(950, 0, 1300), Vector3.new(780, 0, 1050), Vector3.new(1250, 0, 1330), Vector3.new(1650, 0, 1340), Vector3.new(1920, 0, 980) }
 	for _, p in mesaSpots do
+		if inPlotArea(p.X, p.Z, 90) then
+			continue
+		end
 		if not prop(f, "Mesa", p, rng:NextNumber(0.7, 1.3)) then
 			workspace.Terrain:FillBall(p + Vector3.new(0, 10, 0), 50, Enum.Material.Sandstone)
 		end
@@ -689,24 +760,20 @@ local function buildMainRoads(map)
 end
 
 ---------------------------------------------------------------- plots
-local PLOT_LABELS = { "Suburbs", "Downtown", "Port", "Hills", "Beach", "Desert" }
 local function buildPlots(map)
 	local plots = make("Folder", { Name = "Plots" }, map)
-	local i = 0
-	for row, side in { -1, 1 } do
-		for _, x in ZONE_X do
-			i += 1
-			-- north plots turn around so their gate faces the boulevard
-			local z = side * (ROAD_W / 2 + 5 + 10 + PlotBuilder.D / 2)
-			local origin = CFrame.new(x, 0, z) * (side == -1 and CFrame.Angles(0, math.pi, 0) or CFrame.new())
-			local model = make("Model", { Name = "Plot" .. i }, plots)
-			local parts = PlotBuilder.buildShell(model, origin)
-			model.PrimaryPart = model.Floor
-			mapColor(model.Floor, Color3.fromRGB(200, 200, 205), 4)
-			model:SetAttribute("Area", PLOT_LABELS[i])
-			table.insert(WorldBuilder.Plots, { index = i, cframe = origin, model = model, zone = parts.zone, spawnPad = parts.spawnPad, trim = parts.trim, area = PLOT_LABELS[i] })
-			local _ = row
-		end
+	for i, s in PLOT_SPOTS do
+		local origin = CFrame.new(s.pos) * CFrame.Angles(0, s.yaw, 0)
+		local model = make("Model", { Name = "Plot" .. i }, plots)
+		local parts = PlotBuilder.buildShell(model, origin)
+		model.PrimaryPart = model.Floor
+		mapColor(model.Floor, Color3.fromRGB(200, 200, 205), 4)
+		model:SetAttribute("Area", s.area)
+		-- short paved driveway from the gate out to the road
+		local drive = make("Part", { Name = "Driveway", Size = Vector3.new(84, 0.3, 24), CFrame = origin * CFrame.new(0, 0.15, -PlotBuilder.D / 2 - 12), Material = Enum.Material.Concrete, Color = Color3.fromRGB(150, 150, 150) }, model)
+		mapColor(drive, Color3.fromRGB(46, 48, 54), 3)
+		table.insert(WorldBuilder.Plots, { index = i, cframe = origin, model = model, zone = parts.zone, spawnPad = parts.spawnPad, trim = parts.trim, area = s.area })
+		WorldBuilder.Landmarks[s.area .. "Dealership"] = (origin * CFrame.new(0, 3, -PlotBuilder.D / 2 - 10)).Position
 	end
 end
 

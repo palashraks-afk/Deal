@@ -1,5 +1,6 @@
--- UI toolkit: street-racing look. Carbon-dark panels, slanted neon accent stripes,
--- chunky type, rarity-coloured trims. Every screen builds from these pieces.
+-- UI toolkit: sleek automotive look. Frosted dark-glass panels with soft shadows,
+-- rounded lit buttons, segmented tabs, rarity-coloured trims. Every screen builds
+-- from these pieces.
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local Sounds = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Sounds"))
@@ -83,33 +84,77 @@ function UIKit.stripe(parent, color: Color3, x: number, width: number?)
 	})
 end
 
+-- Soft drop shadow (a 9-slice blur image) placed behind a frame.
+UIKit.ShadowImage = "rbxassetid://1316045217"
+-- Children always draw above their parent, so the shadow is a sibling that follows
+-- the target's position, size, anchor and visibility.
+function UIKit.shadow(target: GuiObject, spread: number?, transparency: number?)
+	spread = spread or 18
+	local sh = new("ImageLabel", {
+		Name = target.Name .. "Shadow",
+		Image = UIKit.ShadowImage,
+		ImageColor3 = Color3.new(0, 0, 0),
+		ImageTransparency = transparency or 0.45,
+		ScaleType = Enum.ScaleType.Slice,
+		SliceCenter = Rect.new(10, 10, 118, 118),
+		BackgroundTransparency = 1,
+		ZIndex = math.max(target.ZIndex - 1, 0),
+		Parent = target.Parent,
+	})
+	local function sync()
+		sh.AnchorPoint = target.AnchorPoint
+		local s, p = target.Size, target.Position
+		sh.Size = UDim2.new(s.X.Scale, s.X.Offset + spread * 2, s.Y.Scale, s.Y.Offset + spread * 2)
+		-- keep centred on the target whatever its anchor point is
+		local ax, ay = target.AnchorPoint.X, target.AnchorPoint.Y
+		sh.Position = UDim2.new(p.X.Scale, p.X.Offset - spread * (1 - 2 * ax), p.Y.Scale, p.Y.Offset - spread * (1 - 2 * ay) + 6)
+		sh.Visible = target.Visible
+	end
+	for _, prop in { "Position", "Size", "AnchorPoint", "Visible" } do
+		target:GetPropertyChangedSignal(prop):Connect(sync)
+	end
+	sync()
+	return sh
+end
+
+-- Rounded, lit button: soft top highlight, darker rim, presses in when clicked.
 function UIKit.button(text: string, color: Color3?, props)
 	local base = {
 		Text = text,
 		AutoButtonColor = false,
 		BackgroundColor3 = color or UIKit.Colors.Blue,
 		TextColor3 = Color3.new(1, 1, 1),
-		Font = UIKit.FontHeavy,
-		TextSize = 14,
-		Size = UDim2.fromOffset(110, 34),
+		Font = UIKit.Font,
+		TextSize = 15,
+		Size = UDim2.fromOffset(110, 36),
 	}
 	for k, v in props or {} do
 		base[k] = v
 	end
-	local b = new("TextButton", base, { UIKit.corner(7), UIKit.gradient(Color3.new(1, 1, 1), Color3.fromRGB(190, 190, 190), 90) })
+	local h, s, v = (base.BackgroundColor3 :: Color3):ToHSV()
+	local rim = Color3.fromHSV(h, s, v * 0.6)
+	local r = math.min(12, math.floor((base.Size :: UDim2).Y.Offset / 2.4))
+	local b = new("TextButton", base, {
+		UIKit.corner(r > 0 and r or 10),
+		new("UIGradient", { Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(235, 235, 235)), ColorSequenceKeypoint.new(1, Color3.fromRGB(185, 185, 185)) }), Rotation = 90 }),
+		new("UIStroke", { Color = rim, Thickness = 1.2, Transparency = 0.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }),
+	})
+	-- text sits slightly raised with a faint shadow
+	b.TextStrokeColor3 = Color3.new(0, 0, 0)
+	b.TextStrokeTransparency = 0.75
 	local scale = new("UIScale", { Parent = b })
 	b.MouseEnter:Connect(function()
-		TweenService:Create(scale, TweenInfo.new(0.1), { Scale = 1.05 }):Play()
+		TweenService:Create(scale, TweenInfo.new(0.12, Enum.EasingStyle.Quad), { Scale = 1.03 }):Play()
 	end)
 	b.MouseLeave:Connect(function()
-		TweenService:Create(scale, TweenInfo.new(0.1), { Scale = 1 }):Play()
+		TweenService:Create(scale, TweenInfo.new(0.12, Enum.EasingStyle.Quad), { Scale = 1 }):Play()
 	end)
 	b.MouseButton1Down:Connect(function()
-		TweenService:Create(scale, TweenInfo.new(0.06), { Scale = 0.94 }):Play()
+		TweenService:Create(scale, TweenInfo.new(0.05), { Scale = 0.96 }):Play()
 		Sounds.play("Click", nil, 0.4)
 	end)
 	b.MouseButton1Up:Connect(function()
-		TweenService:Create(scale, TweenInfo.new(0.1), { Scale = 1.05 }):Play()
+		TweenService:Create(scale, TweenInfo.new(0.14, Enum.EasingStyle.Back), { Scale = 1.03 }):Play()
 	end)
 	return b
 end
@@ -140,8 +185,30 @@ function UIKit.scale(): number
 	return UIKit.screen().Scale.Scale
 end
 
--- A centred window: carbon panel, coloured header band with slanted stripes, close button.
+-- A centred window: frosted dark glass with a soft shadow, a clean header with a
+-- thin accent line, and a round close button. The world behind dims and blurs.
 local openWindow
+local backdrop, blur
+local function setBackdrop(on: boolean)
+	if not backdrop then
+		backdrop = new("Frame", { Name = "Backdrop", Size = UDim2.new(1, 0, 1, 80), Position = UDim2.fromOffset(0, -60), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 1, Visible = false, ZIndex = 1, Parent = UIKit.screen() })
+		blur = Instance.new("BlurEffect")
+		blur.Name = "MenuBlur"
+		blur.Size = 0
+		blur.Parent = workspace.CurrentCamera
+	end
+	backdrop.Visible = true
+	TweenService:Create(backdrop, TweenInfo.new(0.2), { BackgroundTransparency = on and 0.55 or 1 }):Play()
+	TweenService:Create(blur, TweenInfo.new(0.2), { Size = on and 10 or 0 }):Play()
+	if not on then
+		task.delay(0.21, function()
+			if not openWindow then
+				backdrop.Visible = false
+			end
+		end)
+	end
+end
+
 function UIKit.window(title: string, size: Vector2, accent: Color3?)
 	accent = accent or UIKit.Colors.Accent
 	local frame = new("Frame", {
@@ -150,40 +217,48 @@ function UIKit.window(title: string, size: Vector2, accent: Color3?)
 		Position = UDim2.fromScale(0.5, 0.5),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundColor3 = UIKit.Colors.Panel,
+		BackgroundTransparency = 0.06,
 		Visible = false,
 		ZIndex = 5,
 		Parent = UIKit.screen(),
-	}, { UIKit.corner(16), UIKit.stroke(accent, 2) })
-	new("UIGradient", { Color = ColorSequence.new(Color3.fromRGB(28, 30, 40), Color3.fromRGB(10, 11, 15)), Rotation = 90, Parent = frame })
+	}, { UIKit.corner(20), new("UIStroke", { Color = Color3.fromRGB(255, 255, 255), Transparency = 0.86, Thickness = 1 }) })
+	new("UIGradient", { Color = ColorSequence.new(Color3.fromRGB(34, 37, 50), Color3.fromRGB(12, 13, 18)), Rotation = 90, Parent = frame })
+	local winScale = new("UIScale", { Parent = frame })
 
-	local header = new("Frame", { Name = "Header", Size = UDim2.new(1, 0, 0, 56), BackgroundColor3 = accent, ClipsDescendants = true, ZIndex = 6, Parent = frame }, { UIKit.corner(16) })
-	new("Frame", { Size = UDim2.new(1, 0, 0, 16), Position = UDim2.new(0, 0, 1, -16), BackgroundColor3 = accent, BorderSizePixel = 0, ZIndex = 6, Parent = header })
-	for i = 0, 2 do
-		local s = UIKit.stripe(header, Color3.new(0, 0, 0), size.X - 210 + i * 22, 9)
-		s.BackgroundTransparency = 0.75
-		s.ZIndex = 6
-	end
-	UIKit.label({ Text = string.upper(title), Font = UIKit.FontHeavy, TextSize = 26, TextColor3 = Color3.fromRGB(16, 14, 10), Size = UDim2.new(1, -90, 1, 0), Position = UDim2.fromOffset(22, 0), ZIndex = 7, Parent = header })
-	local close = UIKit.button("X",Color3.fromRGB(16, 16, 20), { Size = UDim2.fromOffset(38, 38), Position = UDim2.new(1, -50, 0, 9), TextSize = 18, ZIndex = 8, Parent = header })
-	local body = new("Frame", { Name = "Body", BackgroundTransparency = 1, Size = UDim2.new(1, -32, 1, -76), Position = UDim2.fromOffset(16, 66), ZIndex = 6, Parent = frame })
+	local header = new("Frame", { Name = "Header", Size = UDim2.new(1, 0, 0, 60), BackgroundTransparency = 1, ZIndex = 6, Parent = frame })
+	-- accent pill next to the title + hairline under the header
+	new("Frame", { Size = UDim2.fromOffset(6, 26), Position = UDim2.fromOffset(22, 17), BackgroundColor3 = accent, ZIndex = 7, Parent = header }, { UIKit.corner(3) })
+	UIKit.label({ Text = title, Font = UIKit.FontHeavy, TextSize = 24, TextColor3 = UIKit.Colors.Text, Size = UDim2.new(1, -110, 1, 0), Position = UDim2.fromOffset(38, 0), ZIndex = 7, Parent = header })
+	new("Frame", { Size = UDim2.new(1, -40, 0, 1), Position = UDim2.new(0, 20, 1, -1), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.9, BorderSizePixel = 0, ZIndex = 7, Parent = header }, {
+		new("UIGradient", { Color = ColorSequence.new(accent, Color3.new(1, 1, 1)), Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 1) }) }),
+	})
+	local close = UIKit.button("X", UIKit.Colors.Panel3, { Size = UDim2.fromOffset(36, 36), Position = UDim2.new(1, -52, 0, 12), TextSize = 16, ZIndex = 8, Parent = header })
+	close:FindFirstChildOfClass("UICorner").CornerRadius = UDim.new(1, 0)
+	local body = new("Frame", { Name = "Body", BackgroundTransparency = 1, Size = UDim2.new(1, -40, 1, -84), Position = UDim2.fromOffset(20, 70), ZIndex = 6, Parent = frame })
 
 	local win = { frame = frame, body = body, accent = accent }
 	function win.open()
 		if openWindow and openWindow ~= win then
-			openWindow.close()
+			openWindow.close(true)
 		end
 		openWindow = win
 		frame.Visible = true
-		frame.Position = UDim2.new(0.5, 0, 0.5, 30)
-		TweenService:Create(frame, TweenInfo.new(0.22, Enum.EasingStyle.Back), { Position = UDim2.fromScale(0.5, 0.5) }):Play()
+		setBackdrop(true)
+		winScale.Scale = 0.92
+		frame.Position = UDim2.new(0.5, 0, 0.5, 14)
+		TweenService:Create(winScale, TweenInfo.new(0.22, Enum.EasingStyle.Back), { Scale = 1 }):Play()
+		TweenService:Create(frame, TweenInfo.new(0.22, Enum.EasingStyle.Quint), { Position = UDim2.fromScale(0.5, 0.5) }):Play()
 		if win.onOpen then
 			win.onOpen()
 		end
 	end
-	function win.close()
+	function win.close(switching: boolean?)
 		frame.Visible = false
 		if openWindow == win then
 			openWindow = nil
+		end
+		if not switching then
+			setBackdrop(false)
 		end
 	end
 	function win.toggle()
@@ -224,17 +299,21 @@ end
 
 -- Row of tab buttons; calls onPick(key). Returns a function to highlight a key.
 function UIKit.tabs(parent, defs, onPick)
-	local row = new("Frame", { Size = UDim2.new(1, 0, 0, 38), BackgroundTransparency = 1, ZIndex = 6, Parent = parent })
-	UIKit.list(row, 8, Enum.FillDirection.Horizontal)
+	-- segmented control: one rounded track, the picked tab lights up inside it
+	local row = new("Frame", { Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = UIKit.Colors.Panel2, BackgroundTransparency = 0.2, AutomaticSize = Enum.AutomaticSize.X, ZIndex = 6, Parent = parent }, { UIKit.corner(12), UIKit.pad(3) })
+	row.Size = UDim2.fromOffset(0, 42)
+	UIKit.list(row, 4, Enum.FillDirection.Horizontal)
 	local buttons = {}
 	local function highlight(key)
 		for k, b in buttons do
-			b.BackgroundColor3 = k == key and UIKit.Colors.Accent or UIKit.Colors.Panel3
-			b.TextColor3 = k == key and Color3.fromRGB(16, 14, 10) or UIKit.Colors.Text
+			local on = k == key
+			TweenService:Create(b, TweenInfo.new(0.15), { BackgroundTransparency = on and 0 or 1, TextColor3 = on and Color3.fromRGB(16, 14, 10) or UIKit.Colors.Muted }):Play()
 		end
 	end
 	for i, d in defs do
-		local b = UIKit.button(d[1], UIKit.Colors.Panel3, { Size = UDim2.fromOffset(d[3] or 130, 36), LayoutOrder = i, ZIndex = 7, Parent = row })
+		local b = UIKit.button(d[1], UIKit.Colors.Accent, { Size = UDim2.fromOffset(d[3] or 130, 36), LayoutOrder = i, ZIndex = 7, BackgroundTransparency = 1, TextColor3 = UIKit.Colors.Muted, Parent = row })
+		b:FindFirstChildOfClass("UIStroke").Enabled = false
+		b.TextStrokeTransparency = 1
 		buttons[d[2]] = b
 		b.Activated:Connect(function()
 			highlight(d[2])

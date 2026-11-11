@@ -265,6 +265,158 @@ function Tycoon.refreshPlot(player: Player)
 end
 
 ---------------------------------------------------------------- upgrade stations
+-- A real arcade-style button: metal pedestal, glowing ring, a chunky cap that
+-- presses down, and a lit sign panel behind it with the name, effect and price.
+local TweenService = game:GetService("TweenService")
+local KIND_TEXT = {
+	slot = "+1 display spot", income = "+ income from every car", decor = "+ income, looks great",
+	traffic = "more customers walk in", rich = "richer customers", special = "+1 VIP lot (+40% price)",
+	garage = "+ garage space", security = "harder to rob", unlock = "unlocks a new wing",
+	speed = "builds cars faster", robot = "builds cars faster", line = "+1 assembly line",
+	bonus = "better factory cars", discount = "cheaper blueprints", pedestal = "+ prize pedestals",
+	glow = "prize cars earn more", laser = "prize room can't be robbed",
+}
+local GREEN, RED = Color3.fromRGB(70, 225, 120), Color3.fromRGB(235, 70, 80)
+
+local function bpart(parent, props)
+	local p = Instance.new("Part")
+	p.Anchored = true
+	p.TopSurface = Enum.SurfaceType.Smooth
+	p.BottomSurface = Enum.SurfaceType.Smooth
+	for k, v in props do
+		p[k] = v
+	end
+	p.Parent = parent
+	return p
+end
+
+local function buildUpgradeButton(cf: CFrame, u, afford: boolean): Model
+	local m = Instance.new("Model")
+	m.Name = "Button"
+	local col = afford and GREEN or RED
+	-- pedestal (cylinders lie on X, so turn them upright)
+	local up = CFrame.Angles(0, 0, math.pi / 2)
+	bpart(m, { Name = "Pedestal", Shape = Enum.PartType.Cylinder, Size = Vector3.new(1.6, 6.4, 6.4), CFrame = cf * CFrame.new(0, 0.8, 0) * up, Material = Enum.Material.Metal, Color = Color3.fromRGB(46, 48, 56), Reflectance = 0.1 })
+	bpart(m, { Name = "Ring", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.25, 6.7, 6.7), CFrame = cf * CFrame.new(0, 1.62, 0) * up, Material = Enum.Material.Neon, Color = col, CanCollide = false })
+	local cap = bpart(m, { Name = "Cap", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.9, 5, 5), CFrame = cf * CFrame.new(0, 2.05, 0) * up, Material = Enum.Material.SmoothPlastic, Color = col, Reflectance = 0.18 })
+	cap:SetAttribute("Rest", cap.CFrame)
+	local light = Instance.new("PointLight")
+	light.Range = 10
+	light.Brightness = 0.8
+	light.Color = col
+	light.Parent = cap
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "UpgradePrompt"
+	prompt.ActionText = "Buy " .. Cars.money(u.cost)
+	prompt.ObjectText = u.name
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = 8
+	prompt.RequiresLineOfSight = false
+	prompt.KeyboardKeyCode = Enum.KeyCode.E
+	prompt.Style = Enum.ProximityPromptStyle.Default
+	prompt.Parent = cap
+
+	-- sign panel on two legs behind the button, tilted back like a menu board
+	local panelCf = cf * CFrame.new(0, 5.6, 3.4) * CFrame.Angles(math.rad(-12), math.pi, 0)
+	for _, sx in { -3.6, 3.6 } do
+		bpart(m, { Name = "Leg", Size = Vector3.new(0.4, 5, 0.4), CFrame = cf * CFrame.new(sx, 2.5, 3.6), Material = Enum.Material.Metal, Color = Color3.fromRGB(60, 62, 70) })
+	end
+	local panel = bpart(m, { Name = "Panel", Size = Vector3.new(8.6, 4.6, 0.3), CFrame = panelCf, Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(16, 18, 24) })
+	local gui = Instance.new("SurfaceGui")
+	gui.Face = Enum.NormalId.Back
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.FixedSize
+	gui.CanvasSize = Vector2.new(430, 230)
+	gui.LightInfluence = 0
+	gui.Parent = panel
+	local bg = Instance.new("Frame")
+	bg.Size = UDim2.fromScale(1, 1)
+	bg.BackgroundColor3 = Color3.fromRGB(18, 20, 28)
+	bg.Parent = gui
+	local grad = Instance.new("UIGradient")
+	grad.Color = ColorSequence.new(Color3.fromRGB(40, 44, 58), Color3.fromRGB(14, 15, 20))
+	grad.Rotation = 90
+	grad.Parent = bg
+	local stroke = Instance.new("UIStroke")
+	stroke.Name = "Edge"
+	stroke.Thickness = 6
+	stroke.Color = col
+	stroke.Parent = bg
+	local function text(name, y, h, str, font, color)
+		local t = Instance.new("TextLabel")
+		t.Name = name
+		t.Position = UDim2.new(0, 18, 0, y)
+		t.Size = UDim2.new(1, -36, 0, h)
+		t.BackgroundTransparency = 1
+		t.Text = str
+		t.Font = font
+		t.TextScaled = true
+		t.TextColor3 = color
+		t.Parent = bg
+		return t
+	end
+	text("Title", 14, 64, string.upper(u.name), Enum.Font.GothamBlack, Color3.new(1, 1, 1))
+	text("Effect", 84, 40, KIND_TEXT[u.kind] or "upgrade", Enum.Font.GothamMedium, Color3.fromRGB(180, 190, 210))
+	local priceBg = Instance.new("Frame")
+	priceBg.Name = "PriceBg"
+	priceBg.Position = UDim2.new(0.5, -120, 0, 140)
+	priceBg.Size = UDim2.fromOffset(240, 70)
+	priceBg.BackgroundColor3 = col
+	priceBg.Parent = bg
+	local pc = Instance.new("UICorner")
+	pc.CornerRadius = UDim.new(0, 16)
+	pc.Parent = priceBg
+	local price = Instance.new("TextLabel")
+	price.Name = "Price"
+	price.Size = UDim2.new(1, -20, 1, -14)
+	price.Position = UDim2.fromOffset(10, 7)
+	price.BackgroundTransparency = 1
+	price.Text = Cars.money(u.cost)
+	price.Font = Enum.Font.GothamBlack
+	price.TextScaled = true
+	price.TextColor3 = Color3.fromRGB(12, 14, 18)
+	price.Parent = priceBg
+	m.PrimaryPart = cap
+	return m
+end
+
+local function pressAnim(b: Model)
+	local cap = b:FindFirstChild("Cap")
+	local rest = cap and cap:GetAttribute("Rest")
+	if not rest or cap:GetAttribute("Pressing") then
+		return
+	end
+	cap:SetAttribute("Pressing", true)
+	local down = TweenService:Create(cap, TweenInfo.new(0.08), { CFrame = rest * CFrame.new(-0.5, 0, 0) })
+	down:Play()
+	down.Completed:Wait()
+	TweenService:Create(cap, TweenInfo.new(0.18, Enum.EasingStyle.Back), { CFrame = rest }):Play()
+	task.delay(0.2, function()
+		if cap.Parent then
+			cap:SetAttribute("Pressing", nil)
+		end
+	end)
+end
+
+local function colourButton(b: Model, afford: boolean)
+	local col = afford and GREEN or RED
+	for _, n in { "Cap", "Ring" } do
+		local p = b:FindFirstChild(n)
+		if p then
+			p.Color = col
+		end
+	end
+	local light = b.Cap:FindFirstChildOfClass("PointLight")
+	if light then
+		light.Color = col
+	end
+	local bg = b.Panel:FindFirstChildOfClass("SurfaceGui")
+	bg = bg and bg:FindFirstChildOfClass("Frame")
+	if bg then
+		bg.Edge.Color = col
+		bg.PriceBg.BackgroundColor3 = col
+	end
+end
+
 local function refreshStations(player: Player)
 	local plot = playerPlot[player]
 	local p = DataService.get(player)
@@ -281,52 +433,25 @@ local function refreshStations(player: Player)
 		folder.Name = "Buttons"
 		local avail = Upgrades.available(track, p.upgrades)
 		for i, u in avail do
-			local cf = plot.cframe * PlotBuilder.stationCFrame(track) * CFrame.new((i - 2) * 11, 1, -1)
-			local afford = p.cash >= u.cost
-			local b = Instance.new("Part")
-			b.Name = "Button"
-			b.Shape = Enum.PartType.Cylinder
-			b.Size = Vector3.new(0.8, 7, 7)
-			b.CFrame = cf * CFrame.Angles(0, 0, math.pi / 2)
-			b.Anchored = true
-			b.Material = Enum.Material.Neon
-			b.Color = afford and Color3.fromRGB(60, 220, 110) or Color3.fromRGB(220, 60, 70)
+			local cf = plot.cframe * PlotBuilder.stationCFrame(track) * CFrame.new((i - 2) * 10, 0.6, -0.5)
+			local b = buildUpgradeButton(cf, u, p.cash >= u.cost)
 			b:SetAttribute("Track", track)
 			b:SetAttribute("Index", u.index)
 			b:SetAttribute("Cost", u.cost)
-			local gui = Instance.new("BillboardGui")
-			-- sized in studs (10 wide) so neighbouring buttons' labels never overlap
-			gui.Size = UDim2.fromScale(10, 3.6)
-			gui.StudsOffset = Vector3.new(0, 4.5, 0)
-			gui.MaxDistance = 90
-			gui.Adornee = b
-			local name = Instance.new("TextLabel")
-			name.Size = UDim2.fromScale(1, 0.55)
-			name.BackgroundTransparency = 1
-			name.Font = Enum.Font.GothamBlack
-			name.TextScaled = true
-			name.TextColor3 = Color3.new(1, 1, 1)
-			name.TextStrokeTransparency = 0.2
-			name.Text = u.name
-			name.Parent = gui
-			local cost = Instance.new("TextLabel")
-			cost.Name = "Cost"
-			cost.Size = UDim2.fromScale(1, 0.45)
-			cost.Position = UDim2.fromScale(0, 0.55)
-			cost.BackgroundTransparency = 1
-			cost.Font = Enum.Font.GothamBold
-			cost.TextScaled = true
-			cost.TextColor3 = afford and Color3.fromRGB(120, 255, 150) or Color3.fromRGB(255, 120, 120)
-			cost.TextStrokeTransparency = 0.2
-			cost.Text = Cars.money(u.cost)
-			cost.Parent = gui
-			gui.Parent = b
-			b.Touched:Connect(function(hit)
+			local function press(who)
+				if who ~= player then
+					return
+				end
+				task.spawn(pressAnim, b)
+				Tycoon.buyUpgrade(player, track, u.index)
+			end
+			b.Cap.Touched:Connect(function(hit)
 				local char = hit:FindFirstAncestorOfClass("Model")
 				if char and Players:GetPlayerFromCharacter(char) == player then
-					Tycoon.buyUpgrade(player, track, u.index)
+					press(player)
 				end
 			end)
+			b.Cap.UpgradePrompt.Triggered:Connect(press)
 			b.Parent = folder
 		end
 		folder.Parent = station
@@ -343,12 +468,7 @@ local function recolourStations(player: Player)
 	for _, track in Upgrades.Tracks do
 		local folder = plot.model[track .. "Station"]:FindFirstChild("Buttons")
 		for _, b in folder and folder:GetChildren() or {} do
-			local afford = p.cash >= b:GetAttribute("Cost")
-			b.Color = afford and Color3.fromRGB(60, 220, 110) or Color3.fromRGB(220, 60, 70)
-			local gui = b:FindFirstChildOfClass("BillboardGui")
-			if gui then
-				gui.Cost.TextColor3 = afford and Color3.fromRGB(120, 255, 150) or Color3.fromRGB(255, 120, 120)
-			end
+			colourButton(b, p.cash >= b:GetAttribute("Cost"))
 		end
 	end
 end
@@ -516,6 +636,37 @@ function Tycoon.tryRaid(thief: Player, owner: Player, slot: number)
 	DataService.push(owner)
 end
 
+-- The lock barrier stops raiders but never the owner: each plot gets a barrier
+-- collision group that doesn't collide with that plot owner's character or car.
+local PhysicsService = game:GetService("PhysicsService")
+local function groupNames(plot)
+	return "Barrier" .. plot.index, "Owner" .. plot.index
+end
+local function setupGroups(plot)
+	local b, o = groupNames(plot)
+	pcall(function()
+		if not PhysicsService:IsCollisionGroupRegistered(b) then
+			PhysicsService:RegisterCollisionGroup(b)
+		end
+		if not PhysicsService:IsCollisionGroupRegistered(o) then
+			PhysicsService:RegisterCollisionGroup(o)
+		end
+		PhysicsService:CollisionGroupSetCollidable(b, o, false)
+	end)
+	plot.model.LockBarrier.CollisionGroup = b
+end
+local function tagOwnerParts(inst: Instance, plot)
+	local _, o = groupNames(plot)
+	for _, d in inst:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.CollisionGroup = o
+		end
+	end
+	if inst:IsA("BasePart") then
+		inst.CollisionGroup = o
+	end
+end
+
 local function setLock(plot, locked: boolean)
 	local barrier = plot.model.LockBarrier
 	barrier.Transparency = locked and 0.55 or 1
@@ -585,8 +736,33 @@ local function assignPlot(player: Player)
 			end
 			refreshStations(player)
 			Tycoon.refreshPlot(player)
+			setupGroups(plot)
 			local function toPlot(char)
 				task.wait(0.2)
+				if playerPlot[player] ~= plot then
+					return
+				end
+				tagOwnerParts(char, plot)
+				char.DescendantAdded:Connect(function(d)
+					if d:IsA("BasePart") and playerPlot[player] == plot then
+						d.CollisionGroup = select(2, groupNames(plot))
+					end
+				end)
+				-- whatever car the owner drives can pass their own barrier too
+				local hum = char:FindFirstChildOfClass("Humanoid")
+				if hum then
+					hum.Seated:Connect(function(active, seat)
+						if active and seat and playerPlot[player] == plot then
+							local car = seat:FindFirstAncestorOfClass("Model")
+							while car and car.Parent and car.Parent:IsA("Model") and car.Parent.Name ~= "Map" do
+								car = car.Parent
+							end
+							if car and car ~= char and not car:IsDescendantOf(workspace:FindFirstChild("Map") or game) then
+								tagOwnerParts(car, plot)
+							end
+						end
+					end)
+				end
 				char:PivotTo(plot.cframe * CFrame.new(-22, 5, -110))
 			end
 			player.CharacterAdded:Connect(toPlot)

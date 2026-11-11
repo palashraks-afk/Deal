@@ -111,6 +111,15 @@ local function buildFromTemplate(template: Model, stats, opts)
 		CustomPhysicalProperties = PhysicalProperties.new(2.4, 0.3, 0, 1, 1),
 	})
 	model.PrimaryPart = root
+	-- invisible upper hull: the mesh itself doesn't collide, so without this people
+	-- walk straight through cars and cars clip through walls
+	part(model, root, "Hull", Vector3.new(W * 0.92, H * 0.42, L * 0.94), CFrame.new(0, H * 0.68, 0), {
+		Transparency = 1,
+		Massless = true,
+		CanCollide = true,
+		CanTouch = false,
+		CustomPhysicalProperties = PhysicalProperties.new(0.1, 0, 0, 100, 1),
+	})
 
 	local wheelR = P.r * S
 	for _, d in src:GetDescendants() do
