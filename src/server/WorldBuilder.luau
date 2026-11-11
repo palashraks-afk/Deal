@@ -280,13 +280,56 @@ local function addSpawn(cf: CFrame)
 	table.insert(WorldBuilder.SpawnPoints, cf)
 end
 
+-- Ground is real voxel terrain (textured, with grass blades and blended edges), not
+-- flat coloured parts. Big fills are done in chunks so the server doesn't stall.
+local TERRAIN_FOR = {
+	[Enum.Material.Grass] = Enum.Material.Grass,
+	[Enum.Material.Sand] = Enum.Material.Sand,
+	[Enum.Material.Concrete] = Enum.Material.Pavement,
+}
+local function terrainFloor(x0, x1, z0, z1, mat: Enum.Material)
+	local terrain = workspace.Terrain
+	local step = 512
+	for x = x0, x1 - 1, step do
+		for z = z0, z1 - 1, step do
+			local xs, zs = math.min(step, x1 - x), math.min(step, z1 - z)
+			terrain:FillBlock(CFrame.new(x + xs / 2, -4, z + zs / 2), Vector3.new(xs, 8, zs), mat)
+		end
+		task.wait()
+	end
+end
+-- scatter patches of a second material so big areas don't look like one flat sheet
+local function terrainPatches(x0, x1, z0, z1, mat: Enum.Material, count: number)
+	local terrain = workspace.Terrain
+	for _ = 1, count do
+		local x, z = rng:NextNumber(x0, x1), rng:NextNumber(z0, z1)
+		local r = rng:NextNumber(20, 60)
+		terrain:FillCylinder(CFrame.new(x, -2, z), 4, r, mat)
+	end
+end
+
 local function zoneGround(parent, name: string, x0, x1, z0, z1, material, color, mapCol)
+	local tmat = TERRAIN_FOR[material] or Enum.Material.Ground
+	terrainFloor(x0, x1, z0, z1, tmat)
+	if tmat == Enum.Material.Grass then
+		terrainPatches(x0, x1, z0, z1, Enum.Material.LeafyGrass, 40)
+		terrainPatches(x0, x1, z0, z1, Enum.Material.Ground, 12)
+	elseif tmat == Enum.Material.Sand then
+		terrainPatches(x0, x1, z0, z1, Enum.Material.Sandstone, 10)
+		terrainPatches(x0, x1, z0, z1, Enum.Material.Ground, 8)
+	elseif tmat == Enum.Material.Pavement then
+		terrainPatches(x0, x1, z0, z1, Enum.Material.Concrete, 20)
+	end
+	-- an invisible part keeps the area's minimap colour and label
 	local g = make("Part", {
 		Name = name .. "Ground",
 		Size = Vector3.new(x1 - x0, 4, z1 - z0),
 		Position = Vector3.new((x0 + x1) / 2, -2, (z0 + z1) / 2),
 		Material = material,
 		Color = color,
+		Transparency = 1,
+		CanCollide = false,
+		CanQuery = false,
 	}, parent)
 	mapColor(g, mapCol, 1)
 	g:SetAttribute("MapLabel", string.upper(name))
@@ -995,11 +1038,25 @@ function WorldBuilder.build()
 	map.Name = "Map"
 	-- far ground under everything (so nothing falls into the void)
 	-- base ground in tiles (parts can't be bigger than 2048 studs)
-	for gx = -1, 1, 2 do
-		for gz = -1, 1, 2 do
-			make("Part", { Name = "Ground", Size = Vector3.new(HALF_X + 200, 4, HALF_Z + 200), Position = Vector3.new(gx * (HALF_X + 200) / 2, -2.05, gz * (HALF_Z + 200) / 2), Material = Enum.Material.Grass, Color = Color3.fromRGB(78, 120, 64) }, map)
-		end
+	-- terrain look: natural tones, grass blades, gentle water
+	local terrain = workspace.Terrain
+	terrain.Decoration = true
+	terrain.WaterColor = Color3.fromRGB(40, 110, 140)
+	terrain.WaterTransparency = 0.6
+	terrain.WaterWaveSize = 0.15
+	for mat, col in {
+		[Enum.Material.Grass] = Color3.fromRGB(96, 132, 64),
+		[Enum.Material.LeafyGrass] = Color3.fromRGB(84, 118, 56),
+		[Enum.Material.Ground] = Color3.fromRGB(110, 92, 70),
+		[Enum.Material.Sand] = Color3.fromRGB(214, 190, 140),
+		[Enum.Material.Pavement] = Color3.fromRGB(148, 148, 146),
+		[Enum.Material.Concrete] = Color3.fromRGB(128, 128, 126),
+		[Enum.Material.Asphalt] = Color3.fromRGB(52, 52, 56),
+	} do
+		terrain:SetMaterialColor(mat, col)
 	end
+	-- the whole world (plus a border) gets a terrain floor so nothing floats over the void
+	terrainFloor(-HALF_X - 200, HALF_X + 200, -HALF_Z - 200, HALF_Z + 200, Enum.Material.Grass)
 	buildMainRoads(map)
 	buildDowntown(map)
 	buildGunStore(map)
