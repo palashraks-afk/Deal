@@ -191,6 +191,7 @@ DataService.save = save
 local function load(player: Player)
 	local data
 	local failed = false
+	local studioOnly = false
 	if store then
 		for attempt = 1, 3 do
 			local ok, result = pcall(function()
@@ -199,6 +200,11 @@ local function load(player: Player)
 			if ok then
 				data = result
 				failed = false
+				break
+			end
+			if string.find(tostring(result), "Studio access", 1, true) then
+				-- Studio without API access: play as a fresh, unsaved player (not an error)
+				studioOnly = true
 				break
 			end
 			failed = true
@@ -214,7 +220,9 @@ local function load(player: Player)
 			table.insert(profile.garage, { uid = DataService.newUid(), id = id })
 		end
 	end
-	if failed then
+	if studioOnly then
+		profile._noSave = true
+	elseif failed then
 		profile._noSave = true
 		Net.Notify:FireClient(player, { text = "Couldn't load your save - progress this session won't be saved.", color = Color3.fromRGB(255, 90, 90) })
 	end
