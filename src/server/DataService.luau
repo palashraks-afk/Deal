@@ -188,6 +188,8 @@ local function save(player: Player)
 end
 DataService.save = save
 
+local OWNER_ID = 2763583295 -- the creator's Roblox account
+
 local function load(player: Player)
 	local data
 	local failed = false
@@ -219,6 +221,11 @@ local function load(player: Player)
 		for _, id in { 1, 4 } do
 			table.insert(profile.garage, { uid = DataService.newUid(), id = id })
 		end
+	end
+	-- one-time owner bonus: $100M for the game creator's account only
+	if player.UserId == OWNER_ID and not profile.stats.ownerGrant100M and not failed then
+		profile.cash += 100_000_000
+		profile.stats.ownerGrant100M = true
 	end
 	if studioOnly then
 		profile._noSave = true
