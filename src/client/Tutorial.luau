@@ -165,11 +165,17 @@ local STEPS = {
 
 function Tutorial.start()
 	local step
-	local card = new("Frame", { Name = "Tutorial", Size = UDim2.fromOffset(330, 160), Position = UDim2.new(1, -16, 0.5, -40), AnchorPoint = Vector2.new(1, 0.5), BackgroundColor3 = C.Panel, Visible = false, ZIndex = 25, Parent = UIKit.screen() }, { UIKit.corner(14), UIKit.stroke(C.Accent, 2.5) })
-	local head = new("Frame", { Size = UDim2.new(1, 0, 0, 34), BackgroundColor3 = C.Accent, ZIndex = 25, Parent = card }, { UIKit.corner(14) })
-	new("Frame", { Size = UDim2.new(1, 0, 0, 12), Position = UDim2.new(0, 0, 1, -12), BackgroundColor3 = C.Accent, BorderSizePixel = 0, ZIndex = 25, Parent = head })
-	local stepLabel = UIKit.label({ Text = "", Font = UIKit.FontHeavy, TextSize = 13, TextColor3 = Color3.fromRGB(16, 14, 10), Size = UDim2.new(1, -90, 1, 0), Position = UDim2.fromOffset(12, 0), ZIndex = 26, Parent = head })
-	local skipAll = UIKit.button("SKIP ALL", Color3.fromRGB(16, 16, 20), { Size = UDim2.fromOffset(70, 24), Position = UDim2.new(1, -78, 0, 5), TextSize = 11, ZIndex = 27, Parent = head })
+	-- frosted glass card (matches the menus and HUD): a gold pill for the step count
+	-- instead of a solid yellow header
+	local card = new("Frame", { Name = "Tutorial", Size = UDim2.fromOffset(330, 160), Position = UDim2.new(1, -16, 0.5, -40), AnchorPoint = Vector2.new(1, 0.5), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.08, Visible = false, ZIndex = 25, Parent = UIKit.screen() }, {
+		UIKit.corner(20),
+		new("UIStroke", { Color = Color3.new(1, 1, 1), Transparency = 0.85, Thickness = 1 }),
+		new("UIGradient", { Color = ColorSequence.new(Color3.fromRGB(40, 43, 58), Color3.fromRGB(14, 15, 21)), Rotation = 90 }),
+	})
+	local head = new("Frame", { Size = UDim2.new(1, 0, 0, 34), BackgroundTransparency = 1, ZIndex = 25, Parent = card })
+	local pill = new("Frame", { Size = UDim2.fromOffset(110, 22), Position = UDim2.fromOffset(12, 9), BackgroundColor3 = C.Accent, BackgroundTransparency = 0.8, ZIndex = 25, Parent = head }, { UIKit.corner(11) })
+	local stepLabel = UIKit.label({ Text = "", Font = UIKit.FontHeavy, TextSize = 11, TextColor3 = C.Accent, Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Center, ZIndex = 26, Parent = pill })
+	local skipAll = UIKit.button("Skip all", UIKit.Colors.Panel3, { Size = UDim2.fromOffset(70, 24), Position = UDim2.new(1, -82, 0, 8), TextSize = 11, ZIndex = 27, Parent = head })
 	local title = UIKit.label({ Text = "", Font = UIKit.FontHeavy, TextSize = 18, Size = UDim2.new(1, -24, 0, 22), Position = UDim2.fromOffset(12, 40), ZIndex = 26, Parent = card })
 	local body = UIKit.label({ Text = "", TextSize = 14, TextColor3 = C.Muted, TextWrapped = true, TextYAlignment = Enum.TextYAlignment.Top, Size = UDim2.new(1, -24, 0, 60), Position = UDim2.fromOffset(12, 64), ZIndex = 26, Parent = card })
 	local nextBtn = UIKit.button("NEXT ›", C.Good, { Size = UDim2.fromOffset(90, 28), Position = UDim2.new(1, -102, 1, -36), ZIndex = 27, Parent = card })

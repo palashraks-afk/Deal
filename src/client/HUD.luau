@@ -37,31 +37,33 @@ function HUD.start(menus)
 		end)
 	end
 
-	------------------------------------------------ license plate
-	local plate = new("Frame", {
-		Name = "Plate",
-		Size = UDim2.fromOffset(300, 86),
-		Position = UDim2.new(0.5, 0, 0, 24),
-		AnchorPoint = Vector2.new(0.5, 0),
-		BackgroundColor3 = Color3.fromRGB(248, 244, 228),
-		Parent = screen,
-	}, { UIKit.corner(12), UIKit.stroke(Color3.fromRGB(20, 22, 30), 4) })
-	new("UIGradient", { Color = ColorSequence.new(Color3.fromRGB(255, 255, 250), Color3.fromRGB(220, 214, 196)), Rotation = 90, Parent = plate })
-	for _, x in { 12, 276 } do
-		new("Frame", { Size = UDim2.fromOffset(10, 10), Position = UDim2.fromOffset(x, 8), BackgroundColor3 = Color3.fromRGB(150, 150, 150), Parent = plate }, { UIKit.corner(5) })
+	------------------------------------------------ money bar (top centre)
+	-- one frosted glass bar: logo badge, cash, and a rank/income line underneath
+	local function glass(props, radius)
+		local f = new("Frame", props, {
+			UIKit.corner(radius or 16),
+			new("UIStroke", { Color = Color3.new(1, 1, 1), Transparency = 0.85, Thickness = 1 }),
+			new("UIGradient", { Color = ColorSequence.new(Color3.fromRGB(40, 43, 58), Color3.fromRGB(14, 15, 21)), Rotation = 90 }),
+		})
+		f.BackgroundColor3 = Color3.new(1, 1, 1)
+		f.BackgroundTransparency = 0.08
+		return f
 	end
+	local plate = glass({ Name = "Plate", Size = UDim2.fromOffset(380, 72), Position = UDim2.new(0.5, 0, 0, 14), AnchorPoint = Vector2.new(0.5, 0), Parent = screen }, 20)
 	if UIAssets.Logo ~= "" then
-		-- small logo badge sitting on top of the plate
-		new("ImageLabel", { Image = UIAssets.Logo, BackgroundTransparency = 1, ScaleType = Enum.ScaleType.Fit, Size = UDim2.fromOffset(170, 62), Position = UDim2.new(0.5, -85, 0, -46), ZIndex = 3, Parent = plate })
-	else
-		UIKit.label({ Text = "DRIVINDEALZ", Font = UIKit.FontHeavy, TextSize = 13, TextColor3 = Color3.fromRGB(200, 30, 40), Size = UDim2.new(1, 0, 0, 16), Position = UDim2.fromOffset(0, 5), TextXAlignment = Enum.TextXAlignment.Center, Parent = plate })
+		new("ImageLabel", { Image = UIAssets.Logo, BackgroundTransparency = 1, ScaleType = Enum.ScaleType.Fit, Size = UDim2.fromOffset(84, 52), Position = UDim2.fromOffset(10, 10), Parent = plate })
 	end
-	local cash = UIKit.label({ Text = "$0", Font = UIKit.FontMono, TextSize = 38, TextColor3 = Color3.fromRGB(20, 24, 40), Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 20), TextXAlignment = Enum.TextXAlignment.Center, Parent = plate })
-	cash.FontFace = Font.new("rbxasset://fonts/families/RobotoMono.json", Enum.FontWeight.Bold)
-	local rankText = UIKit.label({ Text = "USED LOT", Font = UIKit.FontHeavy, TextSize = 12, TextColor3 = Color3.fromRGB(60, 70, 110), Size = UDim2.new(1, 0, 0, 16), Position = UDim2.fromOffset(0, 64), TextXAlignment = Enum.TextXAlignment.Center, Parent = plate })
-
-	local incomePill = new("Frame", { Size = UDim2.fromOffset(150, 26), Position = UDim2.new(0.5, 0, 0, 114), AnchorPoint = Vector2.new(0.5, 0), BackgroundColor3 = C.Panel, Parent = screen }, { UIKit.corner(13), UIKit.stroke(C.Good, 1.5) })
-	local incomeText = UIKit.label({ Text = "+$0/s", Font = UIKit.FontHeavy, TextSize = 15, TextColor3 = C.Good, Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Center, Parent = incomePill })
+	-- thin gold accent line along the bottom edge
+	new("Frame", { Size = UDim2.new(1, -40, 0, 2), Position = UDim2.new(0, 20, 1, -2), BackgroundColor3 = C.Accent, BorderSizePixel = 0, Parent = plate }, {
+		new("UIGradient", { Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0), NumberSequenceKeypoint.new(1, 1) }) }),
+	})
+	local cash = UIKit.label({ Text = "$0", Font = UIKit.FontHeavy, TextSize = 32, TextColor3 = Color3.new(1, 1, 1), Size = UDim2.new(1, -110, 0, 36), Position = UDim2.fromOffset(100, 8), Parent = plate })
+	cash.TextXAlignment = Enum.TextXAlignment.Left
+	local rankText = UIKit.label({ Text = "USED LOT", Font = UIKit.FontHeavy, TextSize = 11, TextColor3 = C.Muted, Size = UDim2.new(1, -200, 0, 14), Position = UDim2.fromOffset(101, 44), TextTruncate = Enum.TextTruncate.AtEnd, Parent = plate })
+	-- income lives inside the bar now, as a small green chip on the right
+	-- bottom-right of the bar, beside the rank line, so it never covers a big cash number
+	local incomePill = new("Frame", { Size = UDim2.fromOffset(78, 18), Position = UDim2.new(1, -12, 0, 42), AnchorPoint = Vector2.new(1, 0), BackgroundColor3 = C.Good, BackgroundTransparency = 0.82, Parent = plate }, { UIKit.corner(9) })
+	local incomeText = UIKit.label({ Text = "+$0/s", Font = UIKit.FontHeavy, TextSize = 12, TextColor3 = C.Good, Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Center, Parent = incomePill })
 
 	local shownCash, lastTarget = 0, 0
 	RunService.RenderStepped:Connect(function(dt)
@@ -85,7 +87,8 @@ function HUD.start(menus)
 		local e = State.Effects
 		local idx, rank = Upgrades.rank(e.baseCount)
 		rankText.Text = ("%s  •  %d/110 UPGRADES"):format(string.upper(rank), e.baseCount)
-		rankText.TextColor3 = ({ Color3.fromRGB(60, 70, 110), Color3.fromRGB(30, 120, 60), Color3.fromRGB(30, 90, 170), Color3.fromRGB(120, 50, 180), Color3.fromRGB(190, 30, 50), Color3.fromRGB(180, 130, 10) })[idx]
+		-- bright rank colours that read on the dark glass bar
+		rankText.TextColor3 = ({ Color3.fromRGB(170, 178, 200), Color3.fromRGB(110, 230, 150), Color3.fromRGB(110, 180, 255), Color3.fromRGB(190, 130, 255), Color3.fromRGB(255, 110, 130), Color3.fromRGB(255, 205, 80) })[idx]
 	end)
 
 	------------------------------------------------ dock
@@ -100,22 +103,32 @@ function HUD.start(menus)
 		{ "🔧", "UPGRADES", "U", C.Good, menus.Upgrades, UIAssets.IconUpgrades },
 		{ "🏭", "FACTORY", "J", Color3.fromRGB(255, 140, 40), menus.Factory, UIAssets.IconFactory },
 	} do
-		local tile = new("TextButton", { Size = UDim2.fromOffset(76, 80), BackgroundColor3 = C.Panel, Text = "", AutoButtonColor = false, LayoutOrder = i, ClipsDescendants = true, Parent = dock }, { UIKit.corner(14), UIKit.stroke(def[4], 2) })
-		new("UIGradient", { Color = ColorSequence.new(def[4]:Lerp(C.Panel, 0.65), C.Panel), Rotation = 90, Parent = tile })
-		new("Frame", { Size = UDim2.new(1, 0, 0, 5), Position = UDim2.new(0, 0, 1, -5), BackgroundColor3 = def[4], BorderSizePixel = 0, Parent = tile })
+		-- frosted glass tile: icon on a soft coloured disc, white label, key hint chip
+		local tile = new("TextButton", { Size = UDim2.fromOffset(72, 76), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.08, Text = "", AutoButtonColor = false, LayoutOrder = i, Parent = dock }, {
+			UIKit.corner(18),
+			new("UIStroke", { Color = Color3.new(1, 1, 1), Transparency = 0.86, Thickness = 1 }),
+			new("UIGradient", { Color = ColorSequence.new(Color3.fromRGB(40, 43, 58), Color3.fromRGB(14, 15, 21)), Rotation = 90 }),
+		})
+		local disc = new("Frame", { Size = UDim2.fromOffset(46, 46), Position = UDim2.new(0.5, -23, 0, 7), BackgroundColor3 = def[4], BackgroundTransparency = 0.78, Parent = tile }, { UIKit.corner(23) })
 		if def[6] ~= "" then
-			new("ImageLabel", { Image = def[6], BackgroundTransparency = 1, ScaleType = Enum.ScaleType.Fit, Size = UDim2.fromOffset(50, 46), Position = UDim2.new(0.5, -25, 0, 3), Parent = tile })
+			new("ImageLabel", { Image = def[6], BackgroundTransparency = 1, ScaleType = Enum.ScaleType.Fit, Size = UDim2.fromOffset(38, 38), Position = UDim2.fromOffset(4, 4), Parent = disc })
 		else
-			UIKit.label({ Text = def[1], TextSize = 30, Size = UDim2.new(1, 0, 0, 42), Position = UDim2.fromOffset(0, 6), TextXAlignment = Enum.TextXAlignment.Center, Parent = tile })
+			UIKit.label({ Text = def[1], TextSize = 24, Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Center, Parent = disc })
 		end
-		UIKit.label({ Text = def[2], Font = UIKit.FontHeavy, TextSize = 11, TextColor3 = def[4], Size = UDim2.new(1, 0, 0, 14), Position = UDim2.fromOffset(0, 50), TextXAlignment = Enum.TextXAlignment.Center, Parent = tile })
-		UIKit.label({ Text = def[3], Font = UIKit.FontHeavy, TextSize = 10, TextColor3 = C.Muted, Size = UDim2.fromOffset(16, 14), Position = UDim2.fromOffset(4, 3), Parent = tile })
+		UIKit.label({ Text = def[2], Font = UIKit.FontHeavy, TextSize = 10, TextColor3 = Color3.fromRGB(235, 238, 245), Size = UDim2.new(1, 0, 0, 14), Position = UDim2.fromOffset(0, 56), TextXAlignment = Enum.TextXAlignment.Center, Parent = tile })
+		local keyChip = new("Frame", { Size = UDim2.fromOffset(16, 16), Position = UDim2.fromOffset(4, 4), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.88, Parent = tile }, { UIKit.corner(5) })
+		UIKit.label({ Text = def[3], Font = UIKit.FontHeavy, TextSize = 10, TextColor3 = C.Muted, Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Center, Parent = keyChip })
 		local s = new("UIScale", { Parent = tile })
+		local stroke = tile:FindFirstChildOfClass("UIStroke")
 		tile.MouseEnter:Connect(function()
-			TweenService:Create(s, TweenInfo.new(0.12), { Scale = 1.1 }):Play()
+			TweenService:Create(s, TweenInfo.new(0.14, Enum.EasingStyle.Quad), { Scale = 1.06 }):Play()
+			TweenService:Create(disc, TweenInfo.new(0.14), { BackgroundTransparency = 0.55 }):Play()
+			TweenService:Create(stroke, TweenInfo.new(0.14), { Color = def[4], Transparency = 0.3 }):Play()
 		end)
 		tile.MouseLeave:Connect(function()
-			TweenService:Create(s, TweenInfo.new(0.12), { Scale = 1 }):Play()
+			TweenService:Create(s, TweenInfo.new(0.14, Enum.EasingStyle.Quad), { Scale = 1 }):Play()
+			TweenService:Create(disc, TweenInfo.new(0.14), { BackgroundTransparency = 0.78 }):Play()
+			TweenService:Create(stroke, TweenInfo.new(0.14), { Color = Color3.new(1, 1, 1), Transparency = 0.86 }):Play()
 		end)
 		tile.Activated:Connect(def[5].toggle)
 	end
@@ -126,9 +139,14 @@ function HUD.start(menus)
 	local function toast(info)
 		local big = info.big
 		local color = info.color or C.Text
-		local t = new("Frame", { Size = UDim2.fromOffset(big and 520 or 430, big and 46 or 36), BackgroundColor3 = C.Panel, BackgroundTransparency = 0.05, ClipsDescendants = true, Parent = toasts }, { UIKit.corner(9), UIKit.stroke(color, big and 2.5 or 1.5) })
-		new("Frame", { Size = UDim2.new(0, 6, 1, 0), BackgroundColor3 = color, BorderSizePixel = 0, Parent = t })
-		local text = UIKit.label({ Text = info.text, Font = big and UIKit.FontHeavy or UIKit.Font, TextSize = big and 19 or 15, TextColor3 = color, TextWrapped = true, Size = UDim2.new(1, -24, 1, 0), Position = UDim2.fromOffset(16, 0), Parent = t })
+		-- frosted pill with a coloured dot; text in white so it's easy to read
+		local t = new("Frame", { Size = UDim2.fromOffset(big and 520 or 420, big and 46 or 38), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.1, Parent = toasts }, {
+			UIKit.corner(big and 23 or 19),
+			new("UIStroke", { Color = color, Transparency = 0.55, Thickness = 1 }),
+			new("UIGradient", { Color = ColorSequence.new(Color3.fromRGB(38, 41, 55), Color3.fromRGB(14, 15, 21)), Rotation = 90 }),
+		})
+		new("Frame", { Size = UDim2.fromOffset(10, 10), Position = UDim2.new(0, 16, 0.5, -5), BackgroundColor3 = color, Parent = t }, { UIKit.corner(5) })
+		local text = UIKit.label({ Text = info.text, Font = big and UIKit.FontHeavy or UIKit.Font, TextSize = big and 18 or 14, TextColor3 = big and color or Color3.fromRGB(238, 240, 246), TextWrapped = true, Size = UDim2.new(1, -52, 1, 0), Position = UDim2.fromOffset(36, 0), Parent = t })
 		local s = new("UIScale", { Scale = 0.6, Parent = t })
 		TweenService:Create(s, TweenInfo.new(0.25, Enum.EasingStyle.Back), { Scale = 1 }):Play()
 		task.delay(big and 6 or 4, function()
@@ -152,7 +170,7 @@ function HUD.start(menus)
 	State.Toast.Event:Connect(toast)
 
 	------------------------------------------------ speedometer
-	local gauge = new("Frame", { Name = "Gauge", Size = UDim2.fromOffset(190, 190), Position = UDim2.new(1, -18, 1, -18), AnchorPoint = Vector2.new(1, 1), BackgroundColor3 = C.Panel, Visible = false, Parent = screen }, { UIKit.corner(95), UIKit.stroke(C.Accent, 3) })
+	local gauge = new("Frame", { Name = "Gauge", Size = UDim2.fromOffset(190, 190), Position = UDim2.new(1, -18, 1, -18), AnchorPoint = Vector2.new(1, 1), BackgroundColor3 = C.Panel, BackgroundTransparency = 0.08, Visible = false, Parent = screen }, { UIKit.corner(95), new("UIStroke", { Color = Color3.new(1, 1, 1), Transparency = 0.8, Thickness = 1.5 }) })
 	new("UIGradient", { Color = ColorSequence.new(Color3.fromRGB(34, 36, 48), Color3.fromRGB(8, 8, 12)), Rotation = 90, Parent = gauge })
 	-- tick marks
 	for i = 0, 10 do
@@ -166,7 +184,7 @@ function HUD.start(menus)
 	new("Frame", { Size = UDim2.fromOffset(14, 14), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), BackgroundColor3 = C.Accent, Parent = gauge }, { UIKit.corner(7) })
 	local speedText = UIKit.label({ Text = "0", Font = UIKit.FontHeavy, TextSize = 36, Size = UDim2.new(1, 0, 0, 36), Position = UDim2.new(0, 0, 0.5, 18), TextXAlignment = Enum.TextXAlignment.Center, Parent = gauge })
 	UIKit.label({ Text = "KM/H", Font = UIKit.FontHeavy, TextSize = 11, TextColor3 = C.Muted, Size = UDim2.new(1, 0, 0, 14), Position = UDim2.new(0, 0, 0.5, 54), TextXAlignment = Enum.TextXAlignment.Center, Parent = gauge })
-	local carPanel = new("Frame", { Size = UDim2.fromOffset(250, 58), Position = UDim2.new(1, -216, 1, -18), AnchorPoint = Vector2.new(1, 1), BackgroundColor3 = C.Panel, Visible = false, Parent = screen }, { UIKit.corner(10), UIKit.stroke() })
+	local carPanel = new("Frame", { Size = UDim2.fromOffset(250, 58), Position = UDim2.new(1, -216, 1, -18), AnchorPoint = Vector2.new(1, 1), BackgroundColor3 = C.Panel, BackgroundTransparency = 0.08, Visible = false, Parent = screen }, { UIKit.corner(16), new("UIStroke", { Color = Color3.new(1, 1, 1), Transparency = 0.85, Thickness = 1 }) })
 	local carName = UIKit.label({ Text = "", Font = UIKit.FontHeavy, TextSize = 15, Size = UDim2.new(1, -20, 0, 20), Position = UDim2.fromOffset(10, 6), TextTruncate = Enum.TextTruncate.AtEnd, Parent = carPanel })
 	local hpBack = new("Frame", { Size = UDim2.new(1, -20, 0, 10), Position = UDim2.fromOffset(10, 30), BackgroundColor3 = C.Panel3, Parent = carPanel }, { UIKit.corner(5) })
 	local hp = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = C.Good, Parent = hpBack }, { UIKit.corner(5) })
