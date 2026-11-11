@@ -1203,6 +1203,232 @@ local function buildFill(map)
 	return placed
 end
 
+---------------------------------------------------------------- STREET LIFE
+-- Traffic lights that actually cycle, stop signs, bus stops, hydrants, bins, and
+-- real cars parked along downtown streets.
+local DT_XS = { -480, -320, -160, 0, 160, 320, 480 } -- downtown north-south streets
+local DT_ZS = { -1280, -1120, -960, -800, -640, -480, -400 } -- downtown east-west streets
+local SUB_XS = { -1900, -1600, -1300, -1000, -750 }
+local SUB_ZS = { -1260, -1060, -860, -660, -460 }
+WorldBuilder.TrafficLamps = {} -- { part, axis = "X"|"Z", color = "R"|"Y"|"G" }
+
+local LAMP_ON = { R = Color3.fromRGB(255, 40, 30), Y = Color3.fromRGB(255, 190, 30), G = Color3.fromRGB(40, 255, 90) }
+local LAMP_OFF = Color3.fromRGB(28, 28, 30)
+
+local function blockedAt(cf: CFrame, size: Vector3, params): boolean
+	for _, p in workspace:GetPartBoundsInBox(cf * CFrame.new(0, size.Y / 2, 0), size, params) do
+		if p.Transparency < 1 and p.Name ~= "Road" and p.Name ~= "Line" and p.Name ~= "Sidewalk" and not p.Name:find("Ground") then
+			return true
+		end
+	end
+	return false
+end
+
+-- one signal pole on the corner, with a head facing each direction of traffic
+-- sx, sz: which corner of the junction the pole stands on (+1/-1); the arms reach back
+-- over the two roads toward the junction centre
+local function trafficLight(parent, corner: Vector3, sx: number, sz: number)
+	local m = make("Model", { Name = "TrafficLight" }, parent)
+	local grey = Color3.fromRGB(58, 60, 64)
+	make("Part", { Size = Vector3.new(0.9, 18, 0.9), Position = corner + Vector3.new(0, 9, 0), Material = Enum.Material.Metal, Color = grey }, m)
+	for _, arm in { { axis = "X", dir = Vector3.new(0, 0, -sz) }, { axis = "Z", dir = Vector3.new(-sx, 0, 0) } } do
+		local reach = 12
+		local tip = corner + Vector3.new(0, 17, 0) + arm.dir * reach
+		make("Part", { Size = Vector3.new(0.5, 0.5, reach), CFrame = CFrame.lookAt(corner + Vector3.new(0, 17, 0) + arm.dir * reach / 2, tip), Material = Enum.Material.Metal, Color = grey }, m)
+		-- the head faces traffic travelling along the OTHER road axis
+		local face = arm.axis == "X" and Vector3.new(1, 0, 0) or Vector3.new(0, 0, 1)
+		local headCf = CFrame.lookAt(tip + Vector3.new(0, -2.6, 0), tip + Vector3.new(0, -2.6, 0) + face)
+		make("Part", { Size = Vector3.new(1.6, 4.6, 1.2), CFrame = headCf, Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(20, 20, 22) }, m)
+		for i, c in { "R", "Y", "G" } do
+			for _, side in { -1, 1 } do -- lamps on both faces so both directions see them
+				local lamp = make("Part", { Name = "Lamp" .. c, Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.25, 1.1, 1.1), CFrame = headCf * CFrame.new(0, 1.4 - (i - 1) * 1.4, side * -0.62) * CFrame.Angles(0, math.pi / 2, 0), Material = Enum.Material.SmoothPlastic, Color = LAMP_OFF, CanCollide = false, CastShadow = false }, m)
+				table.insert(WorldBuilder.TrafficLamps, { part = lamp, axis = arm.axis == "X" and "X" or "Z", color = c })
+			end
+		end
+	end
+end
+
+local function stopSign(parent, pos: Vector3, facing: Vector3)
+	local m = make("Model", { Name = "StopSign" }, parent)
+	make("Part", { Size = Vector3.new(0.3, 8, 0.3), Position = pos + Vector3.new(0, 4, 0), Material = Enum.Material.Metal, Color = Color3.fromRGB(150, 150, 152) }, m)
+	local face = make("Part", { Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.2, 3, 3), CFrame = CFrame.lookAt(pos + Vector3.new(0, 8, 0), pos + Vector3.new(0, 8, 0) + facing) * CFrame.Angles(0, math.pi / 2, 0), Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(200, 20, 24) }, m)
+	signText(face, Enum.NormalId.Left, "STOP", Color3.new(1, 1, 1), Vector2.new(120, 120))
+end
+
+local function busStop(parent, cf: CFrame)
+	local m = make("Model", { Name = "BusStop" }, parent)
+	local glass = Color3.fromRGB(170, 200, 215)
+	make("Part", { Size = Vector3.new(10, 0.4, 4.5), CFrame = cf * CFrame.new(0, 8.2, 0), Material = Enum.Material.Metal, Color = Color3.fromRGB(40, 44, 52) }, m)
+	make("Part", { Size = Vector3.new(10, 7.6, 0.2), CFrame = cf * CFrame.new(0, 4.3, 2.1), Material = Enum.Material.Glass, Color = glass, Transparency = 0.5 }, m)
+	for _, x in { -5, 5 } do
+		make("Part", { Size = Vector3.new(0.3, 8, 0.3), CFrame = cf * CFrame.new(x, 4, 2), Material = Enum.Material.Metal, Color = Color3.fromRGB(40, 44, 52) }, m)
+	end
+	make("Part", { Size = Vector3.new(7, 0.4, 1.4), CFrame = cf * CFrame.new(0, 1.8, 1.2), Material = Enum.Material.Wood, Color = Color3.fromRGB(120, 86, 56) }, m)
+	local ad = make("Part", { Size = Vector3.new(3.6, 6, 0.3), CFrame = cf * CFrame.new(-6.8, 3.6, 2), Material = Enum.Material.Neon, Color = Color3.fromRGB(240, 240, 250), Transparency = 0.1 }, m)
+	signText(ad, Enum.NormalId.Front, "DRIVIN DEALZ\nCARS FOR LESS", Color3.fromRGB(220, 40, 60), Vector2.new(150, 250))
+	local sign = make("Part", { Size = Vector3.new(2, 1.4, 0.2), CFrame = cf * CFrame.new(6.5, 9.5, -0.5), Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(30, 90, 180) }, m)
+	signText(sign, Enum.NormalId.Front, "BUS", Color3.new(1, 1, 1), Vector2.new(100, 70))
+	make("Part", { Size = Vector3.new(0.25, 10, 0.25), CFrame = cf * CFrame.new(6.5, 5, -0.5), Material = Enum.Material.Metal, Color = Color3.fromRGB(150, 150, 152) }, m)
+end
+
+local function hydrant(parent, pos: Vector3)
+	make("Part", { Name = "Hydrant", Shape = Enum.PartType.Cylinder, Size = Vector3.new(2.4, 1.1, 1.1), CFrame = CFrame.new(pos + Vector3.new(0, 1.2, 0)) * CFrame.Angles(0, 0, math.pi / 2), Material = Enum.Material.Metal, Color = Color3.fromRGB(200, 30, 30) }, parent)
+	make("Part", { Shape = Enum.PartType.Ball, Size = Vector3.one * 1.1, Position = pos + Vector3.new(0, 2.4, 0), Material = Enum.Material.Metal, Color = Color3.fromRGB(200, 30, 30) }, parent)
+end
+
+local function bin(parent, pos: Vector3)
+	make("Part", { Name = "Bin", Shape = Enum.PartType.Cylinder, Size = Vector3.new(3, 2, 2), CFrame = CFrame.new(pos + Vector3.new(0, 1.5, 0)) * CFrame.Angles(0, 0, math.pi / 2), Material = Enum.Material.Metal, Color = Color3.fromRGB(40, 70, 50) }, parent)
+end
+
+local function buildStreetLife(map)
+	local f = make("Folder", { Name = "StreetLife" }, map)
+	local params = OverlapParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = { map }
+	local half = ROAD_W / 2
+	local counts = { lights = 0, stops = 0, bus = 0, parked = 0 }
+
+	-- traffic lights on downtown junctions and where the avenues cross the boulevard
+	local junctions = {}
+	for _, x in DT_XS do
+		for _, z in DT_ZS do
+			table.insert(junctions, Vector3.new(x, 0, z))
+		end
+	end
+	for _, x in AVENUE_X do
+		table.insert(junctions, Vector3.new(x, 0, 0))
+	end
+	for _, j in junctions do
+		if not inPlotArea(j.X, j.Z, 20) then
+			-- first free corner wins (corners often already have a street lamp)
+			local placed = false
+			for _, c in { { 1, 1 }, { -1, -1 }, { 1, -1 }, { -1, 1 } } do
+				for _, inset in { 3, 5.5 } do
+					local corner = j + Vector3.new(c[1] * (half + inset), 0.6, c[2] * (half + inset))
+					if not blockedAt(CFrame.new(corner), Vector3.new(2, 10, 2), params) then
+						trafficLight(f, corner, c[1], c[2])
+						counts.lights += 1
+						placed = true
+						break
+					end
+				end
+				if placed then
+					break
+				end
+			end
+		end
+	end
+
+	-- stop signs at suburban crossroads
+	for _, x in SUB_XS do
+		for _, z in SUB_ZS do
+			local pos = Vector3.new(x + half + 2, 0, z + half + 2)
+			if not inPlotArea(x, z, 20) and not blockedAt(CFrame.new(pos), Vector3.new(2, 8, 2), params) then
+				stopSign(f, pos, Vector3.new(0, 0, 1))
+				counts.stops += 1
+			end
+		end
+	end
+
+	-- bus stops, hydrants and bins along both boulevard sidewalks
+	local BOUL = (ROAD_W + 10) / 2
+	for _, s in { -1, 1 } do
+		for x = -1750, 1750, 500 do
+			local cf = CFrame.new(x, 0.5, s * (BOUL + 7)) * CFrame.Angles(0, s == -1 and math.pi or 0, 0)
+			if not blockedAt(cf, Vector3.new(12, 9, 5), params) then
+				busStop(f, cf)
+				bin(f, (cf * CFrame.new(-9, 0, 1)).Position)
+				counts.bus += 1
+			end
+		end
+		for x = -1900, 1900, 130 do
+			local p = Vector3.new(x + 40, 0.5, s * (BOUL + 2))
+			if not blockedAt(CFrame.new(p), Vector3.new(2, 3, 2), params) then
+				hydrant(f, p)
+			end
+		end
+	end
+
+	-- real cars parked along the downtown streets (kerb lane, both sides)
+	local ok, CarBuilder = pcall(require, game:GetService("ReplicatedStorage").Shared.CarBuilder)
+	local ok2, Cars = pcall(require, game:GetService("ReplicatedStorage").Shared.Cars)
+	if ok and ok2 then
+		local assets = ServerStorage:FindFirstChild("Assets")
+		local folder = assets and assets:FindFirstChild("Cars")
+		-- everyday cars with real (imported) models, not too many parts
+		local pool = {}
+		for _, c in Cars.List do
+			local t = folder and folder:FindFirstChild("Car_" .. c.id)
+			if t and t:GetAttribute("Uniform") and (c.rarity == "Common" or c.rarity == "Uncommon" or c.rarity == "Rare") and #t:GetDescendants() < 400 then
+				table.insert(pool, c)
+			end
+		end
+		local parked = make("Folder", { Name = "ParkedCars" }, f)
+		for zi, z in DT_ZS do
+			-- parking on one side only (alternating street to street), so there's always
+			-- a full-width lane to drive down
+			for _, s in { zi % 2 == 0 and 1 or -1 } do
+				for x = -600, 600, 34 do
+					local nearJunction = false
+					for _, jx in DT_XS do
+						if math.abs(x - jx) < half + 14 then
+							nearJunction = true
+						end
+					end
+					if not nearJunction and #pool > 0 and counts.parked < 45 and rng:NextNumber() < 0.55 and not inPlotArea(x, z, 10) then
+						local cf = CFrame.new(x, 0.3, z + s * (half - 5)) * CFrame.Angles(0, s == 1 and -math.pi / 2 or math.pi / 2, 0)
+						if not blockedAt(cf, Vector3.new(9, 6, 22), params) then
+							local stats = pool[rng:NextInteger(1, #pool)]
+							local built, model = pcall(CarBuilder.build, stats, Color3.new(1, 1, 1), { drivable = false })
+							if built and model then
+								-- face along the street, then drop it so the tyres sit on the road
+								model:PivotTo(cf)
+								local bb, size = model:GetBoundingBox()
+								-- tuck it against the kerb by its real width, so the lane stays clear
+								local kerbZ = z + s * (half - 0.4 - size.X / 2)
+								model:PivotTo(model:GetPivot() + Vector3.new(0, cf.Position.Y - (bb.Position.Y - size.Y / 2), kerbZ - bb.Position.Z))
+								model.Name = "Parked_" .. stats.id
+								model.Parent = parked
+								counts.parked += 1
+							end
+						end
+					end
+				end
+				task.wait()
+			end
+		end
+	end
+	return counts
+end
+
+-- Traffic light cycle: east-west green, then yellow, then north-south green...
+function WorldBuilder.startTrafficLights()
+	task.spawn(function()
+		local phase = 0
+		while true do
+			local greenAxis = (phase % 2 == 0) and "X" or "Z"
+			for _, step in { "G", "Y", "R" } do
+				for _, l in WorldBuilder.TrafficLamps do
+					local lit
+					if l.axis == greenAxis then
+						lit = l.color == step
+					else
+						lit = l.color == "R"
+					end
+					if step == "R" then
+						-- all-red moment before the other way goes
+						lit = l.color == "R"
+					end
+					l.part.Color = lit and LAMP_ON[l.color] or LAMP_OFF
+					l.part.Material = lit and Enum.Material.Neon or Enum.Material.SmoothPlastic
+				end
+				task.wait(step == "G" and 8 or (step == "Y" and 2 or 1))
+			end
+			phase += 1
+		end
+	end)
+end
+
 ---------------------------------------------------------------- plots
 local function buildPlots(map)
 	local plots = make("Folder", { Name = "Plots" }, map)
@@ -1277,6 +1503,9 @@ function WorldBuilder.build()
 	-- needs the map in Workspace so it can see what's already there
 	local filled = buildFill(map)
 	print(("[DrivinDealz] filled %d empty spots"):format(filled))
+	local life = buildStreetLife(map)
+	print(("[DrivinDealz] street life: %d traffic lights, %d stop signs, %d bus stops, %d parked cars"):format(life.lights, life.stops, life.bus, life.parked))
+	WorldBuilder.startTrafficLights()
 
 	local spawn = make("SpawnLocation", { Name = "Spawn", Size = Vector3.new(16, 1, 16), Position = Vector3.new(0, 0.7, 0), Transparency = 1, CanCollide = false, Neutral = true, Duration = 0 }, workspace)
 	spawn.Enabled = true
