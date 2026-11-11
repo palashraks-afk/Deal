@@ -9,6 +9,7 @@ local Config = require(Shared.Config)
 local Cars = require(Shared.Cars)
 local Net = require(Shared.Net)
 local Upgrades = require(Shared.Upgrades)
+local UIAssets = require(Shared.UIAssets)
 
 local UIKit = require(script.Parent.UIKit)
 local State = require(script.Parent.State)
@@ -23,11 +24,24 @@ local HUD = {}
 function HUD.start(menus)
 	local screen = UIKit.screen()
 
+	------------------------------------------------ logo splash when you join
+	if UIAssets.Logo ~= "" then
+		local splash = new("ImageLabel", { Name = "Splash", Image = UIAssets.Logo, BackgroundTransparency = 1, ScaleType = Enum.ScaleType.Fit, Size = UDim2.fromOffset(620, 350), Position = UDim2.fromScale(0.5, 0.42), AnchorPoint = Vector2.new(0.5, 0.5), ZIndex = 50, Parent = screen })
+		local s = new("UIScale", { Scale = 0.6, Parent = splash })
+		TweenService:Create(s, TweenInfo.new(0.6, Enum.EasingStyle.Back), { Scale = 1 }):Play()
+		task.delay(3.2, function()
+			local tw = TweenService:Create(splash, TweenInfo.new(0.6), { ImageTransparency = 1 })
+			tw:Play()
+			tw.Completed:Wait()
+			splash:Destroy()
+		end)
+	end
+
 	------------------------------------------------ license plate
 	local plate = new("Frame", {
 		Name = "Plate",
 		Size = UDim2.fromOffset(300, 86),
-		Position = UDim2.new(0.5, 0, 0, 8),
+		Position = UDim2.new(0.5, 0, 0, 24),
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundColor3 = Color3.fromRGB(248, 244, 228),
 		Parent = screen,
@@ -36,12 +50,17 @@ function HUD.start(menus)
 	for _, x in { 12, 276 } do
 		new("Frame", { Size = UDim2.fromOffset(10, 10), Position = UDim2.fromOffset(x, 8), BackgroundColor3 = Color3.fromRGB(150, 150, 150), Parent = plate }, { UIKit.corner(5) })
 	end
-	UIKit.label({ Text = "DRIVINDEALZ", Font = UIKit.FontHeavy, TextSize = 13, TextColor3 = Color3.fromRGB(200, 30, 40), Size = UDim2.new(1, 0, 0, 16), Position = UDim2.fromOffset(0, 5), TextXAlignment = Enum.TextXAlignment.Center, Parent = plate })
+	if UIAssets.Logo ~= "" then
+		-- small logo badge sitting on top of the plate
+		new("ImageLabel", { Image = UIAssets.Logo, BackgroundTransparency = 1, ScaleType = Enum.ScaleType.Fit, Size = UDim2.fromOffset(170, 62), Position = UDim2.new(0.5, -85, 0, -46), ZIndex = 3, Parent = plate })
+	else
+		UIKit.label({ Text = "DRIVINDEALZ", Font = UIKit.FontHeavy, TextSize = 13, TextColor3 = Color3.fromRGB(200, 30, 40), Size = UDim2.new(1, 0, 0, 16), Position = UDim2.fromOffset(0, 5), TextXAlignment = Enum.TextXAlignment.Center, Parent = plate })
+	end
 	local cash = UIKit.label({ Text = "$0", Font = UIKit.FontMono, TextSize = 38, TextColor3 = Color3.fromRGB(20, 24, 40), Size = UDim2.new(1, 0, 0, 40), Position = UDim2.fromOffset(0, 20), TextXAlignment = Enum.TextXAlignment.Center, Parent = plate })
 	cash.FontFace = Font.new("rbxasset://fonts/families/RobotoMono.json", Enum.FontWeight.Bold)
 	local rankText = UIKit.label({ Text = "USED LOT", Font = UIKit.FontHeavy, TextSize = 12, TextColor3 = Color3.fromRGB(60, 70, 110), Size = UDim2.new(1, 0, 0, 16), Position = UDim2.fromOffset(0, 64), TextXAlignment = Enum.TextXAlignment.Center, Parent = plate })
 
-	local incomePill = new("Frame", { Size = UDim2.fromOffset(150, 26), Position = UDim2.new(0.5, 0, 0, 98), AnchorPoint = Vector2.new(0.5, 0), BackgroundColor3 = C.Panel, Parent = screen }, { UIKit.corner(13), UIKit.stroke(C.Good, 1.5) })
+	local incomePill = new("Frame", { Size = UDim2.fromOffset(150, 26), Position = UDim2.new(0.5, 0, 0, 114), AnchorPoint = Vector2.new(0.5, 0), BackgroundColor3 = C.Panel, Parent = screen }, { UIKit.corner(13), UIKit.stroke(C.Good, 1.5) })
 	local incomeText = UIKit.label({ Text = "+$0/s", Font = UIKit.FontHeavy, TextSize = 15, TextColor3 = C.Good, Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Center, Parent = incomePill })
 
 	local shownCash, lastTarget = 0, 0
@@ -76,14 +95,19 @@ function HUD.start(menus)
 	dl.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	dl.VerticalAlignment = Enum.VerticalAlignment.Center
 	for i, def in {
-		{ "🚗", "GARAGE", "B", C.Blue, menus.Garage },
-		{ "🏷️", "SHOP", "N", C.Accent, menus.Shop },
-		{ "🔧", "UPGRADES", "U", C.Good, menus.Upgrades },
-		{ "🏭", "FACTORY", "J", Color3.fromRGB(255, 140, 40), menus.Factory },
+		{ "🚗", "GARAGE", "B", C.Blue, menus.Garage, UIAssets.IconGarage },
+		{ "🏷️", "SHOP", "N", C.Accent, menus.Shop, UIAssets.IconShop },
+		{ "🔧", "UPGRADES", "U", C.Good, menus.Upgrades, UIAssets.IconUpgrades },
+		{ "🏭", "FACTORY", "J", Color3.fromRGB(255, 140, 40), menus.Factory, UIAssets.IconFactory },
 	} do
 		local tile = new("TextButton", { Size = UDim2.fromOffset(76, 80), BackgroundColor3 = C.Panel, Text = "", AutoButtonColor = false, LayoutOrder = i, ClipsDescendants = true, Parent = dock }, { UIKit.corner(14), UIKit.stroke(def[4], 2) })
+		new("UIGradient", { Color = ColorSequence.new(def[4]:Lerp(C.Panel, 0.65), C.Panel), Rotation = 90, Parent = tile })
 		new("Frame", { Size = UDim2.new(1, 0, 0, 5), Position = UDim2.new(0, 0, 1, -5), BackgroundColor3 = def[4], BorderSizePixel = 0, Parent = tile })
-		UIKit.label({ Text = def[1], TextSize = 30, Size = UDim2.new(1, 0, 0, 42), Position = UDim2.fromOffset(0, 6), TextXAlignment = Enum.TextXAlignment.Center, Parent = tile })
+		if def[6] ~= "" then
+			new("ImageLabel", { Image = def[6], BackgroundTransparency = 1, ScaleType = Enum.ScaleType.Fit, Size = UDim2.fromOffset(50, 46), Position = UDim2.new(0.5, -25, 0, 3), Parent = tile })
+		else
+			UIKit.label({ Text = def[1], TextSize = 30, Size = UDim2.new(1, 0, 0, 42), Position = UDim2.fromOffset(0, 6), TextXAlignment = Enum.TextXAlignment.Center, Parent = tile })
+		end
 		UIKit.label({ Text = def[2], Font = UIKit.FontHeavy, TextSize = 11, TextColor3 = def[4], Size = UDim2.new(1, 0, 0, 14), Position = UDim2.fromOffset(0, 50), TextXAlignment = Enum.TextXAlignment.Center, Parent = tile })
 		UIKit.label({ Text = def[3], Font = UIKit.FontHeavy, TextSize = 10, TextColor3 = C.Muted, Size = UDim2.fromOffset(16, 14), Position = UDim2.fromOffset(4, 3), Parent = tile })
 		local s = new("UIScale", { Parent = tile })
@@ -97,7 +121,7 @@ function HUD.start(menus)
 	end
 
 	------------------------------------------------ toasts
-	local toasts = new("Frame", { Name = "Toasts", Size = UDim2.fromOffset(520, 320), Position = UDim2.new(0.5, 0, 0, 134), AnchorPoint = Vector2.new(0.5, 0), BackgroundTransparency = 1, Parent = screen })
+	local toasts = new("Frame", { Name = "Toasts", Size = UDim2.fromOffset(520, 320), Position = UDim2.new(0.5, 0, 0, 150), AnchorPoint = Vector2.new(0.5, 0), BackgroundTransparency = 1, Parent = screen })
 	UIKit.list(toasts, 6).HorizontalAlignment = Enum.HorizontalAlignment.Center
 	local function toast(info)
 		local big = info.big

@@ -455,7 +455,7 @@ function PlotBuilder.buildShell(model: Model, origin: CFrame)
 	end
 
 	-- spawn pad, garage zone, lock, catalogue kiosk, gun rack
-	local spawnPad = make("Part", { Name = "SpawnPad", Size = Vector3.new(24, 0.3, 30), CFrame = at(-22, 1.15, -128), Material = Enum.Material.Neon, Color = Color3.fromRGB(60, 200, 120), Transparency = 0.65, CanCollide = false }, model)
+	local spawnPad = make("Part", { Name = "SpawnPad", Size = Vector3.new(24, 0.3, 30), CFrame = at(-22, 1.15, -128), Material = Enum.Material.SmoothPlastic, Color = Color3.fromRGB(40, 140, 90), Transparency = 0.35, CanCollide = false }, model)
 	label(spawnPad, "CAR SPAWN", Color3.new(1, 1, 1), Enum.NormalId.Top)
 	local zone = make("Part", { Name = "GarageZone", Size = Vector3.new(44, 14, 40), CFrame = at(50, 8, -128), Material = Enum.Material.ForceField, Color = Color3.fromRGB(255, 200, 40), Transparency = 0.75, CanCollide = false, CanQuery = false }, model)
 	label(zone, "GARAGE\ndrive cars here", Color3.fromRGB(255, 220, 80), Enum.NormalId.Top)
@@ -483,7 +483,7 @@ function PlotBuilder.buildShell(model: Model, origin: CFrame)
 	local tagAnchor = blk(model, Vector3.new(1, 1, 1), at(0, wallH + 16, -D / 2), Color3.new(), Enum.Material.SmoothPlastic, { Transparency = 1, CanCollide = false, CanQuery = false })
 	tagAnchor.Name = "TagAnchor"
 	-- sized in studs so it shrinks with distance like a real sign
-	local bb = make("BillboardGui", { Name = "OwnerTag", Size = UDim2.fromScale(44, 9), MaxDistance = 700, LightInfluence = 0 }, tagAnchor)
+	local bb = make("BillboardGui", { Name = "OwnerTag", Size = UDim2.fromScale(32, 6.5), MaxDistance = 700, LightInfluence = 0 }, tagAnchor)
 	local frame = make("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(14, 15, 20), BackgroundTransparency = 0.15 }, bb)
 	make("UICorner", { CornerRadius = UDim.new(0, 12) }, frame)
 	make("UIStroke", { Color = Color3.fromRGB(255, 196, 40), Thickness = 2 }, frame)

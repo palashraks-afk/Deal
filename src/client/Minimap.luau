@@ -28,7 +28,10 @@ function Minimap.start()
 	local worldW, worldD = halfX * 2 + 400, halfZ * 2 + 400
 
 	-- one canvas at 1 px/stud * scale; we just change its scale for small vs big
-	local holder = new("Frame", { Name = "Minimap", Size = UDim2.fromOffset(SMALL_SIZE, SMALL_SIZE), Position = UDim2.new(0, 14, 0, 62), BackgroundColor3 = Color3.fromRGB(60, 90, 60), ClipsDescendants = true, Parent = screen }, { UIKit.corner(16), UIKit.stroke(C.Stroke, 2.5) })
+	-- CanvasGroup so the round GPS shape really clips the map (plain Frames clip square)
+	local holder = new("CanvasGroup", { Name = "Minimap", Size = UDim2.fromOffset(SMALL_SIZE, SMALL_SIZE), Position = UDim2.new(0, 14, 0, 62), BackgroundColor3 = Color3.fromRGB(60, 90, 60), Parent = screen }, { UIKit.corner(SMALL_SIZE / 2) })
+	-- ring drawn outside the clip
+	local ring = new("Frame", { Name = "MinimapRing", Size = UDim2.fromOffset(SMALL_SIZE + 8, SMALL_SIZE + 8), Position = UDim2.new(0, 10, 0, 58), BackgroundTransparency = 1, Parent = screen }, { UIKit.corner(SMALL_SIZE), UIKit.stroke(C.Accent, 3) })
 	local canvas = new("Frame", { Name = "Canvas", BackgroundTransparency = 1, Parent = holder })
 	local scale = SMALL_SCALE
 
@@ -92,7 +95,7 @@ function Minimap.start()
 	me.TextStrokeTransparency = 0
 	local compass = UIKit.label({ Text = "N", Font = UIKit.FontHeavy, TextSize = 15, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.fromOffset(20, 20), Position = UDim2.new(0.5, -10, 0, 4), ZIndex = 21, Parent = holder })
 	compass.TextStrokeTransparency = 0.3
-	local hint = UIKit.label({ Text = "M: big map • click to set a waypoint", Font = UIKit.Font, TextSize = 11, TextColor3 = C.Muted, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.new(1, 0, 0, 14), Position = UDim2.new(0, 0, 1, -16), ZIndex = 21, Parent = holder })
+	local hint = UIKit.label({ Text = "M: map", Font = UIKit.Font, TextSize = 11, TextColor3 = C.Muted, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.new(1, 0, 0, 14), Position = UDim2.new(0, 0, 1, -16), ZIndex = 21, Parent = holder })
 	hint.TextStrokeTransparency = 0.5
 	local wpDot = new("Frame", { Size = UDim2.fromOffset(12, 12), AnchorPoint = Vector2.new(0.5, 0.5), Rotation = 45, BackgroundColor3 = C.Accent, Visible = false, ZIndex = 22, Parent = canvas }, { UIKit.stroke(Color3.new(0, 0, 0), 1.5) })
 
@@ -148,18 +151,23 @@ function Minimap.start()
 	local big = false
 	local function setBig(on: boolean)
 		big = on
+		local corner = holder:FindFirstChildOfClass("UICorner")
 		if on then
 			scale = BIG_SIZE / math.max(worldW, worldD) * 1.0
 			holder.Size = UDim2.fromOffset(worldW * scale, worldD * scale)
 			holder.Position = UDim2.fromScale(0.5, 0.5)
 			holder.AnchorPoint = Vector2.new(0.5, 0.5)
+			corner.CornerRadius = UDim.new(0, 18)
+			ring.Visible = false
 			hint.Text = "Click to set a waypoint • right-click to clear • M to close"
 		else
 			scale = SMALL_SCALE
 			holder.Size = UDim2.fromOffset(SMALL_SIZE, SMALL_SIZE)
 			holder.Position = UDim2.new(0, 14, 0, 62)
 			holder.AnchorPoint = Vector2.new(0, 0)
-			hint.Text = "M: big map • click to set a waypoint"
+			corner.CornerRadius = UDim.new(0, SMALL_SIZE / 2)
+			ring.Visible = true
+			hint.Text = "M: map"
 		end
 		layout()
 		refreshBlips()
